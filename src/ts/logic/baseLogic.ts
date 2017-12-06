@@ -9,6 +9,7 @@
  * 请求类
  * T：请求参数类型
  */
+import { Ajax } from "../framework/data_tool/ajax";
 export class RequestInfo {
 
     public readonly data: any;
@@ -66,6 +67,17 @@ export class BaseLogic {
         }, 0);
     }
     private request(request: RequestInfo, method: string) {
-        // wx.request({ url: request.url, method: method, data: request.data, header: request.header, success: function (result) { request.callback(true, result) }, fail: function (result) { request.callback(false, result) } });
+        new Ajax({
+            url: request.url,
+            async: true,
+            method: method,
+            data: request.data,
+            success: function (result: any) {
+                request.callback && request.callback(true, result);
+            },
+            failure: function (result: any) {
+                request.callback && request.callback(false, result);
+            }
+        });
     }
 }
