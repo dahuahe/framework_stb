@@ -1,38 +1,18 @@
 /**
- * 导航工具
- * 描述：管理本站点或第三方来源地址
- * 依赖：Cookie class
- */
-export class PageSource {
-    private cookie: Cookie;
-    private cookieName: string;
-    constructor(cookieName: string) {
-        this.cookieName = cookieName;
-        this.cookie = new Cookie(this.cookieName);
-    }
-    saveToLocal(url?: string) {
-        let cookie = this.cookie;
-        if (url) {
-            let referrer = cookie.getCookie();
-            referrer || cookie.setCookie(url);
-        } else {
-            let referrer = cookie.getCookie();
-            referrer || cookie.setCookie(document.referrer);
-        }
-    }
-    takeToLocal() {
-        return this.cookie.getCookie();
-    }
-    removeToLocal(): string {
-        let url = this.cookie.getCookie();
-        this.cookie.clearCookie();
-        return url;
-    }
-}
+ * 编辑作者：张诗涛
+ * 创建时间：2017年11月17日11:03:44
+ * 功能分类：数据抽象模块
+ *  * 更新日志：
+ *          时间：2017年11月15日15:03:43
+ *          内容：重构 Extend 调用方式为构造函数
+ * /
+ * 更新日志：FormatTime
+ *          时间：2017年11月28日11:07:33
+ *          内容：重构 FormatTime 调用方式为构造函数
 /**
  * 扩展数据结构
  */
-export class Extend<T> {
+export class Extend {
     private deep: any;
     private target: any;
     private options: any;
@@ -40,8 +20,7 @@ export class Extend<T> {
         this.deep = deep;
         this.target = target;
         this.options = options;
-    }
-    getResult(): T {
+
         var copyIsArray: any;
         var toString = Object.prototype.toString;
         var hasOwn = Object.prototype.hasOwnProperty;
@@ -143,15 +122,6 @@ export class ParseUrl {
         return requestParameters;
     }
 }
-// export class removeUrlParam {
-//     constructor(url) {
-
-//     }
-//     getUrlString(paramName: string) {
-//         const reg = new RegExp(`${paramName}=[^&]*&?&`, 'g');
-//         return url.replace(reg, '');
-//     }
-// }
 export class FormatUrl {
     private url: any;
     private params: any;
@@ -181,73 +151,6 @@ export class FormatUrl {
             url += newUrl.substr(0, newUrl.length - 1);
         }
         return url || null;
-    }
-}
-/**
- * //         参数说明：
-        // name：读取/写入/删除 cookie 的名称
-        // value：需要设置 cookie 的值
-        // opts：其他参数，有效期 expires 单位小时，路径 path，域名 domain，安全性 secure
-        // 返回值：有 cookie 就返回 cookie 的值，没有返回 null
-        // 使用方法：
- 
-        // 写入 cookie
- 
-        // cookie('name', 'zhuyujia');
-        // cookie('age', 29, {expires: 1});
-        // 读取 cookie
- 
-        // cookie('name');    //'zhuyujia'
-        // cookie('age');    //29
-        // 删除 cookie
- 
-        // 只需要设置 cookie 的值为 null，就可以删除相应的 cookie 了。
- 
-        // cookie('name', null);
-        // cookie('age', null);
- */
-export class Cookie {
-    private key: any;
-    constructor(key: any) {
-        this.key = key;
-    }
-    setCookie(value: string, params?: any) {
-        this.cookie(this.key, value, params);
-    }
-    getCookie() {
-        return this.cookie(this.key);
-    }
-    clearCookie() {
-        this.cookie(this.key, null);
-    }
-    private cookie = (key: string, value?: string, params?: any) => {
-        if (typeof value !== 'undefined') {
-            var expires = '';
-            params = params || {};
-            if (value === null) {
-                value = '';
-                params.expires = -1;
-            }
-            if (params.expires) {
-                var date: Date = new Date();
-                date.setTime(date.getTime() + (params.expires * 60 * 60 * 1000));
-                expires = '; expires=' + date.toUTCString();
-            }
-            var path = params.path ? '; path=' + params.path : '';
-            var domain = params.domain ? '; domain=' + params.domain : '';
-            var secure = params.secure ? '; secure' : '';
-            document.cookie = [key, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
-        } else {
-            var cookies;
-            if (document.cookie && document.cookie !== '') {
-                cookies = document.cookie.match(new RegExp('(^| )' + key + '=([^;]*)(;|$)'));
-                if (cookies) {
-                    return decodeURIComponent(cookies[2]);
-                } else {
-                    return null;
-                }
-            }
-        }
     }
 }
 export class Json<T>{
@@ -312,10 +215,12 @@ export class FuncLock {
     private _lock = false;
     constructor() {
     }
-    enable = (method: Function) => {
+    enable = (method: Function, failure?: Function) => {
         if (!this._lock) {
             this._lock = true;
             method();
+        } else {
+            failure && failure();
         }
     }
     lock = () => {
@@ -362,11 +267,9 @@ export class Clone<T>{
     }
 }
 export class FormatTime {
-    constructor() {
-    }
-    getTimeString(seconds: number, format?: string): string {
-
-        let hours:any, mins:any, secs:any;
+    private timeString = "";
+    constructor(seconds: number, format?: string) {
+        let hours: any, mins: any, secs: any;
         format = format || 'hh:mm:ss';
 
         hours = Math.floor(seconds / 3600);
@@ -376,44 +279,11 @@ export class FormatTime {
         hours = hours < 10 ? ("0" + hours) : hours;
         mins = mins < 10 ? ("0" + mins) : mins;
         secs = secs < 10 ? ("0" + secs) : secs;
-
-        return format.replace('hh', hours).replace('mm', mins).replace('ss', secs);
+        this.timeString = format.replace('hh', hours).replace('mm', mins).replace('ss', secs);
     }
-}
-export const enum Key {
-    Backspace = 8,
-    Enter = 13,
-
-    PageUp = 33,
-    PageDown = 34,
-
-    Left = 37,
-    Up = 38,
-    Right = 39,
-    Down = 40,
-
-    Zero = 48,
-    One = 49,
-    Two = 50,
-    Three = 51,
-    Four = 52,
-    Five = 53,
-    Six = 54,
-    Seven = 55,
-    Eight = 56,
-    Nine = 57,
-
-    VolumePlus = 259,
-    VolumeMinus = 260,
-    Mute = 261,
-
-    //菜单键的键值有多个
-    Menu1 = 272,
-    Menu2 = 277,
-    Menu3 = 280,
-
-    // 会被转义
-    // Iptv = 0x0300
+    public timeWrapper() {
+        return this.timeString;
+    }
 }
 export class ConvertKey {
     constructor() {
@@ -462,7 +332,7 @@ export var Random = {
     /**
      * startAt-maxItem的随机整数，包含startAt但不包含maxItem
      */
-    scope(startAt:any, maxItem:any) {
+    scope(startAt: any, maxItem: any) {
         let differ = maxItem - startAt;
         Math.random() * differ;
         let num = Math.random() * differ + startAt;
@@ -472,7 +342,7 @@ export var Random = {
      * 几率获取函数
      * @param percent 1 - 10 对应几率百分比
      */
-    raffle(percent:any): boolean {
+    raffle(percent: any): boolean {
         let retu = false;
         percent = Math.round(percent);
 

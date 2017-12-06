@@ -1,9 +1,17 @@
+/**
+ * 编辑作者：张诗涛
+ * 创建时间：2017年11月22日14:53:57
+ * 功能分类：数据结构
+ * 更新日志：（DoublyLinkedList）
+ *          时间：2017年11月22日14:54:49
+ *          内容：DoublyLinkedList 完善支持强类型
+ */
 export class Dictionary<T> {
-    private items:any = {};
-    public set(key:string, value: T): void {
+    private items: any = {};
+    public set(key: string, value: T): void {
         this.items[key] = value;
     }
-    public remove(key:string): boolean {
+    public remove(key: string): boolean {
         if (this.has(key)) {
             delete this.items[key];
             return true;
@@ -11,10 +19,10 @@ export class Dictionary<T> {
             return false;
         }
     }
-    public has(key:string): boolean {
+    public has(key: string): boolean {
         return key in this.items;
     }
-    public get(key:string): T {
+    public get(key: string): T {
         return this.has(key) ? this.items[key] : undefined;
     }
     public clear(): void {
@@ -50,11 +58,11 @@ export class Dictionary<T> {
         return this.items;
     }
 }
-export class DoublyLinkedNode {
-    element:any;
-    next:any;
-    prev:any; // 新增的
-    constructor(element:any) {
+export class DoublyLinkedNode<T> {
+    element: any;
+    next: any;
+    prev: any; // 新增的
+    constructor(element: any) {
         this.element = element;
         this.next = null;
         this.prev = null;
@@ -64,16 +72,16 @@ export class DoublyLinkedNode {
  * 双向链表
  * @name DoublyLinkedList
  */
-export class DoublyLinkedList {
+export class DoublyLinkedList<T> {
     private length = 0;
-    private head: DoublyLinkedNode = null;
-    private tail: DoublyLinkedNode = null; // 新增的
+    private head: DoublyLinkedNode<T> = null;
+    private tail: DoublyLinkedNode<T> = null; // 新增的
 
     /**
      * 向列表尾部添加一个新的项
      * @param element 
      */
-    public append(element:any) {
+    public append(element: T) {
         let node = new DoublyLinkedNode(element), current;
 
         if (this.head === null) {
@@ -98,7 +106,7 @@ export class DoublyLinkedList {
      * @param position 
      * @param element 
      */
-    public insert(position:number, element:any) {
+    public insert(position: number, element: T) {
         // 检查越界值
         if (position >= 0 && position <= this.length) {
             let node = new DoublyLinkedNode(element),
@@ -141,7 +149,7 @@ export class DoublyLinkedList {
      * 从列表的特定位置移除一项
      * @param position 
      */
-    public removeAt(position:number) {
+    public removeAt(position: number) {
         // 检查越界值
         if (position > -1 && position < this.length) {
             let current = this.head,
@@ -183,7 +191,7 @@ export class DoublyLinkedList {
      * 从列表中移除一项
      * @param element 
      */
-    public remove(element:any) {
+    public remove(element: T) {
         let index = this.indexOf(element);
         return this.removeAt(index);
     }
@@ -191,7 +199,7 @@ export class DoublyLinkedList {
      * ：返回元素在列表中的索引。如果列表中没有该元素则返回-1
      * @param element 
      */
-    public indexOf(element:any) {
+    public indexOf(element: T) {
         let current = this.head,
             index = -1;
 
@@ -240,8 +248,8 @@ export class DoublyLinkedList {
     }
 }
 export class Queue {
-    items:Array<any> = [];
-    public enqueue(element:any) {
+    items: Array<any> = [];
+    public enqueue(element: any) {
         this.items.push(element);
     }
     public dequeue() {

@@ -1,74 +1,71 @@
-import { Ajax } from '../framework/data_tool/ajax';
+/**
+ * 编辑作者：张诗涛
+ * 创建时间：2017年10月31日11:02:23
+ * 更新日志：
+ *      时间：2017年11月24日17:31:31
+ *      内容：增加 native 请求方式，解决API频繁访问问题
+ */
+/**
+ * 请求类
+ * T：请求参数类型
+ */
+export class RequestInfo {
 
-export class CallBackInfo<DataType> {
-    Success: boolean;
-    Data: DataType;
-    Response: any;
-    Message: string;
-    Status: any;
+    public readonly data: any;
+    public readonly url: string;
+    public header: any;
+    public readonly callback: (success: boolean, result: any) => void;
+
+    constructor(url: string, data: any, callback: (response: ResponseInfo<any>) => void) {
+        this.data = data;
+        this.url = url;
+        this.header = {};
+        this.callback = function (status: boolean, res) {
+            callback(new ResponseInfo(status, res));
+        }
+    }
+}
+// 响应类
+export class ResponseInfo<T> {
+    public readonly _success: boolean;
+    public readonly _response: any;
+    public success: boolean;
+    public message: string;
+    public status: number;
+    public data: T;
+    constructor(success: boolean, response: any) {
+        this._success = success;
+        this._response = response;
+    }
 }
 /**
- * 请求信息配置
+ * 逻辑类
  */
-export class RequestSetting {
-    /**
-     * 请求参数
-     */
-    private params: any;
-    private requestPath: string;
-
-    // 作为公开参数 以便可以扩展不同处理结果
-    success: <T> (response: CallBackInfo<T>) => void;
-    failure: <T>(response: CallBackInfo<T>) => void;
-
-    constructor(requestPath: string, requestParams: object) {
-        this.params = requestParams;
-        this.requestPath = requestPath;
-
-        this.success = () => { };
-        this.failure = () => { };
-    }
-    getRequestPath() {
-        return this.requestPath;
-    }
-    getRequestParams() {
-        return this.params;
-    }
-}
 export class BaseLogic {
-    protected requestGetAsync(setting: RequestSetting) {
-        this.sentRequest(setting, 'GET', true);
+    constructor() {
     }
-    protected requestPostAsync(setting: RequestSetting) {
-        this.sentRequest(setting, 'POST', true);
+    protected requestGet(request: RequestInfo) {
+        // request.header['content-type'] = 'application/json';
+        this.request(request, 'GET');
     }
-    protected requestGetReal(setting: RequestSetting) {
-        this.sentRequest(setting, 'GET', false);
+    protected requestPut(request: RequestInfo) {
+        // request.header['content-type'] = 'application/x-www-form-urlencoded';
+        this.request(request, 'PUT');
     }
-    protected requestPostReal(setting: RequestSetting) {
-        this.sentRequest(setting, 'POST', false);
+    protected requestDelete(request: RequestInfo) {
+        // request.header['content-type'] = 'application/x-www-form-urlencoded';
+        this.request(request, 'DELETE');
     }
-    /**
-     * 发送网络请求
-     */
-    private sentRequest(setting: RequestSetting, method: 'GET' | 'POST', async: boolean) {
-        let net = new Ajax({
-            url: setting.getRequestPath(),
-            async: async,
-            method: method,
-            data: setting.getRequestParams(),
-            /**
-             * 服务器成功响应，不代表执行信息执行成功
-             */
-            success: (response: any) => {
-                setting.success(response);
-            },
-            /**
-             * 服务器异常响应，不代表执行信息执行失败
-             */
-            failure: (response: any) => {
-                setting.failure(response);
-            }
-        });
+    protected requestPost(request: RequestInfo) {
+        // request.header['content-type'] = 'application/x-www-form-urlencoded';
+        this.request(request, 'POST');
+    }
+    protected requestNative(request: RequestInfo, jsonString: string) {
+        setTimeout(() => {
+            request.callback(true, JSON.parse(jsonString));
+        }, 0);
+    }
+    private request(request: RequestInfo, method: string) {
+        // wx.request({ url: request.url, method: method, data: request.data, header: request.header, success: function (result) { request.callback(true, result) }, fail: function (result) { request.callback(false, result) } });
     }
 }

@@ -1,3 +1,8 @@
+/**
+ * 编辑作者：张诗涛
+ * 创建时间：2017年11月27日17:34:39
+ * 功能分类：分页辅助类
+ */
 export var PagingHelper = {
     getData(sourceData: Array<object>, params: { pageSize: number, pageIndex: number }) {
         let dt = [];
@@ -50,6 +55,9 @@ export var PagingHelper = {
         return Math.ceil(dataSize / pageSize);
     }
 }
+/**
+ * 配合 ManagementPageDB 模块使用
+ */
 export class Paging {
     private pageIndex = 1;
     private pageSize = 0;
@@ -89,5 +97,32 @@ export class Paging {
     }
     isPreviousPage(): boolean {
         return (-1 + this.pageIndex) < 1 ? false : true;
+    }
+}
+/**
+ * 配合 ManagementPageDB 模块使用
+ */
+export class PagingFlow {
+    private pageSize = 0;
+    private _afterComplete = false;
+    private _beforeComplete = false;
+
+    constructor(pageSize: number) {
+        this.pageSize = pageSize;
+    }
+    getPageSize(): number {
+        return this.pageSize;
+    }
+    setAfterStatus(complete: boolean) {
+        this._afterComplete = complete;
+    }
+    setBeforeStatus(complete: boolean) {
+        this._beforeComplete = complete;
+    }
+    afterComplete(): boolean {
+        return this._afterComplete;
+    }
+    beforeComplete(): boolean {
+        return this._beforeComplete;
     }
 }
