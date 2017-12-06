@@ -1,9 +1,12 @@
 {
+    "include": [
+        "./src/ts/**/*.ts"
+    ],
     "compilerOptions": {
         "outDir": "./dist/js",
         "noImplicitAny": true,
         "sourceMap": true,
-        "module":"amd",
+        "module": "amd",
         "target": "es3",
         "allowJs": true
     }
