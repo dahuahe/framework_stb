@@ -9,7 +9,84 @@
  * 更新日志：FormatTime
  *          时间：2017年11月28日11:07:33
  *          内容：重构 FormatTime 调用方式为构造函数
+/*
 /**
+ * 导航工具
+ * 描述：管理本站点或第三方来源地址
+ * 依赖：Cookie class
+ */
+export class PageSource {
+    private cookie: Cookie;
+    private cookieName: string;
+    constructor(cookieName: string) {
+        this.cookieName = cookieName;
+        this.cookie = new Cookie(this.cookieName);
+    }
+    saveToLocal(url?: string) {
+        let cookie = this.cookie;
+        if (url) {
+            let referrer = cookie.getCookie();
+            referrer || cookie.setCookie(url);
+        } else {
+            let referrer = cookie.getCookie();
+            referrer || cookie.setCookie(document.referrer);
+        }
+    }
+    takeToLocal() {
+        return this.cookie.getCookie();
+    }
+    removeToLocal(): string {
+        let url = this.cookie.getCookie();
+        this.cookie.clearCookie();
+        return url;
+    }
+}
+export class Cookie {
+    private key: any;
+    constructor(key: string) {
+        this.key = key;
+    }
+    setCookie(value: string, params?: any) {
+        this.cookie(this.key, value, params);
+    }
+    getCookie() {
+        return this.cookie(this.key);
+    }
+    clearCookie() {
+        this.cookie(this.key, null);
+    }
+    private cookie = (key: string, value?: string, params?: any) => {
+        if (typeof value !== 'undefined') {
+            var expires = '';
+            params = params || {};
+            if (value === null) {
+                value = '';
+                params.expires = -1;
+            }
+            if (params.expires) {
+                var date: Date = new Date();
+                date.setTime(date.getTime() + (params.expires * 60 * 60 * 1000));
+                expires = '; expires=' + date.toUTCString();
+            }
+            var path = params.path ? '; path=' + params.path : '';
+            var domain = params.domain ? '; domain=' + params.domain : '';
+            var secure = params.secure ? '; secure' : '';
+            document.cookie = [key, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+        } else {
+            var cookies;
+            if (document.cookie && document.cookie !== '') {
+                cookies = document.cookie.match(new RegExp('(^| )' + key + '=([^;]*)(;|$)'));
+                if (cookies) {
+                    return decodeURIComponent(cookies[2]);
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+}
+/*
+ * 
  * 扩展数据结构
  */
 export class Extend {
@@ -354,4 +431,39 @@ export var Random = {
 
         return retu;
     }
+}
+export const enum Key {
+    Backspace = 8,
+    Enter = 13,
+
+    PageUp = 33,
+    PageDown = 34,
+
+    Left = 37,
+    Up = 38,
+    Right = 39,
+    Down = 40,
+
+    Zero = 48,
+    One = 49,
+    Two = 50,
+    Three = 51,
+    Four = 52,
+    Five = 53,
+    Six = 54,
+    Seven = 55,
+    Eight = 56,
+    Nine = 57,
+
+    VolumePlus = 259,
+    VolumeMinus = 260,
+    Mute = 261,
+
+    //菜单键的键值有多个
+    Menu1 = 272,
+    Menu2 = 277,
+    Menu3 = 280,
+
+    // 会被转义
+    // Iptv = 0x0300
 }

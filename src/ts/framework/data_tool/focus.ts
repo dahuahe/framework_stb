@@ -135,7 +135,7 @@ class Focus {
             usingMove: true, focusSite: null, blurSite: null,
             activeCallback: null, blurCallback: null
         }
-        defaults = new Extend<any>(true, defaults, leapSetting).getResult();
+        defaults = new Extend(true, defaults, leapSetting);
 
         this.width = defaults.width;
         this.height = defaults.height;
@@ -280,7 +280,7 @@ class Focus {
             }
         });
     }
-    private onChange(args:any) {
+    private onChange(args: any) {
 
         if (args.result === 'failure') {
             // 处理焦点移交规则 如果成功不触发当前 change 事件 如果失败 将流程转交给 内部移动规则处理
@@ -331,7 +331,7 @@ class Focus {
             this.pageEvent.trigger(this.identCode, FocusType.Changeed, response);
         }
     }
-    private onKeydown(args:any) {
+    private onKeydown(args: any) {
         let data: PageEventResponse = args;
         // 合法参数 key.left key.up key.right key.dn
         let keyCode = data.KeyCode;
@@ -403,29 +403,29 @@ class Focus {
         this.pageEvent.trigger(this.identCode, FocusType.Blured, response);
     }
     // 获取当前
-    public setSite():void;
+    public setSite(): void;
     // 根据id获取
-    public setSite(leapId: string):void;
+    public setSite(leapId: string): void;
     // index 获取
-    public setSite(index: number):void;
+    public setSite(index: number): void;
     // 根据set获取 id/x/y/index/leapId全匹配
-    public setSite(set: Site):void;
+    public setSite(set: Site): void;
     // 根据x and y 获取
-    public setSite(x: number, y: number):void;
+    public setSite(x: number, y: number): void;
     // 根据键码获取
-    public setSite(keyCode: [number]):void;// keyCode => 34,56,32,32...
+    public setSite(keyCode: [number]): void;// keyCode => 34,56,32,32...
     // 根据语义命令获取
-    public setSite(target: 'first' | 'last'):void;
+    public setSite(target: 'first' | 'last'): void;
     // 根据语义命令并加条件
-    public setSite(x: 'first' | 'last', y: 'first' | 'last'):void;
+    public setSite(x: 'first' | 'last', y: 'first' | 'last'): void;
     // 根据语义与x,y的配合获取
-    public setSite(x: 'first', y: number):void;
+    public setSite(x: 'first', y: number): void;
     // 根据语义与x,y的配合获取
-    public setSite(x: 'last', y: number):void;
+    public setSite(x: 'last', y: number): void;
     // 根据语义与x,y的配合获取
-    public setSite(x: number, y: 'first'):void;
+    public setSite(x: number, y: 'first'): void;
     // 根据语义与x,y的配合获取
-    public setSite(x: number, y: 'last'):void;
+    public setSite(x: number, y: 'last'): void;
     public setSite(valOne?: string | number | Site | [number] | 'first' | 'last', valTwo?: string | number | 'first' | 'last') {
         let retSite: Site = null;
         if (!this.validInstance)
@@ -651,7 +651,7 @@ class Focus {
     /**
      * 处理内部移动规则
      */
-    private handlerAutoFill(args:any) {
+    private handlerAutoFill(args: any) {
         let ret = args.result === 'success'
         let site: Site;
         let params = args.arguments;
@@ -715,7 +715,7 @@ class Focus {
     /**
      * 处理焦点移交规则
      */
-    private handlerAutoTarget(args:any): boolean {
+    private handlerAutoTarget(args: any): boolean {
 
         let ret: boolean = false;
         let params = args.arguments;
@@ -751,7 +751,7 @@ class Focus {
     /**
      * 焦点样式管理
      */
-    private handlerAutoClass(args:any): boolean {
+    private handlerAutoClass(args: any): boolean {
 
         let ret: boolean;
         let result = args.result;
@@ -877,4 +877,4 @@ class Focus {
         this.pageEvent.off(this.identCode, PageEventType.Keydown);
     }
 }
-export { Site, Focus, PageEventResponse, FocusType }
+export { Site, Focus, FocusType }
