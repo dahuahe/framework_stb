@@ -171,14 +171,10 @@ export class Extend {
     }
 }
 export class ParseUrl {
-    private search: any;
     constructor(search: string) {
-        this.search;
-    }
-    getParameters(): any {
         //返回当前 URL 的查询部分（问号 ? 之后的部分）。
         let urlParameters = location.search;
-        if (this.search) urlParameters = this.search;
+        if (search) urlParameters = search;
         //声明并初始化接收请求参数的对象
         var requestParameters: any = {};
         //如果该求青中有请求的参数，则获取请求的参数，否则打印提示此请求没有请求的参数
@@ -192,9 +188,6 @@ export class ParseUrl {
                 requestParameters[parameterArray[i].split('=')[0]] = (parameterArray[i].split('=')[1]);
             }
             //console.info('theRequest is =====', requestParameters);
-        }
-        else {
-            return {};
         }
         return requestParameters;
     }
@@ -343,24 +336,18 @@ export class Clone<T>{
         return a;
     }
 }
-export class FormatTime {
-    private timeString = "";
-    constructor(seconds: number, format?: string) {
-        let hours: any, mins: any, secs: any;
-        format = format || 'hh:mm:ss';
+export function FormatTime(seconds: number, format?: string){
+    let hours: any, mins: any, secs: any;
+    format = format || 'hh:mm:ss';
 
-        hours = Math.floor(seconds / 3600);
-        mins = Math.floor((seconds % 3600) / 60);
-        secs = Math.floor((seconds % 3600) % 60);
+    hours = Math.floor(seconds / 3600);
+    mins = Math.floor((seconds % 3600) / 60);
+    secs = Math.floor((seconds % 3600) % 60);
 
-        hours = hours < 10 ? ("0" + hours) : hours;
-        mins = mins < 10 ? ("0" + mins) : mins;
-        secs = secs < 10 ? ("0" + secs) : secs;
-        this.timeString = format.replace('hh', hours).replace('mm', mins).replace('ss', secs);
-    }
-    public timeWrapper() {
-        return this.timeString;
-    }
+    hours = hours < 10 ? ("0" + hours) : hours;
+    mins = mins < 10 ? ("0" + mins) : mins;
+    secs = secs < 10 ? ("0" + secs) : secs;
+    return format.replace('hh', hours).replace('mm', mins).replace('ss', secs);
 }
 export class ConvertKey {
     constructor() {
