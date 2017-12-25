@@ -330,78 +330,82 @@ export class ManagementFlowDB<T>{
  * 支持数据开始下标与结束下标记录
  * 一次性缓存所有数据
  */
-// class Panel<T>{
-//     startAt: number;
-//     stopAt: number;
-//     pageIndex: number;
-//     list: Array<T>;
-// }
-// export class ManagementPageDBToLocal<T>{
-//     private PanelDictionary: Dictionary<Panel<T>>;      //页面集合
-//     private DataSize: number                            //数据总共长度
-//     private PageSize: number;
+class Panel<T>{
+    startAt: number;
+    stopAt: number;
+    pageIndex: number;
+    list: Array<T>;
+}
+export class ManagementPageDBToLocal<T>{
+    private PanelDictionary: Dictionary<Panel<T>>;      //页面集合
+    private DataSize: number                            //数据总共长度
+    private PageSize: number;
 
-//     constructor(pageSize: number) {
-//         this.PageSize = pageSize;
-//         this.PanelDictionary = new Dictionary<Panel<T>>();
-//     }
-//     initData(data: Array<T>) {
-//         this.PanelDictionary.clear();
+    constructor(pageSize: number) {
+        this.PageSize = pageSize;
+        this.PanelDictionary = new Dictionary<Panel<T>>();
+    }
+    initData(data: Array<T>) {
+        this.PanelDictionary.clear();
 
-//         // 根据页面大小进行数据分页
-//         let length = data.length, size = this.PageSize, accumI = 0, list = [], accumPageI = 1, startAt = -1, stopAt = -1;
-//         for (let i = 0; i < length; i++) {
-//             accumI++;
-//             list.push(data[i]);
-//             if (startAt === -1) {
-//                 startAt = i;
-//             }
-//             stopAt = i;
+        // 根据页面大小进行数据分页
+        let length = data.length, size = this.PageSize, accumI = 0, list = [], accumPageI = 1, startAt = -1, stopAt = -1;
+        for (let i = 0; i < length; i++) {
+            accumI++;
+            list.push(data[i]);
+            if (startAt === -1) {
+                startAt = i;
+            }
+            stopAt = i;
 
-//             if (accumI >= size) {
-//                 // 添加满足一页
-//                 accumI = 0;
+            if (accumI >= size) {
+                // 添加满足一页
+                accumI = 0;
 
-//                 let panel = new Panel<T>();
-//                 panel.list = new Extend<any>(true, list, null).getResult();
-//                 panel.startAt = startAt;
-//                 panel.stopAt = i;
-//                 panel.pageIndex = accumPageI;
+                let panel = new Panel<T>();
+                panel.list = <any>new Extend(true, list, null);
+                panel.startAt = startAt;
+                panel.stopAt = i;
+                panel.pageIndex = accumPageI;
 
-//                 this.PanelDictionary.set(`${accumPageI}`, panel);
+                this.PanelDictionary.set(`${accumPageI}`, panel);
 
-//                 accumPageI++;
-//                 list = [];
-//                 startAt = -1;
-//             }
-//         }
-//         // 最后一页,添加不满一页
-//         if (list.length >= 1) {
+                accumPageI++;
+                list = [];
+                startAt = -1;
+            }
+        }
+        // 最后一页,添加不满一页
+        if (list.length >= 1) {
 
-//             let panel = new Panel<T>();
-//             panel.list = new Extend<any>(true, list, null).getResult();
-//             panel.startAt = startAt;
-//             panel.stopAt = stopAt;
-//             panel.pageIndex = accumPageI;
+            let panel = new Panel<T>();
+            panel.list = <any>new Extend(true, list, null);
 
-//             this.PanelDictionary.set(`${accumPageI}`, panel);
-//         }
-//     }
-//     //根据页数
-//     getItem(pageIndex: number): Panel<T> {
-//         return this.PanelDictionary.get(`${pageIndex}`);
-//     }
-//     getLists(): Array<Panel<T>> {
-//         let list = [];
-//         let data: any = this.PanelDictionary.getItems();
-//         for (var key in data) {
-//             if (data.hasOwnProperty(key)) {
-//                 list.push(data[key]);
-//             }
-//         }
-//         return list;
-//     }
-//     getItems() {
-//         return this.PanelDictionary.getItems();
-//     }
-// }
+            panel.startAt = startAt;
+            panel.stopAt = stopAt;
+            panel.pageIndex = accumPageI;
+
+            this.PanelDictionary.set(`${accumPageI}`, panel);
+        }
+    }
+    //根据页数
+    getItem(pageIndex: number): Panel<T> {
+        // console.log('get pageIndex:' + pageIndex);
+        // console.log(this.PanelDictionary.get(`${pageIndex}`));
+
+        return this.PanelDictionary.get(`${pageIndex}`);
+    }
+    getLists(): Array<Panel<T>> {
+        let list = [];
+        let data: any = this.PanelDictionary.getItems();
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                list.push(data[key]);
+            }
+        }
+        return list;
+    }
+    getItems() {
+        return this.PanelDictionary.getItems();
+    }
+}

@@ -133,8 +133,9 @@ export class Player {
             // 播放完毕
             if (this.totalTime > 0) {
                 if (this.currentTime >= this.totalTime) {
-                    this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
                     this.stopMonitorProgress();
+                    // 会触发两次需要解决 TODO
+                    this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
                 }
             }
         })
