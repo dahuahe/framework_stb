@@ -7,25 +7,31 @@
 │  ├─css
 │  ├─js
 │  └─*.html
-├─doc               // 文档资料
-└─src               // 源码文件
-    ├─less          // 公用样式
-    ├─framework          // 框架基础库
-        ├─data_tool             // 数据相关逻辑
-        └─ui_tool               // html相关逻辑
-    ├─logic              // 业务逻辑
-    ├─model              // 对象实体
-    ├─pages              // page 页面相关文件
-        ├─index                 // 页面文件夹(可添加多个具有相同文件的文件夹)
-        ├─*.less                // html 页面对应 css 文件
-        ├─*.ts                  // html 页面对应 js 文件
-        └─*.html                // html 页面文件
-    ├─config.ts          // api 路径配置
-    ├─const.ts           // apk 相关属性
+├─doc                       // 文档资料
+└─src                       // 源码文件
+    ├─less                      // 公用样式
+    ├─framework                 // 框架基础库
+        ├─data_tool                 // 数据相关逻辑
+        └─ui_tool                   // html相关逻辑
+    ├─logic                     // 业务逻辑
+        ├─baseLogic.ts              // 业务逻辑父类
+        ├─logic.ts                  // 业务逻辑集合
+        └─template.ts               // templateLogic 模板文件用于快速创建可访问网络的 api
+    ├─model                     // 对象实体
+        ├─baseModel.ts              // 业务逻辑父类
+        ├─logic.ts                  // 业务逻辑集合
+        └─template.ts               // templateLogic 模板文件用于快速创建 api 对象实体类
+    ├─pages                     // page 页面相关文件
+        └─index                     // 页面文件夹(可添加多个具有相同文件的文件夹)
+            ├─*.less                // html 页面对应 css 文件
+            ├─*.ts                  // html 页面对应 js 文件
+            └─*.html                // html 页面文件
+    ├─config.ts                 // api 路径配置
+    ├─const.ts                  // apk 相关属性
     ├─require.js
-    └─template.html      // html 模板文件用于快速创建兼容盒子的 html 页面
+    └─template.html             // html 模板文件用于快速创建兼容盒子的 html 页面
 
-# 文件详解
+# 对象详解
 
 # 自动流程
     npm run watch   // 自动化编译流程
