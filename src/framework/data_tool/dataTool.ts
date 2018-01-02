@@ -336,7 +336,7 @@ export class Clone<T>{
         return a;
     }
 }
-export function FormatTime(seconds: number, format?: string){
+export function FormatTime(seconds: number, format?: string) {
     let hours: any, mins: any, secs: any;
     format = format || 'hh:mm:ss';
 
@@ -349,6 +349,7 @@ export function FormatTime(seconds: number, format?: string){
     secs = secs < 10 ? ("0" + secs) : secs;
     return format.replace('hh', hours).replace('mm', mins).replace('ss', secs);
 }
+
 export class ConvertKey {
     constructor() {
 
@@ -419,6 +420,7 @@ export var Random = {
         return retu;
     }
 }
+// 通用键码
 export const enum Key {
     Backspace = 8,
     Enter = 13,
@@ -444,7 +446,7 @@ export const enum Key {
 
     VolumePlus = 259,
     VolumeMinus = 260,
-    Mute = 261,
+    Mute = 91,
 
     //菜单键的键值有多个
     Menu1 = 272,
@@ -454,3 +456,39 @@ export const enum Key {
     // 会被转义
     // Iptv = 0x0300
 }
+// 盒子内置键码
+// export const enum Key {
+//     Backspace = 4,
+//     Enter = 23,
+
+//     PageUp = 92,
+//     PageDown = 93,
+
+//     Left = 21,
+//     Up = 19,
+//     Right = 22,
+//     Down = 20,
+
+//     Zero = 7,
+//     One = 8,
+//     Two = 9,
+//     Three = 10,
+//     Four = 11,
+//     Five = 12,
+//     Six = 13,
+//     Seven = 14,
+//     Eight = 15,
+//     Nine = 16,
+
+//     VolumePlus = 24,
+//     VolumeMinus = 25,
+//     Mute = 164,
+
+//     //菜单键的键值有多个
+//     Menu1 = 272,
+//     Menu2 = 277,
+//     Menu3 = 280,
+
+//     // 会被转义
+//     // Iptv = 0x0300
+// }

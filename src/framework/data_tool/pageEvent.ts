@@ -71,10 +71,10 @@ class PageEvent implements IPageEvent {
     }
     private initialize(events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>) {
         for (var i = 0; i < events.length; i++) {
-            let ele:any = events[i];
+            let ele: any = events[i];
             ele.target = ele.target || document;    // 默认目标文档
 
-            ele.target[`on${ele.topic}`] = (event:any) => {
+            ele.target[`on${ele.topic}`] = (event: any) => {
                 let e = event || window.event;
 
                 // 订阅所有 处理
@@ -93,10 +93,10 @@ class PageEvent implements IPageEvent {
             }
         }
     }
-    public trigger(identCode: string | number, topic: string | number, data:any = null) {
+    public trigger(identCode: string | number, topic: string | number, data: any = null) {
         this._eventEmitter.triggerEvent(new AppEvent(`${identCode}-${topic}`, data, null));
     }
-    public on(identCode: string | number, topic: string | number, callback:any) {
+    public on(identCode: string | number, topic: string | number, callback: any) {
         this._eventEmitter.subscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, callback));
     }
     public off(identCode: string | number, topic: string | number) {
@@ -105,7 +105,7 @@ class PageEvent implements IPageEvent {
     hasSubscribe(identCode: string | number, topic: string | number): boolean {
         return this._eventEmitter.hasSubscribe(new AppEvent(`${identCode}-${topic}`, null, null));
     }
-    public target(identCode: string | number, data?:any) {
+    public target(identCode: string | number, data?: any) {
         // 是否有对象订阅该事件
         if (!this.hasSubscribe(identCode, PageEventType.Focus)) {
             this.trigger("*", PageEventType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未订阅Focus相关事件当前操作无效");
@@ -144,7 +144,7 @@ class PageEvent implements IPageEvent {
     }
     private subscribeEvent() {
         // 程序异常调试参考信息默认开启
-        this.on("*", PageEventType.Error, (msg:any) => {
+        this.on("*", PageEventType.Error, (msg: any) => {
             console.log(msg);
         });
     }

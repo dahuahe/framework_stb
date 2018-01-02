@@ -347,6 +347,7 @@ export class ManagementPageDBToLocal<T>{
     }
     initData(data: Array<T>) {
         this.PanelDictionary.clear();
+        this.DataSize = data.length;
 
         // 根据页面大小进行数据分页
         let length = data.length, size = this.PageSize, accumI = 0, list = [], accumPageI = 1, startAt = -1, stopAt = -1;
@@ -407,5 +408,8 @@ export class ManagementPageDBToLocal<T>{
     }
     getItems() {
         return this.PanelDictionary.getItems();
+    }
+    getDataSize(): number {
+        return this.DataSize;
     }
 }

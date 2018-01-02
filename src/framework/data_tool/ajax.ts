@@ -1,3 +1,6 @@
+/**
+ * 最后更新时间：2018年1月2日10:14:14
+ */
 class Setting {
     url: string
     async?: boolean

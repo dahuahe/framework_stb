@@ -106,7 +106,7 @@ class Focus {
     private map: Array<Array<Site>>;
     private site: Site = null;
     private dataArray: Array<Site> = [];
-    private dataObject: any = {};
+    private dataObject:any = {};
     private recordArray: Array<Site> = [];
     private recordMaxLength: number = 20;            // 历史记录不超过20步
     private validInstance: boolean = false;            // 是否有效的实例，如果为false限制所有函数使用
