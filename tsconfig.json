@@ -1,6 +1,9 @@
 {
     "include": [
-        "./src/ts/**/*.ts"
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "./src/**/template.ts"
     ],
     "compilerOptions": {
         "outDir": "./dist/js",
@@ -9,5 +12,6 @@
         "module": "amd",
         "target": "es3",
         "allowJs": true
-    }
+    },
+    "compileOnSave": false
 }

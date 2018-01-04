@@ -2,39 +2,53 @@ var gulp = require('gulp')
 var ts = require('gulp-typescript')
 var tsProject = ts.createProject('tsconfig.json')
 var less = require('gulp-less')
-// var rename = require('gulp-rename')
+var rename = require('gulp-rename')
+var uglify = require('gulp-uglify')
+var minify = require('gulp-minify-css')
 
-gulp.task('default', function () {
-  console.log('default')
-})
+var config = {
+  include: {
+    less: './src/pages/**/*.less',
+    ts:"./src/**/*.ts",
+    html:"./src/pages/**/*.html"
+  }
+}
+
+gulp.task('default', function () {})
 
 gulp.task('less', function () {
-  return gulp.src('./src/less/**/*.less')
+  return gulp.src(config.include.less)
     .pipe(less())
+    .pipe(rename({dirname: ''}))
+    .pipe(minify())
     .pipe(gulp.dest('./dist/css'))
 })
 
 gulp.task('ts', function () {
   return tsProject.src()
     .pipe(tsProject())
-    .js
+    .pipe(rename(function (e) {
+      if (/^pages/.test(e.dirname)) {
+        e.dirname = ''
+      }
+    }))
+    .pipe(uglify())
     .pipe(gulp.dest('./dist/js'))
 })
 
 gulp.task('html', function () {
-  return gulp.src('./src/**/*.html')
-    // .pipe(rename({extname: '.wxml'}))
+  return gulp.src(['./src/pages/**/*.html', '!./src/pages/**/template.html'])
+    .pipe(rename({dirname: ''}))
     .pipe(gulp.dest('./dist'))
 })
 
 gulp.task('js', function () {
-  return gulp.src('./src/ts/require.js')
+  return gulp.src('./src/require.js')
     .pipe(gulp.dest('./dist/js'))
 })
 
-gulp.task('watch', ['less', 'ts', 'html', 'js'], function () {
-  gulp.watch('./src/less/**/*.less', ['less'])
-  gulp.watch('./src/ts/**/*.ts', ['ts'])
-  gulp.watch('./src/**/*.html', ['html'])
-  gulp.watch('./src/ts/require.js', ['js'])
+gulp.task('watch', ['ts', 'less', 'html', 'js'], function () {
+  gulp.watch(config.include.less, ['less'])
+  gulp.watch(config.include.ts, ['ts'])
+  gulp.watch(config.include.html, ['html'])
 })

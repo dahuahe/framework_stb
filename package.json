@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "gulp watch"
+    "start": "gulp watch"
   },
   "repository": {
     "type": "git",
@@ -21,8 +21,10 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-less": "^3.3.2",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-rename": "^1.2.2",
     "gulp-typescript": "^3.2.3",
-    "rename": "^1.0.4",
+    "gulp-uglify": "^3.0.0",
     "typescript": "^2.5.3"
   },
   "dependencies": {}
