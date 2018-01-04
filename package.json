@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "gulp watch"
+    "start": "gulp watch",
+    "server": "http-server dist -c-0 -o -p 9876 -s"
   },
   "repository": {
     "type": "git",

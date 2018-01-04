@@ -7,15 +7,15 @@ var FocusType = {
     /**
      * Focus 对象 - 坐标更新完毕
      */
-    Changeed: 'D208E9F88690620608548CE81813DB58_FocusType_Changeed',
+    Changeed: 'Changeed.FocusType_Changeed',
     /**
      * Focus 对象 - 接收到Focus事件后触发
      */
-    Focused: '0FCE091F3018326434A550A9DE018A06_FocusType_Focused',
+    Focused: 'Focused.FocusType_Focused',
     /**
      * Focus 对象 - 接收到Blur事件并处理完相应事件后执行
      */
-    Blured: "B1619F75059FF85089D5D247CC5244ED_FocusType_Blured"
+    Blured: "Blured.FocusType_Blured"
 }
 /**
  * 更新版本：v1.0.1
@@ -44,7 +44,7 @@ export class FocusResponse {
     Success: boolean;
     SiteHanlde: Site
 }
-interface ILeapSetting {
+interface IFocusSetting {
     /**
      * 实例唯一标识（用于系统级事件通知，该字段必须唯一）
      */
@@ -96,7 +96,7 @@ interface ILeapSetting {
 // 内部可用事件
 var InsideFocusType = {
     // 坐标改变后发送改变坐标命令更新相应样式
-    SiteChangeed: '7F65E6A85953FABA141EBFABD1473140_InsideFocusType_SiteChangeed'
+    SiteChangeed: 'InsideFocusType.SiteChangeed'
 }
 /**
  * @desc 移动对象，页面元素组的内存映射地图表。关联/控制页面元素
@@ -106,7 +106,7 @@ class Focus {
     private map: Array<Array<Site>>;
     private site: Site = null;
     private dataArray: Array<Site> = [];
-    private dataObject:any = {};
+    private dataObject: any = {};
     private recordArray: Array<Site> = [];
     private recordMaxLength: number = 20;            // 历史记录不超过20步
     private validInstance: boolean = false;            // 是否有效的实例，如果为false限制所有函数使用
@@ -127,7 +127,7 @@ class Focus {
     private readonly activeCallback: (info: FocusResponse) => void;
     private readonly blurCallback: (info: FocusResponse) => void;
 
-    constructor(leapSetting: ILeapSetting, pageEvent: IPageEvent) {
+    constructor(leapSetting: IFocusSetting, pageEvent: IPageEvent) {
 
         let defaults: any = {
             width: 0, height: 0, autoFill: null, autoTarget: null,
