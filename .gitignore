@@ -1,6 +1,8 @@
-.idea/
-node_modules/
-.vscode/
-/dist
-[!/dist/images]
+.idea
+node_modules
+.vscode
+
+dist/*
+!dist/images
+
 npm-debug.log
