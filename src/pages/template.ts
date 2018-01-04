@@ -7,6 +7,7 @@
 // import { PageEvent, PageEventType, Module, Site, Focus, FocusType, HElement } from "../framework/framework";
 // import { } from "../model/model";
 // import { } from "../logic/logic";
+// import { Key } from "../framework/data_tool/dataTool";
 
 // enum ModuleType {
 //     /**
@@ -97,6 +98,9 @@
 //     // 初始焦点
 //     pageEvent.target(ModuleType.VideoMedia);
 
+//     // pageEvent.on(ModuleType.VideoMedia, Key.Backspace, () => {
+
+//     // })
 // }
 // function subscribeToEvents() {
 // }

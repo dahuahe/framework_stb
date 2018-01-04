@@ -32,7 +32,7 @@ var PageEventType = {
     /**
      * 基于PageEvent 相关异常信息
      */
-    Error: '183C935220E53D024B402878CC578ED3_PageEventType_Error'
+    Error: 'PageEventType.Error'
 }
 interface PageEventResponse {
     Event: any,
@@ -85,6 +85,11 @@ class PageEvent implements IPageEvent {
                     if (String(this.targetName) === String(targetName)) {
                         let params: PageEventResponse = { Event: e, Target: targetName, EventName: ele.topic, KeyCode: e.keyCode, Source: null, Data: null };
 
+                        // 发布当前触发事件简码事件
+                        if (params && params.KeyCode) {
+                            this.trigger(targetName, params.KeyCode, params);
+                        }
+                        // topic 为 number 类型默认当中 keyCode 处理
                         this.trigger(targetName, ele.topic, params);
                         this.trigger("*", ele.topic, params);
                         break;
