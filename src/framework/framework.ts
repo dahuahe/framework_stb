@@ -10,7 +10,7 @@ import { ManagementPageDB, ManagementFlowDB } from "./data_tool/managementPageDB
 import { PageEvent, PageEventResponse, PageEventType } from "./data_tool/pageEvent";
 import { Module } from "./data_tool/module";
 import { Paging, PagingHelper } from "./data_tool/paging";
-import { Site, Focus, FocusType } from "./data_tool/focus";
+import { Site, Focus, FocusType, FocusResponse } from "./data_tool/focus";
 
 export {
     AppEvent, Dictionary,
@@ -19,5 +19,5 @@ export {
     EventEmitter, Mediator, FormatTime, ManagementPageDB,
     FuncLock, Module, ManagementFlowDB,
     PageEvent, PageEventResponse, PageEventType,
-    Site, Focus, FocusType, HElement
+    Site, Focus, FocusType, HElement, FocusResponse
 };

@@ -12,7 +12,7 @@
  */
 import { Mediator } from './mediator';
 import { EventEmitter } from './eventEmitter';
-import { SetTimeout } from './dataTool';
+import { SetTimeout, Key } from './dataTool';
 import { AppEvent } from './appEvent';
 
 var PageEventType = {
@@ -44,10 +44,12 @@ interface PageEventResponse {
 }
 class PageEvent implements IPageEvent {
     private readonly _eventEmitter: IEventEmitter;
+    private readonly events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>;
     private targetName: string | number = null;
+    private disableTops: number[] = [];
 
     constructor(targetName: string | number, events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>, otherDebug: boolean = false, emitterDebug: boolean = false, ) {
-
+        this.events = events;
         let mediator = new Mediator(emitterDebug);
         this._eventEmitter = new EventEmitter(mediator);
         // 订阅异常事件
@@ -98,53 +100,66 @@ class PageEvent implements IPageEvent {
             }
         }
     }
-    public trigger(identCode: string | number, topic: string | number, data: any = null) {
+    trigger(identCode: string | number, topic: string | number, data: any = null) {
         this._eventEmitter.triggerEvent(new AppEvent(`${identCode}-${topic}`, data, null));
     }
-    public on(identCode: string | number, topic: string | number, callback: any) {
+    on(identCode: string | number, topic: string | number, callback: any) {
         this._eventEmitter.subscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, callback));
     }
-    public off(identCode: string | number, topic: string | number) {
+    off(identCode: string | number, topic: string | number) {
         this._eventEmitter.unsubscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, null));
     }
     hasSubscribe(identCode: string | number, topic: string | number): boolean {
         return this._eventEmitter.hasSubscribe(new AppEvent(`${identCode}-${topic}`, null, null));
     }
-    public target(identCode: string | number, data?: any) {
-        // 是否有对象订阅该事件
+    target(identCode: string | number, data?: any) {
+        // 是否有模块订阅该事件（通常为 Focus 也可以是其他自定义组件）
         if (!this.hasSubscribe(identCode, PageEventType.Focus)) {
             this.trigger("*", PageEventType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未订阅Focus相关事件当前操作无效");
         } else {
-            let sourceTargetName = this.targetName;
-            // 失去焦点事件
-            if (this.targetName !== null) {
+            // 加入有效模块列表，否则不予执行
+            // events 目前仅处理第一组数据的 keydown 事件。
+            let handlers = this.events[0].handler;
+            if (typeof handlers[<number>identCode] == 'number') {
 
-                let response: PageEventResponse = {
-                    Event: null,
-                    Target: identCode,
-                    EventName: PageEventType.Blur,
-                    KeyCode: -1,
-                    Source: sourceTargetName,
-                    Data: null
-                };
-                this.trigger(this.targetName, PageEventType.Blur, response);
+                // 如果被标记为禁用则不处理
+                if (!this.hasDisable(Math.round(<number>identCode))) {
+                    let sourceTargetName = this.targetName;
+                    // 失去焦点事件
+                    if (this.targetName !== null) {
+
+                        let response: PageEventResponse = {
+                            Event: null,
+                            Target: identCode,
+                            EventName: PageEventType.Blur,
+                            KeyCode: -1,
+                            Source: sourceTargetName,
+                            Data: null
+                        };
+
+                        this.trigger(this.targetName, PageEventType.Blur, response);
+                    }
+
+                    // 获取焦点事件
+                    let response: PageEventResponse = {
+                        Event: null,
+                        Target: identCode,
+                        EventName: PageEventType.Focus,
+                        KeyCode: 0,
+                        Data: data,
+                        Source: sourceTargetName
+                    };
+
+                    this.targetName = identCode;
+                    this.trigger(identCode, PageEventType.Focus, response);
+                }
+
+            } else {
+                this.trigger("*", PageEventType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未加入 PageEvent 的 handler 列表当前操作无效");
             }
-
-            // 获取焦点事件
-            let response: PageEventResponse = {
-                Event: null,
-                Target: identCode,
-                EventName: PageEventType.Focus,
-                KeyCode: 0,
-                Data: data,
-                Source: sourceTargetName
-            };
-
-            this.targetName = identCode;
-            this.trigger(identCode, PageEventType.Focus, response);
         }
     }
-    public getTargetIdentCode() {
+    getTargetIdentCode() {
         return this.targetName;
     }
     private subscribeEvent() {
@@ -152,6 +167,43 @@ class PageEvent implements IPageEvent {
         this.on("*", PageEventType.Error, (msg: any) => {
             console.log(msg);
         });
+    }
+    enableTopic(identCode: number) {
+        let list = this.disableTops, length = list.length;
+        for (let i = 0; i < length; i++) {
+            const ele = list[i];
+            if (identCode == ele) {
+                delete list[i];
+                break;
+            }
+        }
+    }
+    disableTopic(identCode: number) {
+        let list = this.disableTops, length = list.length, isAdd = false;
+        for (let i = 0; i < length; i++) {
+            const ele = list[i];
+            if (identCode == ele) {
+                isAdd = true;
+                break;
+            }
+        }
+        if (!isAdd) {
+            list.push(identCode);
+        }
+    }
+    hasDisable(identCode: number): boolean {
+        let list = this.disableTops, length = list.length, isDisable = false;
+        for (let i = 0; i < length; i++) {
+            const ele = list[i];
+            if (identCode == ele) {
+                isDisable = true;
+                break;
+            }
+        }
+        return isDisable;
+    }
+    lockTopic() {
+        // TODO
     }
 }
 export { PageEvent, PageEventType, PageEventResponse }

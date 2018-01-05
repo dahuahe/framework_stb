@@ -5,12 +5,13 @@ var less = require('gulp-less')
 var rename = require('gulp-rename')
 var uglify = require('gulp-uglify')
 var minify = require('gulp-minify-css')
+var replace = require('gulp-replace')
 
 var config = {
   include: {
     less: './src/pages/**/*.less',
-    ts:"./src/**/*.ts",
-    html:"./src/pages/**/*.html"
+    ts: './src/**/*.ts',
+    html: './src/pages/**/*.html'
   }
 }
 
@@ -33,6 +34,9 @@ gulp.task('ts', function () {
       }
     }))
     .pipe(uglify())
+    .pipe(replace('["require","exports","../../framework/framework"]', '["require","exports","../js/framework/framework"]'))
+    .pipe(replace('["require","exports","../model/model"]', '["require","exports","./js/model/model"]'))
+    .pipe(replace('["require","exports","../logic/logic"]', '["require","exports","./js/logic/logic"]'))
     .pipe(gulp.dest('./dist/js'))
 })
 

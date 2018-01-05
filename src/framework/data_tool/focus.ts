@@ -1,7 +1,7 @@
-import { Key, Guid, Extend } from './dataTool';
+import { Key, Extend } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
 import { PageEvent, PageEventType, PageEventResponse } from './pageEvent';
-import { SetTimeout } from './dataTool'
+import { SetTimeout } from './dataTool';
 var FocusType = {
     // 扩展插件相关事件
     /**
@@ -24,25 +24,23 @@ var FocusType = {
  *          2.using 取值为 false 时进行提示。并且可自定义 PageEvent 的 keydown 事件
  */
 class Site {
-    readonly leapId: string = null;
     public x: number = null;
     public y: number = null;
     public index: number = null;
     public element: HElement = null;
 
     constructor() {
-        this.leapId = new Guid().getGuid();
     }
 }
-export class FocusResponse {
-    Event: any;
-    IdentCode: string | number;
-    EventName: string;
-    KeyCode: number;
-    Data: any;
-    SiteSource: Site;
-    Success: boolean;
-    SiteHanlde: Site
+class FocusResponse {
+    event: any;
+    identCode: string | number;
+    eventName: string;
+    keyCode: number;
+    data: any;
+    previousSite: Site;
+    success: boolean;
+    site: Site;
 }
 interface IFocusSetting {
     /**
@@ -71,29 +69,17 @@ interface IFocusSetting {
      * autoTarget 优先级高于 autoFill 冲突事件会被覆盖
      */
     autoTarget?: [{ keyCode: Key, target: string | number }],
-    /**
-     * 焦点样式
-     */
-    activeClass?: string,
-    /**
-     * 离开样式
-     */
-    blurClass?: string,
-    /**
-     * 焦点样式回掉
-     */
-    activeCallback?: (info: FocusResponse) => void,
-    /**
-     * 离开样式回掉
-     */
-    blurCallback?: (info: FocusResponse) => void,
+    className?: string,
+    leaveClass?: string,
+    usingClass?: (info: FocusResponse) => void,
+    cancelClass?: (info: FocusResponse) => void,
     /**
      * 基本动作是否启用 (上、下、左、右)
      * false：禁用 Focus 对象内置 上、下、左、右、事件的处理，通过自定义订阅 PageEvent 的 keydown 事件完成相关业务需求
      */
-    usingMove?: boolean,
-    blurSite?: Function,
-    focusSite?: Function
+    enableMove?: boolean,
+    disableSite?: Function,
+    enableSite?: Function
 }
 /**
  * @desc 移动对象，页面元素组的内存映射地图表。关联/控制页面元素
@@ -103,7 +89,6 @@ class Focus {
     private map: Array<Array<Site>>;
     private site: Site = null;
     private dataArray: Array<Site> = [];
-    private dataObject: any = {};
     private recordArray: Array<Site> = [];
     private recordMaxLength: number = 20;                // 历史动作最长记录 20 步
     private instanceStatus: boolean = false;             // 是否有效的实例，如果为false限制所有函数使用
@@ -112,39 +97,34 @@ class Focus {
     // 配置参数
     private readonly setting: IFocusSetting;
 
-    constructor(leapSetting: IFocusSetting, pageEvent: IPageEvent) {
-        let defaults: any = {
+    constructor(focusSetting: IFocusSetting, pageEvent: IPageEvent) {
+        let defaults: IFocusSetting = {
             width: 0, height: 0, autoFill: null, autoTarget: null,
-            activeClass: null, blurClass: null, identCode: null,
-            usingMove: true, focusSite: null, blurSite: null,
-            activeCallback: null, blurCallback: null
+            className: null, leaveClass: null, identCode: null,
+            enableMove: true, enableSite: null, disableSite: null,
+            usingClass: null, cancelClass: null
         }
-        defaults = new Extend(true, defaults, leapSetting);
+        defaults = <any>new Extend(true, defaults, focusSetting);
 
         this.event = pageEvent;
         this.setting = defaults;
 
-        // 顶月前检测当前对象是否已经在 PageEvent中注册，如果注册了那么先释放掉
-        if (this.event.hasSubscribe(this.setting.identCode, PageEventType.Focus)) {
-            this.release();
-        }
         this.subscribeEvent(pageEvent);
 
         // move 操作被禁止并且没有订阅 keydown 事件进行自定义处理则给出提示
-        if (!this.setting.usingMove) {
+        if (!this.setting.enableMove) {
             // JS解释器执行完毕后 因为有可能在 Focus 对象实例化之后订阅了自定义处理事件
             new SetTimeout().enable(() => {
                 if (!pageEvent.hasSubscribe(this.setting.identCode, PageEventType.Keydown)) {
-                    pageEvent.trigger("*", PageEventType.Error, `模块：${this.setting.identCode} 参数 usingMove 取值为 ${this.setting.usingMove} 并且 未订阅和处理 PageEventType.keydown 事件 如果该结果不是您想要的请处理该异常`);
+                    pageEvent.trigger("*", PageEventType.Error, `模块：${this.setting.identCode} 参数 usingMove 取值为 ${this.setting.enableMove} 并且 未订阅和处理 PageEventType.keydown 事件 如果该结果不是您想要的请处理该异常`);
                 }
             });
         }
     }
-    public initData(data: HElement[]) {
-        this.initialize(data);
-    }
-    private initialize(data: HElement[]) {
-
+    public initData(data: HElement[] | number) {
+        if (typeof data == 'number') {
+            data = new Array(data);
+        }
         this.map = this.createMap(data);
 
         if (this.map.length > 0) {
@@ -200,8 +180,6 @@ class Focus {
                         site.index = index;
                         site.element = item;
                         yArr.push(site);
-                        // 数据组装
-                        this.dataObject[site.leapId] = site;
                         this.dataArray.push(site);
                         this.listHElement.push(item);
                     } else {
@@ -224,12 +202,9 @@ class Focus {
         //生成实体
         return xArr;
     }
-    /**
-     * 订阅系统事件
-     */
     private subscribeEvent(pageEvent: IPageEvent) {
         // 按键按下后 根据 usingMove 控制是否订阅并启用 Focus 对象预定义处理规则
-        if (this.setting.usingMove)
+        if (this.setting.enableMove)
             pageEvent.on(this.setting.identCode, PageEventType.Keydown, (args: any) => { this.onKeydown(args) });
 
         // 获取焦点后
@@ -239,7 +214,7 @@ class Focus {
         // 坐标改变完毕后
         pageEvent.on(this.setting.identCode, FocusType.Changeed, (args: any) => {
             let data: FocusResponse = args;
-            if (data.Success) {
+            if (data.success) {
 
                 // 必须是首次获取焦点
                 if (this.isFirstLoad) {
@@ -271,14 +246,14 @@ class Focus {
             // 焦点转移失败后
             if (!autoTarget) {
                 let response = new FocusResponse();
-                response.Event = args;
-                response.IdentCode = this.setting.identCode;
-                response.EventName = FocusType.Changeed;
-                response.KeyCode = args.keyCode;
-                response.Data = null;
-                response.SiteSource = this.record(-1) || null;
-                response.Success = false;
-                response.SiteHanlde = this.site;
+                response.event = args;
+                response.identCode = this.setting.identCode;
+                response.eventName = FocusType.Changeed;
+                response.keyCode = args.keyCode;
+                response.data = null;
+                response.previousSite = this.record(-1) || null;
+                response.success = false;
+                response.site = this.site;
 
                 this.event.trigger(this.setting.identCode, FocusType.Changeed, response);
             }
@@ -288,14 +263,14 @@ class Focus {
         if (this.handlerAutoClass(args)) {
 
             let response = new FocusResponse();
-            response.Event = args;
-            response.IdentCode = this.setting.identCode;
-            response.EventName = FocusType.Changeed;
-            response.KeyCode = args.keyCode;
-            response.Data = null;
-            response.SiteSource = this.record(-1) || null;
-            response.Success = true;
-            response.SiteHanlde = this.site || null;
+            response.event = args;
+            response.identCode = this.setting.identCode;
+            response.eventName = FocusType.Changeed;
+            response.keyCode = args.keyCode;
+            response.data = null;
+            response.previousSite = this.record(-1) || null;
+            response.success = true;
+            response.site = this.site || null;
 
             this.event.trigger(this.setting.identCode, FocusType.Changeed, response);
         }
@@ -312,6 +287,13 @@ class Focus {
         // 异常提示
         if (this.instanceStatus) {
             this.isFirstLoad = true;
+            // 重置离开焦点样式
+            if (this.setting.leaveClass) {
+                let ele = this.site.element;
+                if (ele) {
+                    ele.removeClas(this.setting.leaveClass);
+                }
+            }
             this.setSite();
         } else {
             this.event.trigger("*", PageEventType.Error, "当前 Focus 对象模块：" + this.setting.identCode + " 未调用 initData 函数进行初始化");
@@ -321,54 +303,46 @@ class Focus {
         let present = this.site;
 
         if (present instanceof Object) {
-            let ele = present.element;// new HElement('[leapId=' + present.leapId + ']');
+            let ele = present.element;
             if (ele) {
-                ele.removeClas(this.setting.activeClass);
-
-                let response = new FocusResponse();
-                response.Event = null;
-                response.IdentCode = this.setting.identCode;
-                response.EventName = FocusType.Changeed;
-                response.KeyCode = null;
-                response.Data = null;
-                response.SiteSource = null;
-                response.Success = true;
-                response.SiteHanlde = present;
-
-                this.setting.blurCallback && this.setting.blurCallback(response);
-            }
-            if (this.setting.blurClass) {
-                if (ele) {
-                    ele.clas(this.setting.blurClass);
+                let className = this.setting.className;
+                if (className) {
+                    ele.removeClas(this.setting.className);
 
                     let response = new FocusResponse();
-                    response.Event = null;
-                    response.IdentCode = this.setting.identCode;
-                    response.EventName = FocusType.Changeed;
-                    response.KeyCode = null;
-                    response.Data = null;
-                    response.SiteSource = null;
-                    response.Success = true;
-                    response.SiteHanlde = present;
+                    response.event = null;
+                    response.identCode = this.setting.identCode;
+                    response.eventName = FocusType.Changeed;
+                    response.keyCode = null;
+                    response.data = null;
+                    response.previousSite = null;
+                    response.success = true;
+                    response.site = present;
 
-                    this.setting.activeCallback && this.setting.activeCallback(response);
+                    this.setting.cancelClass && this.setting.cancelClass(response);
+                }
+            }
+            // 移除焦点样式
+            if (this.setting.leaveClass) {
+                if (ele) {
+                    ele.clas(this.setting.leaveClass);
                 }
             }
         }
 
-        this.setting.blurSite ? this.setting.blurSite(present) : null;
+        this.setting.disableSite ? this.setting.disableSite(present) : null;
 
         this.isFirstLoad = true;
 
         // 焦点失去完毕后
         let response = new FocusResponse();
-        response.Data = null;
-        response.Event = null;
-        response.EventName = FocusType.Blured;
-        response.IdentCode = this.setting.identCode;
-        response.SiteHanlde = this.site || null;
-        response.SiteSource = this.record(-1) || null;
-        response.Success = true;
+        response.data = null;
+        response.event = null;
+        response.eventName = FocusType.Blured;
+        response.identCode = this.setting.identCode;
+        response.site = this.site || null;
+        response.previousSite = this.record(-1) || null;
+        response.success = true;
         this.event.trigger(this.setting.identCode, FocusType.Blured, response);
     }
     // 获取当前
@@ -432,8 +406,6 @@ class Focus {
     }
     // 获取当前
     public getSite(): Site;
-    // 根据id获取
-    public getSite(leapId: string): Site;
     // index 获取
     public getSite(index: number): Site;
     // 根据set获取 id/x/y/index/leapId全匹配
@@ -464,10 +436,6 @@ class Focus {
         if (valOne === undefined && valTwo === undefined) {
             ret = this.site;
         }
-        // Get the leapId(guid code)
-        else if (typeof valOne === 'string' && valOne.length === 36 && valTwo === undefined) {
-            ret = this.dataObject[valOne];
-        }
         // Get the site by index
         else if (typeof valOne === 'number' && valOne < this.listHElement.length && valTwo === undefined) {
             ret = this.dataArray[valOne];
@@ -477,7 +445,7 @@ class Focus {
             let data = this.dataArray;
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
-                if (ele && ele.index === valOne.index && ele.leapId === valOne.leapId && ele.x === valOne.x && ele.y === valOne.y) {
+                if (ele && ele.index === valOne.index && ele.x === valOne.x && ele.y === valOne.y) {
                     ret = ele;
                     break;
                 }
@@ -738,70 +706,54 @@ class Focus {
             let present = this.site;
             let previous = this.record(-1);
 
-            // // 未变动则不执行
-            // if (Leap.equal(previous, present)) {
-            // }
             let record = this.recordArray;
 
             // 重置样式
             if (previous instanceof Object) {
                 let ele = previous.element;
                 if (ele) {
-                    ele.removeClas(this.setting.activeClass);
+                    let className = this.setting.className;
+                    if (className) {
+                        ele.removeClas(this.setting.className);
 
-                    let response = new FocusResponse();
-                    response.Event = null;
-                    response.IdentCode = this.setting.identCode;
-                    response.EventName = FocusType.Changeed;
-                    response.KeyCode = null;
-                    response.Data = null;
-                    response.SiteSource = null;
-                    response.Success = true;
-                    response.SiteHanlde = present;
-                    this.setting.blurCallback && this.setting.blurCallback(response);
+                        let response = new FocusResponse();
+                        response.event = null;
+                        response.identCode = this.setting.identCode;
+                        response.eventName = FocusType.Changeed;
+                        response.keyCode = null;
+                        response.data = null;
+                        response.previousSite = null;
+                        response.success = true;
+                        response.site = present;
+                        this.setting.cancelClass && this.setting.cancelClass(response);
+                    }
                 }
             }
-            this.setting.blurSite ? this.setting.blurSite(previous) : null;
+            this.setting.disableSite ? this.setting.disableSite(previous) : null;
 
             // 设置样式
             if (present instanceof Object) {
                 let ele = present.element;
                 if (ele) {
-                    ele.clas(this.setting.activeClass);
-
-                    let response = new FocusResponse();
-                    response.Event = null;
-                    response.IdentCode = this.setting.identCode;
-                    response.EventName = FocusType.Changeed;
-                    response.KeyCode = null;
-                    response.Data = null;
-                    response.SiteSource = null;
-                    response.Success = true;
-                    response.SiteHanlde = present;
-                    this.setting.activeCallback && this.setting.activeCallback(response);
-
-                    if (this.setting.blurClass) {
-                        if (ele) {
-                            ele.removeClas(this.setting.blurClass);
-
-                            let response = new FocusResponse();
-                            response.Event = null;
-                            response.IdentCode = this.setting.identCode;
-                            response.EventName = FocusType.Changeed;
-                            response.KeyCode = null;
-                            response.Data = null;
-                            response.SiteSource = null;
-                            response.Success = true;
-                            response.SiteHanlde = present;
-
-                            this.setting.blurCallback && this.setting.blurCallback(response);
-                        }
+                    // 应用 className
+                    let className = this.setting.className;
+                    if (className) {
+                        ele.clas(className);
+                        let response = new FocusResponse();
+                        response.event = null;
+                        response.identCode = this.setting.identCode;
+                        response.eventName = FocusType.Changeed;
+                        response.keyCode = null;
+                        response.data = null;
+                        response.previousSite = null;
+                        response.success = true;
+                        response.site = present;
+                        this.setting.usingClass && this.setting.usingClass(response);
                     }
                 }
             }
-            this.setting.focusSite ? this.setting.focusSite(present) : null;
+            this.setting.enableSite ? this.setting.enableSite(present) : null;
             return true;
-            // }
         }
         return false;
     }
@@ -809,7 +761,7 @@ class Focus {
     public static equal(siteOne: Site, siteTwo: Site) {
         let ret = false;
         if (siteOne && siteTwo && siteOne instanceof Site && siteTwo instanceof Site) {
-            if (siteOne.index === siteTwo.index && siteOne.leapId === siteTwo.leapId && siteOne.x === siteTwo.x && siteOne.y === siteTwo.y) {
+            if (siteOne.index === siteTwo.index && siteOne.x === siteTwo.x && siteOne.y === siteTwo.y) {
                 ret = true;
             }
         }
@@ -843,6 +795,13 @@ class Focus {
         this.event.off(this.setting.identCode, PageEventType.Error);
         this.event.off(this.setting.identCode, PageEventType.Focus);
         this.event.off(this.setting.identCode, PageEventType.Keydown);
+        // 按钮事件
+        this.event.off(this.setting.identCode, Key.Up);
+        this.event.off(this.setting.identCode, Key.Down);
+        this.event.off(this.setting.identCode, Key.Left);
+        this.event.off(this.setting.identCode, Key.Right);
+        this.event.off(this.setting.identCode, Key.Backspace);
+        // TODO ...
     }
 }
-export { Site, Focus, FocusType }
+export { Site, Focus, FocusType, FocusResponse }
