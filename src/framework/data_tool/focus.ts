@@ -41,6 +41,7 @@ class FocusResponse {
     previousSite: Site;
     success: boolean;
     site: Site;
+    type: "self" | "auto"
 }
 interface IFocusSetting {
     /**
@@ -109,8 +110,10 @@ class Focus {
         this.event = pageEvent;
         this.setting = defaults;
 
-        this.subscribeEvent(pageEvent);
-
+        // 如果已订阅将不重复订阅
+        if (!this.event.hasSubscribe(this.setting.identCode, PageEventType.Focus)) {
+            this.subscribeEvent(pageEvent);
+        }
         // move 操作被禁止并且没有订阅 keydown 事件进行自定义处理则给出提示
         if (!this.setting.enableMove) {
             // JS解释器执行完毕后 因为有可能在 Focus 对象实例化之后订阅了自定义处理事件
@@ -781,12 +784,11 @@ class Focus {
         }
     }
     /**
-     *  释放当前对象实例
+     *  释放当前对象实例与相关事件
      */
     public release() {
         this.instanceStatus = false;
         this.recordArray.length = 0;
-
         // 卸载当前事件队列
         this.event.off(this.setting.identCode, FocusType.Changeed);
         this.event.off(this.setting.identCode, FocusType.Blured);
@@ -801,7 +803,18 @@ class Focus {
         this.event.off(this.setting.identCode, Key.Left);
         this.event.off(this.setting.identCode, Key.Right);
         this.event.off(this.setting.identCode, Key.Backspace);
-        // TODO ...
+        this.event.off(this.setting.identCode, Key.One);
+        this.event.off(this.setting.identCode, Key.Two);
+        this.event.off(this.setting.identCode, Key.Three);
+        this.event.off(this.setting.identCode, Key.Four);
+        this.event.off(this.setting.identCode, Key.Five);
+        this.event.off(this.setting.identCode, Key.Six);
+        this.event.off(this.setting.identCode, Key.Seven);
+        this.event.off(this.setting.identCode, Key.Eight);
+        this.event.off(this.setting.identCode, Key.Nine);
+        this.event.off(this.setting.identCode, Key.VolumePlus);
+        this.event.off(this.setting.identCode, Key.VolumeMinus);
+        this.event.off(this.setting.identCode, Key.Mute);
     }
 }
 export { Site, Focus, FocusType, FocusResponse }

@@ -47,6 +47,7 @@ class PageEvent implements IPageEvent {
     private readonly events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>;
     private targetName: string | number = null;
     private disableTops: number[] = [];
+    private lockTops: number[] = [];
 
     constructor(targetName: string | number, events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>, otherDebug: boolean = false, emitterDebug: boolean = false, ) {
         this.events = events;
@@ -66,9 +67,7 @@ class PageEvent implements IPageEvent {
                     this.target(targetName);
                 else
                     this.trigger("*", PageEventType.Error, "当前 PageEvent 未设置默认焦点模块");
-
             }
-
         });
     }
     private initialize(events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>) {
@@ -84,16 +83,20 @@ class PageEvent implements IPageEvent {
                     let targetName = ele.handler[j];
 
                     // 触发目标为焦点事件
-                    if (String(this.targetName) === String(targetName)) {
+                    if (this.targetName == targetName) {
                         let params: PageEventResponse = { Event: e, Target: targetName, EventName: ele.topic, KeyCode: e.keyCode, Source: null, Data: null };
 
                         // 发布当前触发事件简码事件
                         if (params && params.KeyCode) {
                             this.trigger(targetName, params.KeyCode, params);
                         }
-                        // topic 为 number 类型默认当中 keyCode 处理
-                        this.trigger(targetName, ele.topic, params);
-                        this.trigger("*", ele.topic, params);
+                        // 如果该模块被锁上便不会通知
+                        if (!this.hasLock(targetName)) {
+                            // topic 为 number 类型默认当中 keyCode 处理
+                            this.trigger(targetName, ele.topic, params);
+                            // 所有模块的事件
+                            // this.trigger("*", ele.topic, params);
+                        }
                         break;
                     }
                 }
@@ -174,7 +177,7 @@ class PageEvent implements IPageEvent {
             const ele = list[i];
             if (identCode == ele) {
                 delete list[i];
-                this.trigger("*", PageEventType.Error, "PageEvent 已将 identCode 模块启用，相关事件会通知到 identCode 模块")
+                this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块启用")
                 break;
             }
         }
@@ -190,7 +193,7 @@ class PageEvent implements IPageEvent {
         }
         if (!isAdd) {
             list.push(identCode);
-            this.trigger("*", PageEventType.Error, "PageEvent 已将 identCode 模块禁用，相关事件不会通知 identCode 模块")
+            this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块禁用")
         }
     }
     hasDisable(identCode: number): boolean {
@@ -204,8 +207,41 @@ class PageEvent implements IPageEvent {
         }
         return isDisable;
     }
-    lockTopic() {
-        // TODO
+    lockTopic(identCode: number) {
+        let list = this.lockTops, length = list.length, isAdd = false;
+        for (let i = 0; i < length; i++) {
+            const ele = list[i];
+            if (identCode == ele) {
+                isAdd = true;
+                break;
+            }
+        }
+        if (!isAdd) {
+            list.push(identCode);
+            this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块锁定")
+        }
+    }
+    unlockTopic(identCode: number) {
+        let list = this.lockTops, length = list.length;
+        for (let i = 0; i < length; i++) {
+            const ele = list[i];
+            if (identCode == ele) {
+                delete list[i];
+                this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块解锁")
+                break;
+            }
+        }
+    }
+    hasLock(identCode: number) {
+        let list = this.lockTops, length = list.length, isLock = false;
+        for (let i = 0; i < length; i++) {
+            const ele = list[i];
+            if (identCode == ele) {
+                isLock = true;
+                break;
+            }
+        }
+        return isLock;
     }
 }
 export { PageEvent, PageEventType, PageEventResponse }

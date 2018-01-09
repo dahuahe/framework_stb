@@ -29,10 +29,7 @@ class PageHome extends Module {
     focus: Focus;
 
     constructor(event: PageEvent) {
-        
-        console.log('子类构造方法 调用父类之前');
         super(event);
-        console.log('子类构造方法 调用父类之后');
     }
     initialize() {
         console.log('重写 initialize');
@@ -50,23 +47,32 @@ class PageHome extends Module {
             width: 4,
             className: 'active',
             usingClass: function (e: FocusResponse) {
-                console.log('usingClass');
+                // console.log('usingClass');
             },
             cancelClass: function (e: FocusResponse) {
-                console.log('cancelClass');
+                // console.log('cancelClass');
             },
             autoFill: [Key.Down],
             leaveClass: 'disable',
             autoTarget: [
                 { keyCode: Key.Down, target: ModuleType.IdentCode2 }
-            ]
+            ],
+            disableSite: function (site: Site) {
+                // console.log(site);
+            },
+            enableSite: function (site: Site) {
+                // console.log(site);
+            }
         }, pageEvent);
+        this.focus.initData(list);
+        delete list[4];
         this.focus.initData(list);
         this.focus.debuggerOut();
     }
     subscribeToEvents() {
-        
-        console.log('重写 subscribeToEvents');
+        this.event.on(this.focus.getIdentCode(), FocusType.Changeed, () => {
+            console.log('changeed');
+        });
     }
 }
 class PageHome2 extends Module {
@@ -104,7 +110,6 @@ class PageHome2 extends Module {
 let homeOne = new PageHome(pageEvent);
 let homeTwo = new PageHome2(pageEvent);
 function main() {
-    pageEvent.disableTopic(ModuleType.IdentCode2);
-    pageEvent.enableTopic(ModuleType.IdentCode2);
+
 }
 main();
