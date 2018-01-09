@@ -52,6 +52,14 @@
 ### 使用 set
 ### 使用
 
+## Module 描述
+- 继承 Module 模块，当前模块不能再属性初始化时赋值然后在重写 init
+### 初始化对象
+### 使用 get
+### 使用 set
+### 使用
+
+
 # 自动流程
     npm run start   // 自动化编译流程
 
@@ -101,13 +109,13 @@
 - √ className 未设置时不会触发 cancelClass
 - √ identCode 未设置时不能创建
 - width 
-    - width 未定义默认值为 0
-    - width 未定义 height 为 0 时根据 initData 参数创建宽度无限长高度为 1 的坐标集
+    - √ width 未定义默认值为 0
+    - √ width 未定义 height 为 0 时根据 initData 参数创建宽度无限长高度为 1 的坐标集
 - height 
-    - height 未定义默认值为 0
-    - height 未定义 width 为 0 时根据 initData 参数创建高度无限长高度为 1 的坐标集
+    - √ height 未定义默认值为 0
+    - √ height 未定义 width 为 0 时根据 initData 参数创建高度无限长高度为 1 的坐标集
 - autoFill
-    - autoTarget 属性优先级高于 autoFill 冲突事件会被覆盖
+    - √ autoTarget 属性优先级高于 autoFill 冲突事件会被覆盖
 - autoTarget
 - className
 - leaveClass
@@ -117,8 +125,14 @@
     - 应用 className 类样式时触发
 - cancelClass
     - 取消 className 类样式时触发
-- enableMove
+- enableMove:boolean
 - disableSite
 - enableSite
 - initData
     - 未调用该函数进行初始化时发布 Error 提示信息
+
+# PageEvent 模块测试项参考
+**2018年1月9日10:04:59**
+- 成功创建
+- 初始化可设置默认焦点
+- topic 属性目前支持 PageEventType.Keydown 按键事件；handler 属性设置有效模块标识列表，如果未设置 keydown 事件不会通知到该模块

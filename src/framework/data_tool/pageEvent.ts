@@ -163,7 +163,7 @@ class PageEvent implements IPageEvent {
         return this.targetName;
     }
     private subscribeEvent() {
-        // 程序异常调试参考信息默认开启
+        // 程序异常调试参考信息
         this.on("*", PageEventType.Error, (msg: any) => {
             console.log(msg);
         });
@@ -174,6 +174,7 @@ class PageEvent implements IPageEvent {
             const ele = list[i];
             if (identCode == ele) {
                 delete list[i];
+                this.trigger("*", PageEventType.Error, "PageEvent 已将 identCode 模块启用，相关事件会通知到 identCode 模块")
                 break;
             }
         }
@@ -189,6 +190,7 @@ class PageEvent implements IPageEvent {
         }
         if (!isAdd) {
             list.push(identCode);
+            this.trigger("*", PageEventType.Error, "PageEvent 已将 identCode 模块禁用，相关事件不会通知 identCode 模块")
         }
     }
     hasDisable(identCode: number): boolean {

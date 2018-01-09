@@ -29,9 +29,14 @@ class PageHome extends Module {
     focus: Focus;
 
     constructor(event: PageEvent) {
+        
+        console.log('子类构造方法 调用父类之前');
         super(event);
+        console.log('子类构造方法 调用父类之后');
     }
     initialize() {
+        console.log('重写 initialize');
+
         let list: HElement[] = [];
         let container = document.getElementById('container')
         for (let i = 0; i < 5; i++) {
@@ -60,11 +65,12 @@ class PageHome extends Module {
         this.focus.debuggerOut();
     }
     subscribeToEvents() {
+        
+        console.log('重写 subscribeToEvents');
     }
 }
 class PageHome2 extends Module {
     focus: Focus;
-
     constructor(event: PageEvent) {
         super(event);
     }
@@ -99,5 +105,6 @@ let homeOne = new PageHome(pageEvent);
 let homeTwo = new PageHome2(pageEvent);
 function main() {
     pageEvent.disableTopic(ModuleType.IdentCode2);
+    pageEvent.enableTopic(ModuleType.IdentCode2);
 }
 main();
