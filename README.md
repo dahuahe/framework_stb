@@ -80,12 +80,11 @@
 **2017年9月5日11:33:59**
 - √ PageEvent 对象 trigger 方法进行焦点移交时若目标模块没有订阅加入异常提示
 - √ PageEvent 对象 on 方法订阅 focus blur keydown 等事件选项封装为枚举类型且可扩展
-- √ 取消 Mediator 中介器 新增 EventMeitter 发射器代替(可支持同一事件被多个地方订阅)
-- √ 移除 system.${ele.topic}.${targetName} 事件订阅方式 改用发射器订阅。执行顺序为模块封装的自动行为执行（比如Focus对象） > 开发者自定义事件处理执行（比如 Module 子类的 subscribeEvent 方法）
-- √ PageEvent 对象 增加初始化时 targetName 属性可以为 null 意思是当前页面无焦点。然后通过 target 方法在需要地方手动设置
-- √ 多个模块具有同一功能，比如返回、确定等。新增同一处理入口（已经作废，大部分模块对事件需要进行业务逻辑处理，该思路没有通用性）
-- √ 加入队列管理事件执行队列与顺序（发射器）
-- √ 定义日志打印接口并且实现相应逻辑，当前方案有两种，1.通过浏览器函数 console.log()(已经实现) 2.通过     写入本地.txt或者.json 文件，以此实现跨平台（模块通过实现 PageEventType.Error 方法，上报错误信息）
+- √ EventMeitter 对 Mediator 中介器封装，新增 EventMeitter 发射器代替(可支持同一事件被多个地方订阅)
+- √ PageEvent 移除 system.${ele.topic}.${targetName} 订阅方式 改用发射器订阅。执行顺序为模块封装的自动行为执行（比如Focus对象）
+- √ PageEvent 增加初始化时 targetName 属性可以为 null 意思是当前页面无焦点。然后通过 target 方法在需要地方手动设置
+- √ EventMeitter 加入队列管理事件执行队列与顺序（发射器）
+- √ PageEvent 定义日志打印接口并且实现相应逻辑，订阅 * - PageEventType.Error 通过浏览器函数 console.log() 输出日志
 **2018年1月4日18:07:46**
 - √ PageEvent 发布当前触发事件简码事件。订阅 PageEventType.keydown 事件可以替换为 Key 枚举的值
 - √ PageEvent 管理模块可以有开关功能，如果关闭则自动焦点和焦点移交则不会执行
