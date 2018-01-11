@@ -46,6 +46,7 @@ class PageEvent implements IPageEvent {
     private readonly _eventEmitter: IEventEmitter;
     private readonly events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>;
     private targetName: string | number = null;
+    private previousName: string | number = null;
     private disableTops: number[] = [];
     private lockTops: number[] = [];
 
@@ -152,7 +153,9 @@ class PageEvent implements IPageEvent {
                         Data: data,
                         Source: sourceTargetName
                     };
-
+                    if (null !== this.targetName) {
+                        this.previousName = this.targetName;
+                    }
                     this.targetName = identCode;
                     this.trigger(identCode, PageEventType.Focus, response);
                 }
@@ -164,6 +167,9 @@ class PageEvent implements IPageEvent {
     }
     getTargetIdentCode() {
         return this.targetName;
+    }
+    getPreviousIdentCode() {
+        return this.previousName;
     }
     private subscribeEvent() {
         // 程序异常调试参考信息

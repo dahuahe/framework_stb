@@ -214,17 +214,42 @@ export class HElement {
         if (ele) {
             let keyName = clasName || null;
 
-            if (keyName) {
-                ele.className = `${ele.className} ${clasName}`;
+            if (keyName && keyName.trim()) {
+                let arr = ele.className.split(" ") || [], length = arr.length;
+                for (let i = 0; i < length; i++) {
+                    const item = arr[i];
+                    if (item == clasName) {
+                        delete arr[i];
+                        break;
+                    }
+                }
+                // 添加
+                arr.push(clasName);
+                ele.className = arr.join(" ").trim();
             } else {
                 return ele.className;
             }
         }
     }
-    removeClas = (className: string) => {
+    removeClas = (clasName: string) => {
         let ele = this.element;
-        if (ele)
-            ele.className = ele.className.replace(className, "").replace(/(^\s*)/g, "");
+        if (ele) {
+            let keyName = clasName || null;
+
+            if (keyName && keyName.trim()) {
+                let arr = ele.className.split(" ") || [], length = arr.length;
+                for (let i = 0; i < length; i++) {
+                    const item = arr[i];
+                    if (item == clasName) {
+                        delete arr[i];
+                        ele.className = arr.join(" ").trim();
+                        break;
+                    }
+                }
+            } else {
+                return ele.className;
+            }
+        }
     }
     html = (html?: string) => {
         let _element = this.element;
