@@ -75,8 +75,8 @@
 
 # 需要改进的功能
 - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
-- 锁定某个 site 自动过滤该坐标
-- 
+- 锁定某个 site 自动过滤该坐标 并且发布该事件
+- Focus 事件相应类型 定义为 InterfaceName + Response 格式
 - // TODO
 
 # 日志
