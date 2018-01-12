@@ -37,6 +37,7 @@ gulp.task('ts', function () {
     .pipe(replace('["require","exports","../../framework/framework"]', '["require","exports","../js/framework/framework"]'))
     .pipe(replace('["require","exports","../model/model"]', '["require","exports","./js/model/model"]'))
     .pipe(replace('["require","exports","../logic/logic"]', '["require","exports","./js/logic/logic"]'))
+    .pipe(replace('["require","exports","../../config"]', '["require","exports","./js/config"]'))
     .pipe(gulp.dest('./dist/js'))
 })
 
