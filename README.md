@@ -75,7 +75,6 @@
 
 # 需要改进的功能
 - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
-- 锁定某个 site 自动过滤该坐标 并且发布该事件
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
 - // TODO
 
@@ -118,9 +117,9 @@
 - autoFill
     - √ autoTarget 属性优先级高于 autoFill 冲突事件会被覆盖
 - autoTarget
-    - 
+    - 配置焦点基本转交规则，复杂的处理逻辑则通过手动触发
 - className
-    - 
+    - className 已定义时在组件获取焦点时应用该样式
 - leaveClass
     - √ leaveClass 已定义时在组件失去焦点时应用该样式
     - √ leaveClass 已定义时在组件获取焦点时移除该样式
