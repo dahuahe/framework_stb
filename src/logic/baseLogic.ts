@@ -15,12 +15,14 @@ export class RequestInfo {
     public readonly data: any;
     public readonly url: string;
     public header: any;
+    public async: boolean;
     public readonly callback: (success: boolean, result: any) => void;
 
     constructor(url: string, data: any, callback: (response: ResponseInfo<any>) => void) {
         this.data = data;
         this.url = url;
         this.header = {};
+        this.async = true;
         this.callback = function (status: boolean, res) {
             callback(new ResponseInfo(status, res));
         }
@@ -66,10 +68,16 @@ export class BaseLogic {
             request.callback(true, JSON.parse(jsonString));
         }, 0);
     }
-    private request(request: RequestInfo, method: string) {
+    protected syncGet(request: RequestInfo) {
+        this.request(request, 'GET', false);
+    }
+    protected syncPost(request: RequestInfo) {
+        this.request(request, 'POST', false);
+    }
+    private request(request: RequestInfo, method: string, async = true) {
         new Ajax({
             url: request.url,
-            async: true,
+            async: async,
             method: method,
             data: request.data,
             success: function (result: any) {

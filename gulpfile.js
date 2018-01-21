@@ -34,10 +34,10 @@ gulp.task('ts', function () {
       }
     }))
     .pipe(uglify())
-    .pipe(replace('["require","exports","../../framework/framework"]', '["require","exports","../js/framework/framework"]'))
-    .pipe(replace('["require","exports","../model/model"]', '["require","exports","./js/model/model"]'))
-    .pipe(replace('["require","exports","../logic/logic"]', '["require","exports","./js/logic/logic"]'))
-    .pipe(replace('["require","exports","../../config"]', '["require","exports","./js/config"]'))
+    .pipe(replace('../../framework/framework', './framework/framework'))
+    .pipe(replace('../../logic/logic', './logic/logic'))
+    .pipe(replace('../../model/model', './model/model'))
+    .pipe(replace('../../config"]', './config'))
     .pipe(gulp.dest('./dist/js'))
 })
 

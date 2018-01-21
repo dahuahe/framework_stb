@@ -47,7 +47,7 @@ export class Player {
     }
     /**
      * 从头播放
-     * 在播放过程中调用此方法可能异常，原因未深纠
+     * 
      */
     play(playUrl: string) {
         this.configPlayUrl(playUrl);
@@ -55,6 +55,9 @@ export class Player {
             this.currentTime = 0;
             this.totalTime = 0;
 
+            // 在播放过程中调用此方法可能异常，原因未深纠所以做结束处理再重新播放
+            this.pause(false);
+            this.stop();
             this.mediaPlay.setSingleMedia(this.playUrl);      // 播放源
             this.mediaPlay.playFromStart();
 
@@ -80,7 +83,9 @@ export class Player {
             this.pageEvent.trigger(this.identCode, PlayerType.PausePlaying);
         }
     }
-    release() {
+    stop() {
+        this.mediaPlay.stop();
+    } release() {
         // 暂停
         this.pause(false);
         // 停止流
@@ -112,6 +117,9 @@ export class Player {
     }
     getVolume(): number {
         return this.mediaPlay.getVolume();
+    }
+    getTime(): number {
+        return this.currentTime;
     }
     setMute() {
         this.mediaPlay.setMuteFlag(1);
@@ -172,7 +180,8 @@ export class Player {
                 this.currentTime = time;
                 // 播放中
                 if (this.currentTime < this.totalTime) {
-                    this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanged, <VolumeChangedResponse>{ currentVolume: this.currentTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
                 }
                 else {
                     // 播放完毕
@@ -199,8 +208,7 @@ export class Player {
     private stopMonitorProgress() {
         this.progressMonitor.clear();
     }
-    private configDisplay(displayMethod: 'full' | 'size', displayArea = { left: 0, top: 0, width: 1280, height: 720 }) {
-
+    private configDisplay(displayMethod: 'full' | 'size' | 'hidden', displayArea = { left: 0, top: 0, width: 1280, height: 720 }) {
         if (displayMethod === 'full') {
             // 全屏显示
             this.mediaPlay.setVideoDisplayArea(displayArea.left, displayArea.top, displayArea.width, displayArea.height);/*left ,top,width,height*/
@@ -210,7 +218,6 @@ export class Player {
             this.mediaPlay.setVideoDisplayArea(displayArea.left, displayArea.top, displayArea.width, displayArea.height);/*left ,top,width,height*/
             this.mediaPlay.setVideoDisplayMode(0);/*指定屏幕大小 0:按给定大小显示 1：全屏*/
         }
-
         // 公用配置部分
         this.mediaPlay.refreshVideoDisplay();/*调整视频显示，需要上面两函数配合*/
         this.mediaPlay.setNativeUIFlag(0);/*播放器是否显示缺省的Native UI，  0:不允许 1：允许*/
@@ -282,35 +289,4 @@ export class Player {
             'entryID:"entry1"}]';
         this.playUrl = mediaStr;
     }
-}
-// 事件响应参数
-interface MuteVolumeResponse {
-    currentVolume: number
-}
-interface ResumeVolumeResponse {
-    currentVolume: number
-}
-interface ProgressChangingResponse {
-    currentTime: number;
-}
-interface ProgressChangedResponse {
-    currentTime: number;
-}
-interface VolumeChangedResponse {
-    currentVolume: number;
-}
-interface VolumeChangingResponse {
-    currentVolume: number;
-}
-interface VolumeInitResponse {
-    currentTime: number;
-}
-interface ReleasedResponse {
-    success: boolean;
-}
-interface TotalProgressInitResponse {
-    totalTime: number;
-}
-interface StartPlayingResponse {
-    totalTime: number;
 }

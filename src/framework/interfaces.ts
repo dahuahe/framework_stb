@@ -58,3 +58,35 @@ interface IEventEmitter {
     unsubscribeToEvents(event: IAppEvent): void;
     hasSubscribe(event: IAppEvent): boolean;
 }
+
+// 播放器
+interface MuteVolumeResponse {
+    currentVolume: number
+}
+interface ResumeVolumeResponse {
+    currentVolume: number
+}
+interface ProgressChangingResponse {
+    currentTime: number;
+}
+interface ProgressChangedResponse {
+    currentTime: number;
+}
+interface VolumeChangedResponse {
+    currentVolume: number;
+}
+interface VolumeChangingResponse {
+    currentVolume: number;
+}
+interface VolumeInitResponse {
+    currentTime: number;
+}
+interface ReleasedResponse {
+    success: boolean;
+}
+interface TotalProgressInitResponse {
+    totalTime: number;
+}
+interface StartPlayingResponse {
+    totalTime: number;
+}

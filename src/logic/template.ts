@@ -1,89 +1,155 @@
 // /**
 //  * 编辑作者：张诗涛
-//  * 创建时间：2017年11月6日15:46:27
-//  * 功能分类：视频数据逻辑层
+//  * 创建时间：2018年1月18日14:50:14
+//  * 功能分类：安徽送祝福活动接口
 //  */
 // import { BaseLogic, ResponseInfo, RequestInfo } from '../logic/baseLogic';
-// import {  } from "../model/model"
+// import { PrizeEntity, PrizeGrade, MainEntity } from "../model/model";
 // import { Config } from '../config';
 
-// interface IRecommend {
-//     guid: number, fetch: string, limit: number, token: string
+// interface IMain {
+//     user_id: string;
+// }
+// interface IWinners {
+//     token: string;
+//     lottery_id: number;
+// }
+// interface IPlay {
+//     token: string;
+//     play_password: string;
+// }
+// interface IDraw {
+//     token: string;
+//     lottery_id: number;
+//     cellphone: string;
 // }
 
-// class InvitationLogic extends BaseLogic {
-//     /**
-//      * 推荐数据
-//      * @param data 请求参数
-//      * @param callback 数据响应
-//      * @param <info: ResponseInfo<string>> 返回对象数据类型
-//      */
-//     getRecommendList(data: IRecommend, callback: (info: ResponseInfo<[InvitationEntity]>) => void) {
-// let request = new RequestInfo(`${Config.serviceAddress}/${Config.apiPath.correlationRecommend.replace("{id}", `${data.id}`)}`, data, function (res) {
-//     res.status = res._response.statusCode;
-//     res.message = res._response.errMsg;
-//     res.success = false;
+// class CommandLogic extends BaseLogic {
+//     getMainData(data: IMain, callback: (info: ResponseInfo<MainEntity>) => void) {
+//         let request = new RequestInfo(`${Config.serviceAddress}/${Config.apiPath.main}`, data, function (res) {
+//             res.status = res._response.result.state;
+//             res.message = res._response.result.reason;
+//             res.success = 200 == res.status ? true : false;
 
-//     if (res._success) {
-//         const { api } = res._response.data;
-//         if (api) {
-//             const list = api.result || [];
+//             if (res.success) {
+//                 const data = res._response.data;
+//                 if (data) {
+//                     res.data = createModel(data);
+//                 }
+//             }
+//             callback(res);
+//         });
 
-//             res.message = api.message;
-//             res.data = createModel(list);
+//         var createModel = function (data: any) {
+//             let ntt = new MainEntity();
+//             const { token, cdn_domain, background, api_domain, api } = data;
+
+//             ntt.apiCollection = api;
+//             ntt.apiDomain = api_domain;
+//             ntt.backgroundImage = background;
+//             ntt.cdnDomain = cdn_domain;
+//             ntt.token = token;
+//             return ntt;
 //         }
 
-//         res.success = res.data && res.data.length ? true : false;
+//         this.syncGet(request);
 //     }
-//     callback(res);
-// });
+//     getWinnersData(data: IWinners, callback: (info: ResponseInfo<PrizeEntity[]>) => void) {
+//         let request = new RequestInfo(`${Config.serviceAddress}/${Config.apiPath.show}`, data, function (res) {
+//             res.status = res._response.result.state;
+//             res.message = res._response.result.reason;
+//             res.success = 200 == res.status ? true : false;
+
+//             if (res.success) {
+//                 const { winner_list } = res._response.data;
+//                 if (winner_list) {
+//                     const list = winner_list || [];
+
+//                     res.data = createModel(list);
+//                 }
+//             }
+//             callback(res);
+//         });
 //         this.requestGet(request);
 
-//         var createModel = function (data) {
+//         var createModel = function (data: [any]) {
 //             // Create Model Class And Return
-//             var list = [];
+//             var list: PrizeEntity[] = [];
 
 //             data.forEach((v, i) => {
-//                 var invi = new InvitationEntity();
-//                 var video = new VideoEntity();
-//                 var owner = new OwnerEntity();
-//                 // 文章信息
-//                 invi.guid = v.guid;
-//                 invi.id = v.id;
-//                 invi.title = v.title;
-//                 invi.content = v.content;
-//                 invi.createTime = v.create_at;
-//                 invi.videoEntity = video;
-//                 invi.ownerEntity = owner;
-//                 // 图片列表
-//                 var pictureList = v.attachments.picture;
-//                 pictureList.forEach((v_1, i_1) => {
-//                     var p = new PictureEntity();
-//                     p.height = v_1.parameters.height;
-//                     p.width = v_1.parameters.width;
-//                     p.url = v_1.url;
-//                     invi.pictureEntityList.push(p);
-//                 });
-//                 // 视频
-//                 video.pictureUrl = v.attachments.video.picture_url;
-//                 video.width = v.attachments.video.parameters.width;
-//                 video.height = v.attachments.video.parameters.height;
-//                 video.resolution = v.attachments.video.resolution;
-//                 video.duration = v.attachments.video.duration;
-//                 video.videoID = v.attachments.video.video_id;
-//                 // 用户
-//                 owner.id = v.owner.id;
-//                 owner.nickname = v.owner.nickname;
-//                 owner.gender = v.owner.gender;
-//                 owner.headPortrait = v.owner.avatar;
-//                 owner.birthday = v.owner.birthday;
-//                 owner.cellphone = v.owner.cellphone;
-//                 owner.birthday = v.owner.birthday;
-
-//                 list.push(invi);
+//                 let ntt = new PrizeEntity();
+//                 ntt.cellphone = v.cellphone;
+//                 ntt.createTime = v.create_time;
+//                 if (4 == v.item_lv) {
+//                     ntt.prizeGrade = PrizeGrade.thanks;
+//                 }
+//                 else if (3 == v.item_lv) {
+//                     ntt.prizeGrade = PrizeGrade.ten;
+//                 }
+//                 else if (2 == v.item_lv) {
+//                     ntt.prizeGrade = PrizeGrade.fifty;
+//                 }
+//                 else if (1 == v.item_lv) {
+//                     ntt.prizeGrade = PrizeGrade.oneHundredYuan;
+//                 }
+//                 ntt.prizeName = v.item_name;
+//                 list.push(ntt);
 //             });
 //             return list;
 //         }
 //     }
+//     getPlayData(data: IPlay, callback: (info: ResponseInfo<{ playUrl: string }>) => void) {
+//         let request = new RequestInfo(`${Config.serviceAddress}/${Config.apiPath.play}`, data, function (res) {
+//             res.status = res._response.result.state;
+//             res.message = res._response.result.reason;
+//             res.success = 200 == res.status ? true : false;
+
+//             if (res.success) {
+//                 const { play_url } = res._response.data;
+//                 if (play_url) {
+//                     res.data = { playUrl: play_url };
+//                 }
+//             }
+//             callback(res);
+//         });
+//         this.requestGet(request);
+//     }
+//     getDrawData(data: IDraw, callback: (info: ResponseInfo<PrizeEntity>) => void) {
+//         let request = new RequestInfo(`${Config.serviceAddress}/${Config.apiPath.draw}`, data, function (res) {
+//             res.status = res._response.result.state;
+//             res.message = res._response.result.reason;
+//             res.success = 200 == res.status ? true : false;
+
+//             if (res.success) {
+//                 const { prize } = res._response.data;
+//                 if (prize) {
+//                     const data = prize || {};
+
+//                     res.data = createModel(data);
+//                 }
+//             }
+//             callback(res);
+//         });
+//         this.requestGet(request);
+
+//         var createModel = function (v: any) {
+//             // Create Model Class And Return
+//             let ntt = new PrizeEntity();
+//             if (4 == v.item_lv) {
+//                 ntt.prizeGrade = PrizeGrade.thanks;
+//             }
+//             else if (3 == v.item_lv) {
+//                 ntt.prizeGrade = PrizeGrade.ten;
+//             }
+//             else if (2 == v.item_lv) {
+//                 ntt.prizeGrade = PrizeGrade.fifty;
+//             }
+//             else if (1 == v.item_lv) {
+//                 ntt.prizeGrade = PrizeGrade.oneHundredYuan;
+//             }
+//             ntt.prizeName = v.item_name;
+//             return ntt;
+//         }
+//     }
 // }
-// export { InvitationLogic }
+// export { CommandLogic }

@@ -74,10 +74,17 @@
 - 盒子关机后 cookie 清空
 - launcher 相关方法不要通过闭包或 require 加载，出现接口无法访问问题
 - 安徽-海信-ZP906H 盒子 全局 top 属性作为 js 关键字。再次声明或赋值操作为无效。尽可能不要使用该关键字 top
+- 数码视讯 Q5 小窗视频会覆盖所有元素背景图片样式；添加 背景图片可能导致屏幕部分黑屏（图片相关使用 img 标签）
+- 创维 E900 返回简码与其它盒子不一致 Key.Backspace2且隐藏视频接口this.mediaPlay.setVideoDisplayMode(255)无效
 
 # 需要改进的功能
 - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
+- - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
+- 锁定某个 site 自动过滤该坐标 并且发布该事件
+- Focus 事件相应类型 定义为 InterfaceName + Response 格式
+- 播放器当前进度事件加一个总时长参数
+- 播放器总市场初始化加一个当前开始时间点参数
 - // TODO
 
 # 日志
