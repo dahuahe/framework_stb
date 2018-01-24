@@ -1,6 +1,7 @@
 /**
  * 编辑作者：张诗涛
  * 创建时间：2018年1月18日12:12:43
+ * 更新时间：2018年1月24日14点57分
  * 功能分类：安徽盒子
  */
 // 盒子相关属性
@@ -55,7 +56,7 @@ const Util = {
  * supportSmallWin：是否支持小窗口播放视频
  * supportXiri: 是否支持讯飞语音 （在讯飞功能没有正式上线之前，该处统一设置为false）
  */
-var DEV_MAP:any = {
+var DEV_MAP: any = {
     /**
      * 中兴
      */
@@ -122,7 +123,7 @@ var DEV_MAP:any = {
         type: "CW",
         is4K: false,
         needAnimate: true,
-        supportSmallWin: false,
+        supportSmallWin: true,
         supportXiri: false
     },
     "E909": {
@@ -137,6 +138,13 @@ var DEV_MAP:any = {
         is4K: true,
         needAnimate: true,
         supportSmallWin: false, // 小窗不能切换到全屏；小窗始终在页面上面
+        supportXiri: true
+    },
+    "E900-s": {
+        type: "CW",
+        is4K: true,
+        needAnimate: true,
+        supportSmallWin: true,
         supportXiri: true
     },
     "E910V10D": {
