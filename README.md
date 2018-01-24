@@ -62,7 +62,8 @@
 
 
 # 自动流程
-    npm run start   // 自动化编译流程
+    npm run start   // 开发流程
+    npm run minify  // 发布流程
 
 # 对象名称
 # 对象详解
@@ -81,7 +82,6 @@
 - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
 - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
-- 锁定某个 site 自动过滤该坐标 并且发布该事件
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
 - 播放器当前进度事件加一个总时长参数
 - 播放器总市场初始化加一个当前开始时间点参数
