@@ -8,6 +8,7 @@ var minify = require('gulp-minify-css')
 var replace = require('gulp-replace')
 var htmlmin = require('gulp-htmlmin')
 var autoprefixer = require('gulp-autoprefixer')
+var imagemin = require('gulp-imagemin')
 
 var config = {
   include: {
@@ -96,6 +97,16 @@ gulp.task('tsmin', function () {
     .pipe(replace('../../config"]', './config'))
     .pipe(gulp.dest('./dist/js'))
 })
+// gulp.task('imagemin', function () {
+//   return gulp.src('./src/images/**/*')
+//     .pipe(imagemin({
+//       optimizationLevel: 5, // 类型：Number  默认：3  取值范围：0-7（优化等级）
+//       progressive: true, // 类型：Boolean 默认：false 无损压缩jpg图片
+//       interlaced: true, // 类型：Boolean 默认：false 隔行扫描gif进行渲染
+//       multipass: true // 类型：Boolean 默认：false 多次优化svg直到完全优化
+//     }))
+//     .pipe(gulp.dest('./dist/images'))
+// })
 // minify
 gulp.task('minify', ['tsmin', 'lessmin', 'htmlmin', 'js'])
 // noraml

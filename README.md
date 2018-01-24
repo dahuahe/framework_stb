@@ -112,6 +112,7 @@
 - 新增 template 文件夹 模板文件单独放置且跳过编译配置
 - gulpfile.js 增加css多浏览器兼容
 - gulpfile.js 增加html压缩
+- gulpfile.js 增加图片压缩
 - npm 编译命令增加 npm minify(发布压缩版本、带前缀css版本)
 
 # Focus 模块测试项参考
