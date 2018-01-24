@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "gulp watch",
+    "minify": "gulp minify",
     "server": "http-server dist -c-0 -o -p 9876 -s"
   },
   "repository": {
@@ -21,6 +22,8 @@
   "homepage": "https://github.com/ruanyf/webpack-demos#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.1.0",
+    "gulp-htmlmin": "^4.0.0",
     "gulp-less": "^3.3.2",
     "gulp-minify-css": "^1.2.4",
     "gulp-rename": "^1.2.2",

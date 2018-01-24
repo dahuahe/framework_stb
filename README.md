@@ -80,11 +80,11 @@
 # 需要改进的功能
 - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
-- - 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
+- 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
 - 锁定某个 site 自动过滤该坐标 并且发布该事件
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
 - 播放器当前进度事件加一个总时长参数
-- 播放器总市场初始化加一个当前开始时间点参数模板文件单独放置且跳过编译
+- 播放器总市场初始化加一个当前开始时间点参数
 - pageEvent 扩展自定义触发事件比如 keydown（除了移动规则其余都带有较复杂功能性质所以不予支持，避免隐藏BUG）
 - // TODO
 
@@ -108,6 +108,12 @@
 **2018年1月11日15:32:56**
 - Helement 对象 removeClas,clas 方法导致前后空格，删除异常（类名中某个字符被删除）等问题
 - PageEvent 新增 getPreviousIdentCode 方法获取来源模块标识
+**2018年1月24日15点03分**
+- 新增 template 文件夹 模板文件单独放置且跳过编译配置
+- gulpfile.js 增加css多浏览器兼容
+- gulpfile.js 增加html压缩
+- npm 编译命令增加 npm minify(发布压缩版本、带前缀css版本)
+
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**
 - √ 成功创建

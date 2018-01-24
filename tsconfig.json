@@ -3,7 +3,7 @@
         "./src/**/*.ts"
     ],
     "exclude": [
-        "./src/**/template.ts"
+        "./src/template/**/*"
     ],
     "compilerOptions": {
         "outDir": "./dist/js",
