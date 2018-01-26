@@ -59,11 +59,9 @@ class PageEvent implements IPageEvent {
             this.subscribeEvent();
         }
         this.initialize(events);
-
         // 解释器初始化后触发
         new SetTimeout().enable(() => {
             if (null === this.targetName) {
-
                 if (null !== targetName)
                     this.target(targetName);
                 else
@@ -86,13 +84,22 @@ class PageEvent implements IPageEvent {
                     // 触发目标为焦点事件
                     if (this.targetName == targetName) {
                         let params: PageEventResponse = { Event: e, Target: targetName, EventName: ele.topic, KeyCode: e.keyCode, Source: null, Data: null };
-
-                        // 发布当前触发事件简码事件
-                        if (params && params.KeyCode) {
-                            this.trigger(targetName, params.KeyCode, params);
+                        let trigger = false;
+                        if (!this.hasDisable(targetName)) {
+                            if (!this.hasLock(targetName)) {
+                                trigger = true;
+                            } else {
+                                // 锁定的键码
+                                if (e.keyCode != Key.Left && e.keyCode != Key.Up && e.keyCode != Key.Right && e.keyCode != Key.Down) {
+                                    trigger = true;
+                                }
+                            }
                         }
-                        // 如果该模块被锁上便不会通知
-                        if (!this.hasLock(targetName)) {
+                        if (trigger) {
+                            // 发布当前触发事件简码事件
+                            if (params && params.KeyCode) {
+                                this.trigger(targetName, params.KeyCode, params);
+                            }
                             // topic 为 number 类型默认当中 keyCode 处理
                             this.trigger(targetName, ele.topic, params);
                             // 所有模块的事件

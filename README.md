@@ -114,6 +114,8 @@
 - gulpfile.js 增加html压缩
 - gulpfile.js 增加图片压缩
 - npm 编译命令增加 npm minify(发布压缩版本、带前缀css版本)
+- 2018年1月26日 14点07分
+- pageEvent 锁定 topic 后将不触发 left up right bottom 键事件
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**
