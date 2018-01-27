@@ -49,6 +49,7 @@ class PageEvent implements IPageEvent {
     private previousName: string | number = null;
     private disableTops: number[] = [];
     private lockTops: number[] = [];
+    private lockKeycodes: any = {};
 
     constructor(targetName: string | number, events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>, otherDebug: boolean = false, emitterDebug: boolean = false, ) {
         this.events = events;
@@ -90,7 +91,7 @@ class PageEvent implements IPageEvent {
                                 trigger = true;
                             } else {
                                 // 锁定的键码
-                                if (e.keyCode != Key.Left && e.keyCode != Key.Up && e.keyCode != Key.Right && e.keyCode != Key.Down) {
+                                if (!this.hasLockKeycode(targetName, e.keyCode)) {
                                     trigger = true;
                                 }
                             }
@@ -196,17 +197,16 @@ class PageEvent implements IPageEvent {
         }
     }
     disableTopic(identCode: number) {
-        let list = this.disableTops, length = list.length, isAdd = false;
+        let list = this.disableTops, length = list.length, isAdd = true;
         for (let i = 0; i < length; i++) {
             const ele = list[i];
             if (identCode == ele) {
-                isAdd = true;
+                isAdd = false;
                 break;
             }
         }
-        if (!isAdd) {
+        if (isAdd) {
             list.push(identCode);
-            this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块禁用")
         }
     }
     hasDisable(identCode: number): boolean {
@@ -220,7 +220,7 @@ class PageEvent implements IPageEvent {
         }
         return isDisable;
     }
-    lockTopic(identCode: number) {
+    lockTopic(identCode: number, keyCodes?: number[]) {
         let list = this.lockTops, length = list.length, isAdd = false;
         for (let i = 0; i < length; i++) {
             const ele = list[i];
@@ -233,15 +233,41 @@ class PageEvent implements IPageEvent {
             list.push(identCode);
             this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块锁定")
         }
+        // 锁定 keyCode
+        if (keyCodes && keyCodes.length) {
+            keyCodes.forEach((v, i) => {
+                this.lockKeycode(identCode, v);
+            });
+        }
     }
-    unlockTopic(identCode: number) {
-        let list = this.lockTops, length = list.length;
-        for (let i = 0; i < length; i++) {
-            const ele = list[i];
-            if (identCode == ele) {
-                delete list[i];
-                this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块解锁")
-                break;
+    unlockTopic(identCode: number, keyCodes?: number[]) {
+        let isRemove = false;
+        // 解锁 keyCode
+        if (undefined != keyCodes) {
+            if (keyCodes && keyCodes.length) {
+                keyCodes.forEach((v, i) => {
+                    this.unlockKeycode(identCode, v);
+                });
+                let arr = this.lockKeycodes[identCode];
+                if (!arr || !arr.length) {
+                    isRemove = true;
+                }
+            }
+        } else {
+            // 删除所有
+            this.unlockKeycode(identCode);
+            isRemove = true;
+        }
+        // 所有键码都被删除则删除焦点锁定
+        if (isRemove) {
+            let list = this.lockTops, length = list.length;
+            for (let i = 0; i < length; i++) {
+                const ele = list[i];
+                if (identCode == ele) {
+                    delete list[i];
+                    this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块解锁")
+                    break;
+                }
             }
         }
     }
@@ -253,6 +279,66 @@ class PageEvent implements IPageEvent {
                 isLock = true;
                 break;
             }
+        }
+        return isLock;
+    }
+    private lockKeycode(identCode: number, keyCode: number) {
+        let keycodes: number[] = <any>this.lockKeycodes[identCode];
+        if (keycodes && keycodes.length) {
+            let isAdd = true;
+            for (let i = 0; i < keycodes.length; i++) {
+                const ele = keycodes[i];
+                if (keyCode == ele) {
+                    isAdd = false;
+                    break;
+                }
+            }
+            if (isAdd) {
+                keycodes.push(keyCode);
+                this.trigger("*", PageEventType.Error, "PageEvent 已将 keyCode:" + keyCode + " 禁用");
+            }
+        } else {
+            this.lockKeycodes[identCode] = [keyCode];
+            this.trigger("*", PageEventType.Error, "PageEvent 已将 keyCode:" + keyCode + " 禁用");
+        }
+    }
+    private unlockKeycode(identCode: number, keyCode?: number) {
+        if (undefined != keyCode) {
+            let keycodes: number[] = <any>this.lockKeycodes[identCode];
+            if (keycodes && keycodes.length) {
+                for (let i = 0; i < keycodes.length; i++) {
+                    const ele = keycodes[i];
+                    if (keyCode == ele) {
+                        delete keycodes[i];
+                        this.trigger("*", PageEventType.Error, "PageEvent 已将 keyCode:" + keyCode + " 启用");
+                        break;
+                    }
+                }
+            }
+        } else {
+            // 删除所有相关 keyCode 集合
+            this.lockKeycodes[identCode] = [];
+            this.trigger("*", PageEventType.Error, "PageEvent 已将 identCode:" + identCode + " 解锁");
+        }
+    }
+    /**
+     * 该 identCode 对应 锁定码列表如果为空则返回 true
+     * 该 identCode 对应 解锁码列表至少有一个元素且存在 keyCode 则返回 true
+     * @param identCode 
+     * @param keyCode 
+     */
+    private hasLockKeycode(identCode: number, keyCode: number) {
+        let keycodes: number[] = <any>this.lockKeycodes[identCode], isLock = false;
+        if (keycodes && keycodes.length) {
+            for (let i = 0; i < keycodes.length; i++) {
+                const ele = keycodes[i];
+                if (keyCode == ele) {
+                    isLock = true;
+                    break;
+                }
+            }
+        } else {
+            isLock = true;
         }
         return isLock;
     }

@@ -114,8 +114,10 @@
 - gulpfile.js 增加html压缩
 - gulpfile.js 增加图片压缩
 - npm 编译命令增加 npm minify(发布压缩版本、带前缀css版本)
-- 2018年1月26日 14点07分
-- pageEvent 锁定 topic 后将不触发 left up right bottom 键事件
+**2018年1月26日 14点07分**
+- pageEvent 新增键码锁定功能在原有功能增加可选参数 lockTopic(identCode: number, keyCodes?: number[]) 
+- pageEvent 锁定 lockTopic：identCode 所有键码。keyCodes 锁定给定键码
+- pageEvent 解锁 unlockTopic：identCode 所有键码。keyCodes 解锁给定键码
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**
