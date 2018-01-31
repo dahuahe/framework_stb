@@ -1,45 +1,70 @@
-// // /**
-// //  * 编辑作者：张诗涛
-// //  * 创建时间：2018年1月5日17:13:38
-// //  * 功能分类：模板逻辑页
-// //  */
+// /**
+//  * 编辑作者：张诗涛
+//  * 创建时间：2018年1月30日 14点29分
+//  * 功能分类：视频逻辑页
+//  */
 // import { Config } from "../../config";
 // import { PageEvent, PageEventType, Module, Site, Focus, FocusType, HElement, FuncLock, FocusResponse, Key } from "../../framework/framework";
 // import { } from "../../model/model";
 // import { } from "../../logic/logic";
 
 // enum ModuleType {
-//     Default
-// }
-// enum EventType {
+//     /**
+//      * 代表选择月份的下拉框
+//      */
+//     Month,
+//     /**
+//      * 视频列表
+//      */
+//     Videos,
+//     /**
+//      * 向上翻页的按钮
+//      */
+//     PageUp,
+//     /**
+//      * 向下翻页的按钮
+//      */
+//     PageDown
 // }
 // let pageEvent = new PageEvent(null, [
 //     {
 //         topic: PageEventType.Keydown, data: null, handler: [
-//             ModuleType.Default
+//             ModuleType.Month,
+//             ModuleType.PageDown,
+//             ModuleType.PageUp,
+//             ModuleType.Videos
 //         ]
 //     }
 // ], false);
+// let focVideo = new Focus({
+//     identCode: ModuleType.Videos,
+//     className: "active"
+// }, pageEvent);
 
-// // 发现-首页
-// class DefaultModule extends Module {
-//     focus: Focus;
+// let boxVides = new HElement('#video-list');
 
-//     constructor(event: PageEvent) {
-//         super(event);
+// class VideoModule extends Module {
+//     constructor(pageEvent: PageEvent) {
+//         super(pageEvent);
+//         this.initialize();
+//         this.subscribeToEvents();
 //     }
 //     initialize() {
-//         this.focus = new Focus({
-//             identCode: ModuleType.Default
-//         }, pageEvent);
+
 //     }
 //     subscribeToEvents() {
+
 //     }
-// };
-// let focusDefault = new DefaultModule(pageEvent);
+//     loadVideo() {
+
+//     }
+// }
+// let modVideo = new VideoModule(pageEvent);
 // function main() {
+
 
 //     subscribeToEvents();
 // }
 // function subscribeToEvents() {
 // }
+// main();

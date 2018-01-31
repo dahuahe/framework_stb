@@ -248,8 +248,15 @@ class PageEvent implements IPageEvent {
                 keyCodes.forEach((v, i) => {
                     this.unlockKeycode(identCode, v);
                 });
-                let arr = this.lockKeycodes[identCode];
-                if (!arr || !arr.length) {
+                let arr: Array<number> = this.lockKeycodes[identCode], j = 0;
+                for (let i = 0; i < arr.length; i++) {
+                    const ele = arr[i];
+                    if (ele) {
+                        j++;
+                        break;
+                    }
+                }
+                if (!j) {
                     isRemove = true;
                 }
             }
