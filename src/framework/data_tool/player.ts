@@ -3,6 +3,9 @@
  * 创建时间：2018年1月18日12:12:43
  * 更新时间：2018年1月24日14点57分
  * 功能分类：安徽盒子 播放器
+ * 盒子差异：
+ *          部分盒子到最后 1 或 2 s直接停止
+            盒子开始播放时 当前进度返回 0 延迟 部分时间才返回当前进度
  */
 /// <reference path="./player.d.ts" />
 import { SetTimeout, SetInterval } from './dataTool';
@@ -12,7 +15,7 @@ import { Guid } from '../../framework/data_tool/dataTool';
 
 // 此类做枚举使用
 export var PlayerType = {
-    StartPlaying: 'PlayerType.StartPlaying',                        // 开始
+    StartPlaying: 'PlayerType.StartPlaying',                        // 开始（通常真实进度会有延迟，在调用 播放后直接触发）
     PausePlaying: 'PlayerType.PausePlaying',                        // 暂停
     Released: 'PlayerType.ReleasePlaying',                          // 结束并释放（返回参数释放成功或失败）
     ResumePlaying: 'PlayerType.ResumePlaying',                      // 恢复
@@ -26,7 +29,6 @@ export var PlayerType = {
     MuteVolume: "PlayerType.MuteVolume",                            // 设置静音
     ResumeVolume: "PlayerType.ResumeVolume"                         // 从静音恢复
 }
-
 // 1.播放 2.固定窗口大小位置
 export class Player {
     private mediaPlay: MediaPlayer = null;
@@ -40,16 +42,12 @@ export class Player {
 
     private settingVolumeTimer = new SetTimeout(1000);
     private settingProgressTimer = new SetTimeout(1000);
-    private progressMonitor = new SetInterval(300);
+    private progressMonitor = new SetInterval(1000); // 视频播放进度以 秒 为单位进行播放，该参数禁止改变（部分盒子进度不会到达最后一或二秒便依赖该定时器进行模拟进度进行）
 
     constructor(params: { identCode: number }, pageEvent: IPageEvent) {
         this.identCode = params.identCode;
         this.pageEvent = pageEvent;
         this.createPlayer(pageEvent);
-    }
-    resume(isTrigger = true) {
-        this.mediaPlay.resume();
-        isTrigger && this.pageEvent.trigger(this.identCode, PlayerType.ResumePlaying);
     }
     /**
      * 从头播放
@@ -66,11 +64,15 @@ export class Player {
             this.stop();
             this.mediaPlay.setSingleMedia(this.playUrl);      // 播放源
             this.mediaPlay.playFromStart();
-
             this.startMonitorProgress(true);
         }
     }
+    resume(isTrigger = true) {
+        this.mediaPlay.resume();
+        isTrigger && this.pageEvent.trigger(this.identCode, PlayerType.ResumePlaying);
+    }
     playPoint(playUrl: string, point: number) {
+
         this.configPlayUrl(playUrl);
         if (this.playUrl) {
             this.currentTime = 0;
@@ -78,7 +80,6 @@ export class Player {
 
             this.mediaPlay.setSingleMedia(this.playUrl);      // 播放源
             this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
-
             this.startMonitorProgress(true);
         }
     }
@@ -90,10 +91,12 @@ export class Player {
         }
     }
     stop() {
+        this.stopMonitorProgress();
         this.mediaPlay.pause();
         this.mediaPlay.stop();
     }
     release() {
+        this.stopMonitorProgress();
         // 暂停
         this.pause(false);
         // 停止流
@@ -178,40 +181,76 @@ export class Player {
         // 配置默认视频状态为全屏
         this.displayFull();
     }
+    /**
+     * 在播放之后执行才会生效
+     */
     private startMonitorProgress(isTriggerStartPlayingEvent: boolean = false) {
-        let isAfter = false;
+        let startPlayCount = 0; // 开始播放事件触发次数
+        let pauseTime = 0;      // 进度停止了多少秒（异常状态）
+        let finishCount = 0;    // 播放完毕事件触发次数
 
-        // 开始自动监听最新进度
-        this.progressMonitor.enable(() => {
+        // 部分盒子到最后 1 或 2 s直接停止
+        // 盒子开始播放时 当前进度返回 0 延迟 部分时间才返回当前进度
+        // 完善模拟进度，因此在最后 3 秒内按暂停键的话需要
+        let method = () => {
             let time = parseInt(<any>this.mediaPlay.getCurrentPlayTime()) || 0;
-            if (time > 0 && time > this.currentTime) {
-                this.currentTime = time;
-                // 播放中
-                if (this.currentTime < this.totalTime) {
+            // 播放到最后(0-3)秒视频已经结束
+            let num = (this.totalTime - this.currentTime);
+            if (0 < this.currentTime && 0 < this.totalTime) {
+                if (num <= 3 && num >= 0) {
+                    // time 可能为 -1
+                    if (time == this.currentTime || time < 0) {
+                        pauseTime++;
+                    }
+                }
+            }
+            // 模拟真实进度
+            if (0 < pauseTime) {
+                time = this.currentTime + pauseTime;
+            }
+            // 播放中 当前进度在进行中且至少是 1
+            if (time > 0) {
+                if (time > this.currentTime) {
+                    this.currentTime = time;
+                    this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
+                    // 播放中
+                    if (this.currentTime <= this.totalTime) {
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+                    }
+                    if (this.currentTime >= this.totalTime) {
+                        // 排除刚开始播放情况
+                        if (0 < this.currentTime && 0 < this.totalTime && 0 == finishCount) {
+                            finishCount++;
+                            // 播放完毕
+                            pauseTime = 0;
+                            this.stopMonitorProgress();
+                            this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
+                        }
+                    }
+                }
+            }
+            // 开始播放 当前进度可以等于或大于 0 且仅触发一次
+            if (0 == time || time > this.currentTime && 0 == startPlayCount) {
+                // 开始播放事件触发，条件是影片从头开始播放，并且当前进度大于等于 1 ，并且仅执行一次
+                if (isTriggerStartPlayingEvent === true) {
+                    this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, <StartPlayingResponse>{ totalTime: this.totalTime });
                     this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
                     this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
                 }
-                else {
-                    // 播放完毕
-                    this.stopMonitorProgress();
-                    // 会触发两次需要解决 TODO
-                    this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
-                }
+                startPlayCount++;
             }
-
             if (this.totalTime <= 0) {
-                this.totalTime = parseInt(<any>this.mediaPlay.getMediaDuration());
+                this.totalTime = parseInt(<any>this.mediaPlay.getMediaDuration()) || 0;
                 if (this.totalTime > 0) {
-
-                    // 开始播放事件触发，条件是影片从头开始播放，并且当前进度大于等于 1 ，并且仅执行一次
-                    if (isTriggerStartPlayingEvent === true && isAfter === false) {
-                        isAfter = true;
-                        this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, <StartPlayingResponse>{ totalTime: this.totalTime });
-                    }
                     this.pageEvent.trigger(this.identCode, PlayerType.TotalProgressInit, <TotalProgressInitResponse>{ totalTime: this.totalTime });
                 }
             }
-        });
+        };
+        // 第一次执行无延迟
+        method();
+        // 1s 后开始自动监听进度
+        this.progressMonitor.enable(method);
     }
     private stopMonitorProgress() {
         this.progressMonitor.clear();
@@ -220,7 +259,7 @@ export class Player {
         if (displayMethod === 'full') {
             // 全屏显示
             this.mediaPlay.setVideoDisplayArea(displayArea.left, displayArea.top, displayArea.width, displayArea.height);/*left ,top,width,height*/
-            this.mediaPlay.setVideoDisplayMode(1);/*指定屏幕大小 0:按给定大小显示 1：全屏*/
+            this.mediaPlay.setVideoDisplayMode(0);/*指定屏幕大小 0:按给定大小显示 1：全屏*/
         } else if (displayMethod === 'size') {
             // 窗口显示
             this.mediaPlay.setVideoDisplayArea(displayArea.left, displayArea.top, displayArea.width, displayArea.height);/*left ,top,width,height*/
@@ -232,9 +271,6 @@ export class Player {
     }
     private setCurrentProgress(value: number, speedOrReverse: boolean) {
         let setVal: any;
-
-        // 暂停自动监听进度
-        this.stopMonitorProgress();
 
         if (speedOrReverse) {
             this.currentTime += value;
@@ -253,13 +289,11 @@ export class Player {
             // 暂停
             this.pause(false);
 
-            this.mediaPlay.playByTime(1, parseInt(this.currentTime.toString()), 1);
+            this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
             this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
 
             // 恢复
             this.resume(false);
-            // 开始监听并且通知目标最新进度
-            this.startMonitorProgress();
         });
     }
     private setCurrentVolume(value: number, plusOrMinus: boolean) {

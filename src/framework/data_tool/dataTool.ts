@@ -171,7 +171,28 @@ export class Extend {
     }
 }
 export class ParseUrl {
+    private readonly search: string;
     constructor(search: string) {
+        this.search = search;
+    }
+    getParam() {
+        return this.decodeURL();
+    }
+    getDecodeURI() {
+        return this.decodeURL(decodeURI);
+    }
+    getDecodeURIComponent() {
+        return this.decodeURL(decodeURIComponent);
+    }
+    private decodeURL(decode?: any) {
+        let search = this.search;
+
+        if (!decode) {
+            decode = function (str: string) {
+                return str;
+            }
+        }
+
         //返回当前 URL 的查询部分（问号 ? 之后的部分）。
         let urlParameters = location.search;
         if (search) urlParameters = search;
@@ -180,7 +201,7 @@ export class ParseUrl {
         //如果该求青中有请求的参数，则获取请求的参数，否则打印提示此请求没有请求的参数
         if (urlParameters.indexOf('?') != -1) {
             //获取请求参数的字符串
-            var parameters = decodeURIComponent(urlParameters.substr(1));
+            var parameters = decode(urlParameters.substr(1));
             //将请求的参数以&分割中字符串数组
             let parameterArray = parameters.split('&');
             //循环遍历，将请求的参数封装到请求参数的对象之中
@@ -199,22 +220,36 @@ export class FormatUrl {
         this.url = url;
         this.params = params;
     }
-    getUrl(): string {
+    getURL() {
+        return this.encodeURL();
+    }
+    getEncodeURI() {
+        return this.encodeURL(encodeURI);
+    }
+    getEncodeURIComponent() {
+        return this.encodeURL(encodeURIComponent);
+    }
+    private encodeURL(encode?: any): string {
         let url = this.url;
         let params = this.params;
+
+        if (!encode) {
+            encode = function (str: string) {
+                return str;
+            }
+        }
 
         // 初始化当前参数
         let charIdx = url.indexOf("?");
         if (charIdx != -1) {
             url = url.substr(0, charIdx);
-            //console.log(url);
         }
 
         let newUrl = "?";
         if (params) {
             for (let item in params) {
                 if (params.hasOwnProperty(item)) {
-                    var element = params[item];
+                    var element = encode(params[item]);
                     newUrl += item + '=' + element + '&'
                 }
             }

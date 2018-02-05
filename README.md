@@ -86,6 +86,10 @@
 - 播放器当前进度事件加一个总时长参数
 - 播放器总市场初始化加一个当前开始时间点参数
 - pageEvent 扩展自定义触发事件比如 keydown（除了移动规则其余都带有较复杂功能性质所以不予支持，避免隐藏BUG）
+- 回掉和事件触发满足 this 的指针
+- 预定义开发生成代码 比如 if for 选项体
+- PageEvent 自定义 Focus 事件后提示注册的信息失效
+- 常用插件提取 比如（纵向自动滚动、自定义走马灯、可控制上下滚动查看）
 - // TODO
 
 # 日志
@@ -118,6 +122,13 @@
 - pageEvent 新增键码锁定功能在原有功能增加可选参数 lockTopic(identCode: number, keyCodes?: number[]) 
 - pageEvent 锁定 lockTopic：identCode 所有键码。keyCodes 锁定给定键码
 - pageEvent 解锁 unlockTopic：identCode 所有键码。keyCodes 解锁给定键码
+**2018年2月1日 14点37分**
+- ParseUrl 新增 decodeURI 与 decodeURIComponent 解码类型接口
+- FormatUrl 新增 encodeURI 与 encodeURIComponent 加密类型接口
+**2018年2月5日 10点24分**
+- Player FinishPlay 事件完善（存在播放开时多次触发该事件）
+- Player 完善播放进度兼容问题（部分盒子当前进度播放完成于总进度差距3秒左右误差）
+- ParseUrl 与 FormatUrl 增加两种编码加密与解密接口
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**
