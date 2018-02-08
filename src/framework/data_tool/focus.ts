@@ -1,3 +1,8 @@
+
+/**
+ * 更新时间：2018年2月8日 16点16分
+ * 模块分类：焦点管理
+ */
 import { Key, Extend } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
 import { PageEvent, PageEventType, PageEventResponse } from './pageEvent';
@@ -7,22 +12,16 @@ var FocusType = {
     /**
      * Focus 对象 - 坐标更新完毕
      */
-    Changeed: 'Changeed.FocusType_Changeed',
+    Changeed: 'FocusType.Changeed',
     /**
      * Focus 对象 - 接收到Focus事件后触发
      */
-    Focused: 'Focused.FocusType_Focused',
+    Focused: 'FocusType.Focused',
     /**
      * Focus 对象 - 接收到Blur事件并处理完相应事件后执行
      */
-    Blured: "Blured.FocusType_Blured"
+    Blured: "FocusType.Blured"
 }
-/**
- * 更新版本：v1.0.1
- * 更新时间：2017年9月6日17:44:35
- * 更新内容：1.Focus将不依赖传入data数据2.Focus将解耦模板自动渲染功能3.传入数据为HElement对象数组
- *          2.using 取值为 false 时进行提示。并且可自定义 PageEvent 的 keydown 事件
- */
 class Site {
     public x: number = null;
     public y: number = null;
@@ -69,7 +68,7 @@ interface IFocusSetting {
     /**
      * autoTarget 优先级高于 autoFill 冲突事件会被覆盖
      */
-    autoTarget?: [{ keyCode: Key, target: string | number }],
+    autoTarget?: [{ keyCode: Key.Left | Key.Up | Key.Right | Key.Down | Key.Enter | Key.Backspace, target: string | number }],
     className?: string,
     leaveClass?: string,
     usingClass?: (info: FocusResponse) => void,
@@ -147,7 +146,6 @@ class Focus {
             let count = parseInt((data.length / yCol).toString());
             //判断余数
             if (count === data.length / yCol) {
-
                 xRow = count + 1;
             } else {
                 //有余数，多循环一圈
@@ -218,7 +216,6 @@ class Focus {
         pageEvent.on(this.setting.identCode, FocusType.Changeed, (args: any) => {
             let data: FocusResponse = args;
             if (data.success) {
-
                 // 必须是首次获取焦点
                 if (this.isFirstLoad) {
                     this.isFirstLoad = false;
@@ -226,9 +223,26 @@ class Focus {
                 }
             }
         });
+        pageEvent.on(this.setting.identCode, PageEventType.Keydown, (args: any) => {
+            // 处理订阅预定义规则
+            if (this.setting.autoTarget && this.setting.autoTarget.length) {
+                let keyCode = args.KeyCode;
+                if (Key.Enter == keyCode || Key.Backspace == keyCode) {
+                    let autoTarget = this.setting.autoTarget;
+
+                    // 试图找到预定义规则
+                    for (let i = 0; i < autoTarget.length; i++) {
+                        let item = autoTarget[i];
+                        if (item && item.keyCode == keyCode) {
+                            this.event && this.event.target(item.target);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
     private onChange(args: any) {
-
         if (args.result === 'failure') {
             // 处理焦点移交规则 如果成功不触发当前 change 事件 如果失败 将流程转交给 内部移动规则处理
             let autoTarget = this.handlerAutoTarget(args);
@@ -260,8 +274,6 @@ class Focus {
 
                 this.event.trigger(this.setting.identCode, FocusType.Changeed, response);
             }
-        } else if (args.result === 'success') {
-
         }
         if (this.handlerAutoClass(args)) {
 
@@ -670,12 +682,13 @@ class Focus {
                         let keyCode = params[0][0];
                         let autoTarget = this.setting.autoTarget;
 
-                        if (keyCode === Key.Left || keyCode === Key.Up || keyCode === Key.Right || keyCode === Key.Down) {
+                        if (Key.Left == keyCode || Key.Up == keyCode || Key.Right == keyCode || Key.Down == keyCode) {
+
                             // 试图找到预定义规则
                             for (let i = 0; i < autoTarget.length; i++) {
                                 let item = autoTarget[i];
-                                if (item && item.keyCode === keyCode) {
-                                    this.event ? this.event.target(item.target) : null;
+                                if (item && item.keyCode == keyCode) {
+                                    this.event && this.event.target(item.target);
 
                                     ret = true;
                                     break;

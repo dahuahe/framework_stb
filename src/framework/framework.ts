@@ -4,7 +4,7 @@ import { AppEvent } from "./data_tool/appEvent";
 import { Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue } from "./data_tool/collection";
 import { EventEmitter } from "./data_tool/eventEmitter";
 import { Mediator } from "./data_tool/mediator";
-import { FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout } from "./data_tool/dataTool";
+import { FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey } from "./data_tool/dataTool";
 import { HElement } from "./ui_tool/uiTool";
 import { ManagementPageDB, ManagementFlowDB } from "./data_tool/managementPageDB";
 import { PageEvent, PageEventResponse, PageEventType } from "./data_tool/pageEvent";
@@ -18,7 +18,7 @@ export {
     Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue,
     EventEmitter,
     Mediator,
-    FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout,
+    FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey,
     HElement,
     ManagementPageDB, ManagementFlowDB,
     PageEvent, PageEventResponse, PageEventType,

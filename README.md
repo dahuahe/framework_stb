@@ -79,13 +79,9 @@
 - 创维 E900 返回简码与其它盒子不一致 Key.Backspace2且隐藏视频接口this.mediaPlay.setVideoDisplayMode(255)无效
 
 # 需要改进的功能
-- 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
-- Focus 事件相应类型 定义为 InterfaceName + Response 格式
-- 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持所有按键
 - Focus 事件相应类型 定义为 InterfaceName + Response 格式
 - 播放器当前进度事件加一个总时长参数
 - 播放器总市场初始化加一个当前开始时间点参数
-- pageEvent 扩展自定义触发事件比如 keydown（除了移动规则其余都带有较复杂功能性质所以不予支持，避免隐藏BUG）
 - 回掉和事件触发满足 this 的指针
 - 预定义开发生成代码 比如 if for 选项体
 - PageEvent 自定义 Focus 事件后提示注册的信息失效
@@ -132,6 +128,8 @@
 **2018年2月8日 10点57分**
 - 更新 const.ts 更新部分盒子的配置情况
 - 更新 player.ts 取消了音量设置延迟的功能
+- Focus 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持 enter backspack 按键
+- template.ts 更新更完善的初始页面
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**
