@@ -7,7 +7,7 @@ import { Mediator } from "./data_tool/mediator";
 import { FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey } from "./data_tool/dataTool";
 import { HElement } from "./ui_tool/uiTool";
 import { ManagementPageDB, ManagementFlowDB } from "./data_tool/managementPageDB";
-import { PageEvent, PageEventResponse, PageEventType } from "./data_tool/pageEvent";
+import { PageEvent, PageEventType } from "./data_tool/pageEvent";
 import { Module } from "./data_tool/module";
 import { Paging, PagingHelper } from "./data_tool/paging";
 import { Site, Focus, FocusType, FocusResponse } from "./data_tool/focus";
@@ -21,7 +21,7 @@ export {
     FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey,
     HElement,
     ManagementPageDB, ManagementFlowDB,
-    PageEvent, PageEventResponse, PageEventType,
+    PageEvent, PageEventType,
     Module,
     Paging, PagingHelper,
     Site, Focus, FocusType, FocusResponse,

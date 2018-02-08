@@ -5,7 +5,7 @@
  */
 import { Key, Extend } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
-import { PageEvent, PageEventType, PageEventResponse } from './pageEvent';
+import { PageEvent, PageEventType, IPageEventResponse } from './pageEvent';
 import { SetTimeout } from './dataTool';
 var FocusType = {
     // 扩展插件相关事件
@@ -291,7 +291,7 @@ class Focus {
         }
     }
     private onKeydown(args: any) {
-        let data: PageEventResponse = args;
+        let data: IPageEventResponse = args;
         // 合法参数 key.left key.up key.right key.dn
         let keyCode = data.KeyCode;
         if (keyCode === Key.Left || keyCode === Key.Up || keyCode === Key.Right || keyCode === Key.Down) {

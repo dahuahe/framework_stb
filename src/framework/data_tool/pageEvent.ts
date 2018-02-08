@@ -34,14 +34,7 @@ var PageEventType = {
      */
     Error: 'PageEventType.Error'
 }
-interface PageEventResponse {
-    Event: any,
-    Target: string | number,
-    EventName: string | number,
-    KeyCode: number,
-    Data: any,
-    Source: string | number;
-}
+
 class PageEvent implements IPageEvent {
     private readonly _eventEmitter: IEventEmitter;
     private readonly events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>;
@@ -84,7 +77,7 @@ class PageEvent implements IPageEvent {
 
                     // 触发目标为焦点事件
                     if (this.targetName == targetName) {
-                        let params: PageEventResponse = { Event: e, Target: targetName, EventName: ele.topic, KeyCode: e.keyCode, Source: null, Data: null };
+                        let params: IPageEventResponse = { Event: e, Target: targetName, EventName: ele.topic, KeyCode: e.keyCode, Source: null, Data: null };
                         let trigger = false;
                         if (!this.hasDisable(targetName)) {
                             if (!this.hasLock(targetName)) {
@@ -140,7 +133,7 @@ class PageEvent implements IPageEvent {
                     // 失去焦点事件
                     if (this.targetName !== null) {
 
-                        let response: PageEventResponse = {
+                        let response: IPageEventResponse = {
                             Event: null,
                             Target: identCode,
                             EventName: PageEventType.Blur,
@@ -153,7 +146,7 @@ class PageEvent implements IPageEvent {
                     }
 
                     // 获取焦点事件
-                    let response: PageEventResponse = {
+                    let response: IPageEventResponse = {
                         Event: null,
                         Target: identCode,
                         EventName: PageEventType.Focus,
@@ -350,4 +343,4 @@ class PageEvent implements IPageEvent {
         return isLock;
     }
 }
-export { PageEvent, PageEventType, PageEventResponse }
+export { PageEvent, PageEventType, IPageEventResponse }

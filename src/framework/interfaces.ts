@@ -58,6 +58,15 @@ interface IEventEmitter {
     unsubscribeToEvents(event: IAppEvent): void;
     hasSubscribe(event: IAppEvent): boolean;
 }
+// 页面事件对象
+interface IPageEventResponse {
+    Event: any,
+    Target: string | number,
+    EventName: string | number,
+    KeyCode: number,
+    Data: any,
+    Source: string | number;
+}
 
 // 播放器
 interface MuteVolumeResponse {
