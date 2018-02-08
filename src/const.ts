@@ -137,7 +137,7 @@ var DEV_MAP: any = {
         type: "CW",
         is4K: true,
         needAnimate: true,
-        supportSmallWin: false, // 小窗不能切换到全屏；小窗始终在页面上面
+        supportSmallWin: true, // 小窗不能切换到全屏；小窗始终在页面上面
         supportXiri: true
     },
     "E900-s": {
@@ -374,5 +374,12 @@ function hasSupportSmallWin(stbType: string) {
         return false;
     } else {
         return true;
+    }
+}
+function hasDesignatedBox(stbType: string, stbName: string) {
+    if (DEV_MAP[stbType] && stbName == DEV_MAP[stbType].type) {
+        return true;
+    } else {
+        return false;
     }
 }
