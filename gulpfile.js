@@ -94,7 +94,7 @@ gulp.task('tsmin', function () {
     .pipe(replace('../../framework/framework', './framework/framework'))
     .pipe(replace('../../logic/logic', './logic/logic'))
     .pipe(replace('../../model/model', './model/model'))
-    .pipe(replace('../../config"]', './config'))
+    .pipe(replace('../../config', './config'))
     .pipe(gulp.dest('./dist/js'))
 })
 // gulp.task('imagemin', function () {
