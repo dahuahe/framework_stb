@@ -131,6 +131,8 @@
 - 更新 player.ts 取消了音量设置延迟的功能
 - Focus 完善 autoTarget: [{ keyCode: Key.Left, target: ModuleType.Anwser }] 支持 enter backspack 按键
 - template.ts 更新更完善的初始页面
+**2018年2月24日 11点03分**
+- 更新 dataTool Key 对象新增 Home = 181 Pause = 263
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**

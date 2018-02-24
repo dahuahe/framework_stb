@@ -490,6 +490,10 @@ export const enum Key {
 
     // 会被转义
     // Iptv = 0x0300
+    Home = 181,
+    // 会被转义
+    // Iptv = 0x0300
+    Pause = 263
 }
 // 盒子内置键码
 // export const enum Key {
