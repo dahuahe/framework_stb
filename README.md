@@ -133,6 +133,8 @@
 - template.ts 更新更完善的初始页面
 **2018年2月24日 11点03分**
 - 更新 dataTool Key 对象新增 Home = 181 Pause = 263
+**2018年2月26日 17点22分**
+- 修复 Focus 第二次调用 initData 方法后 autoFile 的 Key.Right 和 Key.Left 异常问题
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**

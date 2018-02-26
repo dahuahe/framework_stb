@@ -124,6 +124,11 @@ class Focus {
         }
     }
     public initData(data: HElement[] | number) {
+        this.listHElement.length = 0;
+        this.dataArray.length = 0;
+        this.recordArray.length = 0;
+        this.site = null;
+        
         if (typeof data == 'number') {
             data = new Array(data);
         }
