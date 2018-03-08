@@ -6,9 +6,12 @@
  * 盒子差异：
  *          部分盒子到最后 1 或 2 s直接停止
             盒子开始播放时 当前进度返回 0 延迟 部分时间才返回当前进度
- * 海信 - ZP906H 小窗播放尺寸异常或黑屏解决方案
+ * 安徽-海信 - ZP906H 小窗播放尺寸异常或黑屏解决方案
  *          1. 开始播放时在 play 之前配置 displaySmall 然后再 PlayerType.StartPlaying 事件中再次配置 displaySmall
  *          2. 播放完毕切换片源时需要 release() > play() 避免尺寸不对播放黑屏无法获取进度等问题(续播2到3次时出现)
+ * 云南-广视 - 选集播放时需要释放掉
+ * 云南-怕普特 - IP906H 播放视频在黑屏下面
+ *          1. 开始播放前调用 configDisplayFull 全屏方法，配置UI层级视频大小等基本信息
  */
 /// <reference path="./player.d.ts" />
 import { SetTimeout, SetInterval } from './dataTool';
@@ -34,14 +37,20 @@ export var PlayerType = {
 }
 // 1.播放 2.固定窗口大小位置
 export class Player {
-    private mediaPlay: MediaPlayer = null;
+    mediaPlay: MediaPlayer = null;
     private playUrl: string;
     private instanceId: number = -100;                   // 默认 -100 非 -100 则为播放器实例
     private totalTime: number = 0;
     private currentTime: number = 0;
     private currentVolume: number = 0;
     private pageEvent: IPageEvent;
+    private customTotalTime: number = 0;
     public readonly identCode: number = null;
+
+    // 进度条设置状态
+    private progressChanging = false;
+    // 播放完毕
+    private finish = false;
 
     // private settingVolumeTimer = new SetTimeout(1000);
     private settingProgressTimer = new SetTimeout(1000);
@@ -58,6 +67,7 @@ export class Player {
     play(playUrl: string) {
         this.configPlayUrl(playUrl);
         if (this.playUrl) {
+            this.finish = false;
             this.currentTime = 0;
             this.totalTime = 0;
 
@@ -70,13 +80,16 @@ export class Player {
         }
     }
     resume(isTrigger = true) {
-        this.mediaPlay.resume();
-        isTrigger && this.pageEvent.trigger(this.identCode, PlayerType.ResumePlaying);
+        if (!this.finish) {
+            this.mediaPlay.resume();
+            isTrigger && this.pageEvent.trigger(this.identCode, PlayerType.ResumePlaying);
+        }
     }
     playPoint(playUrl: string, point: number) {
 
         this.configPlayUrl(playUrl);
         if (this.playUrl) {
+            this.finish = false;
             this.currentTime = 0;
             this.totalTime = 0;
 
@@ -86,10 +99,12 @@ export class Player {
         }
     }
     pause(triggerPlayerTypeEvent = true) {
-        this.mediaPlay.pause();        //视频状态
+        if (!this.finish) {
+            this.mediaPlay.pause();        //视频状态
 
-        if (triggerPlayerTypeEvent) {
-            this.pageEvent.trigger(this.identCode, PlayerType.PausePlaying);
+            if (triggerPlayerTypeEvent) {
+                this.pageEvent.trigger(this.identCode, PlayerType.PausePlaying);
+            }
         }
     }
     stop() {
@@ -177,11 +192,12 @@ export class Player {
         } while (this.instanceId == -100 && -1 == r);
 
         if (this.mediaPlay) {
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentTime: this.getVolume() });
+            this.currentVolume = this.getVolume();
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentVolume: this.getVolume() });
         }
 
-        // 播放器默认已经是全屏播放，这里不做重复处理
-        // 配置默认视频状态为全屏
+        // 播放器默认已经是全屏播放，这里不做重复处理，小窗播放情况下会重复配置，所以手动配置
+        // 配置默认视频状态为全屏。
         // this.displayFull();
     }
     /**
@@ -217,40 +233,48 @@ export class Player {
             }
             // 播放中 当前进度在进行中且至少是 1
             if (time > 0) {
-                if (time > this.currentTime) {
-                    this.currentTime = time;
-                    // 视频总时间如果未获取到那么不做最大播放进度的异常处理
-                    if (this.totalTime) {
-                        this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
-                    }
-                    // 播放中
-                    if (this.currentTime <= this.totalTime) {
-                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
-                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
-                    }
-                    if (0 == finishCount) {
+                // 自定义进度设置中
+                if (!this.progressChanging) {
+                    if (time > this.currentTime) {
+                        this.currentTime = time;
+                        // 视频总时间如果未获取到那么不做最大播放进度的异常处理
                         if (this.totalTime) {
-                            // 如果播放器计时器已经停止工作，并且总时间还未初始化，那么触发结束播放事件
-                            // 排除刚开始播放情况
-                            if (this.currentTime >= this.totalTime && 0 < this.currentTime && 0 < this.totalTime) {
-                                // 播放完毕
-                                finishCount++;
-                            }
-                        } else {
-                            // 视频流停止 3 s 时
-                            if (3 <= stopTime) {
-                                finishCount++;
+                            this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
+                        }
+                        // 自定义进度改变中不执行
+                        if (!this.progressChanging) {
+                            // 播放中
+                            if (this.currentTime <= this.totalTime) {
+                                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
+                                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
                             }
                         }
-                    }
-                    // 延迟一秒
-                    else if (1 == finishCount) {
-                        finishCount++;
-                    }
-                    else if (2 == finishCount) {
-                        stopTime = 0;
-                        this.stopMonitorProgress();
-                        this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
+                        if (0 == finishCount) {
+                            if (this.totalTime) {
+                                // 如果播放器计时器已经停止工作，并且总时间还未初始化，那么触发结束播放事件
+                                // 排除刚开始播放情况
+                                if (this.currentTime >= this.totalTime && 0 < this.currentTime && 0 < this.totalTime) {
+                                    // 播放完毕
+                                    finishCount++;
+                                }
+                            } else {
+                                // 视频流停止 3 s 时
+                                if (3 <= stopTime) {
+                                    finishCount++;
+                                }
+                            }
+                        }
+                        // 延迟一秒
+                        else if (1 == finishCount) {
+                            finishCount++;
+                        }
+                        else if (2 == finishCount) {
+                            this.finish = true;
+                            stopTime = 0;
+                            this.stopMonitorProgress();
+                            this.stop();
+                            this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
+                        }
                     }
                 }
             }
@@ -266,7 +290,13 @@ export class Player {
                 startPlayCount++;
             }
             if (this.totalTime <= 0) {
-                this.totalTime = parseInt(<any>this.mediaPlay.getMediaDuration()) || 0;
+                // 自定义总市场
+                if (this.customTotalTime > 0) {
+                    this.totalTime = this.customTotalTime;
+                } else {
+                    this.totalTime = parseInt(<any>this.mediaPlay.getMediaDuration()) || 0;
+                }
+
                 if (this.totalTime > 0) {
                     this.pageEvent.trigger(this.identCode, PlayerType.TotalProgressInit, <TotalProgressInitResponse>{ totalTime: this.totalTime });
                 }
@@ -295,51 +325,59 @@ export class Player {
         this.mediaPlay.setNativeUIFlag(0);/*播放器是否显示缺省的Native UI，  0:不允许 1：允许*/
     }
     private setCurrentProgress(value: number, speedOrReverse: boolean) {
-        let setVal: any;
+        if (!this.finish) {
+            // 自定义进度设置中
+            this.progressChanging = true;
 
-        if (speedOrReverse) {
-            this.currentTime += value;
-        } else {
-            this.currentTime -= value;
+            let setVal: any;
+
+            if (speedOrReverse) {
+                this.currentTime += value;
+            } else {
+                this.currentTime -= value;
+            }
+
+            this.currentTime = this.currentTime <= 0 ? 1 : this.currentTime;
+            this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
+
+            // 及时更新目标进度已便让界面实时更新
+            this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
+
+            // 显示加载真实进度
+            this.settingProgressTimer.enable(() => {
+                // 暂停
+                this.pause(false);
+
+                this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
+                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+
+                this.progressChanging = false;
+
+                // 恢复
+                this.resume(false);
+            });
         }
-
-        this.currentTime = this.currentTime <= 0 ? 1 : this.currentTime;
-        this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
-
-        // 及时更新目标进度已便让界面实时更新
-        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
-
-        // 显示加载真实进度
-        this.settingProgressTimer.enable(() => {
-            // 暂停
-            this.pause(false);
-
-            this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
-            this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
-
-            // 恢复
-            this.resume(false);
-        });
     }
     private setCurrentVolume(value: number, plusOrMinus: boolean) {
+        if (!this.finish) {
+            if (plusOrMinus) {
+                this.currentVolume += value;
+            } else {
+                this.currentVolume -= value;
+            }
+            this.currentVolume = this.currentVolume < 0 ? 0 : this.currentVolume;
+            this.currentVolume = this.currentVolume > 100 ? 100 : this.currentVolume;
 
-        if (plusOrMinus) {
-            this.currentVolume += value;
-        } else {
-            this.currentVolume -= value;
+            // 及时更新界面音量状态
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanging, <VolumeChangingResponse>{ currentVolume: this.currentVolume });
+
+            this.mediaPlay.setVolume(parseInt(<any>this.currentVolume));
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanged, <VolumeChangedResponse>{ currentVolume: this.currentVolume });
+            // // 延时设置真实音量
+            // this.settingVolumeTimer.enable(() => {
+
+            // });
         }
-        this.currentVolume = this.currentVolume < 0 ? 0 : this.currentVolume;
-        this.currentVolume = this.currentVolume > 100 ? 100 : this.currentVolume;
-
-        // 及时更新界面音量状态
-        this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanging, <VolumeChangingResponse>{ currentVolume: this.currentVolume });
-
-        this.mediaPlay.setVolume(parseInt(<any>this.currentVolume));
-        this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanged, <VolumeChangedResponse>{ currentVolume: this.currentVolume });
-        // // 延时设置真实音量
-        // this.settingVolumeTimer.enable(() => {
-
-        // });
     }
     private configPlayUrl(playUrl: string) {
         var mediaStr = '[{mediaUrl:"' + playUrl +
@@ -357,4 +395,12 @@ export class Player {
             'entryID:"entry1"}]';
         this.playUrl = mediaStr;
     }
+    setTotalTime(total: number) {
+        this.customTotalTime = total;
+    }
 }
+// 使用说明
+// 1. this.media = new Player({ identCode: ModuleType.Video }, this.event);
+// 2. this.media.displayFull(); 或者 this.media.displaySmall();
+// 3. this.media.play(url);
+// 如果续播部分盒子需要 先调用 this.media.release(); 需要注意释放并未注销相关事件

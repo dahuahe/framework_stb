@@ -343,4 +343,4 @@ class PageEvent implements IPageEvent {
         return isLock;
     }
 }
-export { PageEvent, PageEventType, IPageEventResponse }
+export { PageEvent, PageEventType }

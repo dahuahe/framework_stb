@@ -10,6 +10,10 @@ var htmlmin = require('gulp-htmlmin')
 var autoprefixer = require('gulp-autoprefixer')
 var imagemin = require('gulp-imagemin')
 
+// A documentation generator for TypeScript projects.
+// http://typedoc.org/
+const typedoc = require('gulp-typedoc')
+
 var config = {
   include: {
     less: './src/pages/**/*.less',
@@ -51,7 +55,7 @@ gulp.task('ts', function () {
     .pipe(replace('../../framework/framework', './framework/framework'))
     .pipe(replace('../../logic/logic', './logic/logic'))
     .pipe(replace('../../model/model', './model/model'))
-    .pipe(replace('../../config"]', './config'))
+    .pipe(replace('../../config', './config'))
     .pipe(gulp.dest('./dist/js'))
 })
 gulp.task('html', function () {
@@ -114,4 +118,15 @@ gulp.task('watch', ['ts', 'less', 'html', 'js'], function () {
   gulp.watch(config.include.less, ['less'])
   gulp.watch(config.include.ts, ['ts'])
   gulp.watch(config.include.html, ['html'])
+})
+
+// 生成文档
+gulp.task('typedoc', () => {
+  return gulp.src(['src/framework/**/*.ts'])
+    .pipe(typedoc({
+      module: 'amd',
+      target: 'es5',
+      out: 'docs/',
+      name: 'EPG Front End Framework'
+    }))
 })

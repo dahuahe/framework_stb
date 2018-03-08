@@ -6,3 +6,6 @@ dist/*
 !dist/images
 
 npm-debug.log
+
+.DS_Store
+docs/

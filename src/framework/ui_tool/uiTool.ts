@@ -1,153 +1,8 @@
 import { SetInterval } from '../data_tool/dataTool';
 
 /**
- * 走马灯
- * 描述：为HTMLElement对象包装走马灯效果
- * 依赖：无其他依赖
+ * 对 HTMLElement 的封装
  */
-export class Marquee {
-    private parentElement: HTMLElement;
-    private childrenInnerHTML: string;
-    private marqueeElement: HTMLMarqueeElement;
-    private status = '';
-
-    constructor(parentElement: HTMLElement) {
-        this.parentElement = parentElement;
-        this.marqueeElement = document.createElement('marquee');
-    }
-    active() {
-        // 满足滚动条件-内容过多时
-        if (this.marqueeElement) {
-            this.childrenInnerHTML = this.parentElement.innerHTML;
-            this.parentElement.style.whiteSpace = 'nowrap';
-            if (this.parentElement.scrollWidth > this.parentElement.clientWidth) {
-                this.parentElement.style.position = 'relative';
-                this.marqueeElement.style.position = 'absolute';
-                this.marqueeElement.style.left = '0px';
-                this.marqueeElement.style.top = '0px';
-
-                // 装载
-                this.marqueeElement.innerHTML = this.childrenInnerHTML;
-                this.parentElement.innerHTML = '';
-                this.parentElement.appendChild(this.marqueeElement);
-
-                this.marqueeElement.start();
-                this.status = 'active';
-            }
-            // 恢复暂停状态
-            if ('pause' === this.status) {
-                this.marqueeElement.start();
-            }
-        }
-    }
-    stay() {
-        this.status = 'pause';
-        this.marqueeElement && this.marqueeElement.stop();
-    }
-    uninstall() {
-        if ('' !== this.status) {
-            // 样式
-            this.parentElement.style.position = '';
-            this.status = '';
-            // 卸载
-            this.parentElement.innerHTML = this.childrenInnerHTML;
-        }
-    }
-    updateInnerHTML(html: string) {
-        this.childrenInnerHTML = html;
-    }
-}
-class MarqueeHTML {
-    private readonly timer: number = 30;
-    private intervalTimer: SetInterval;
-    html: HTMLElement;
-    private direction: string;
-    htmlWidth = 0;
-    htmlLeft = 0;
-
-    private parentElement: HTMLElement;
-    private childrenInnerHTML: string;
-
-    constructor(parentElement: HTMLElement, params: { timer: number, direction: 'left', position: 'left' | 'right' | 'center' }) {
-        this.parentElement = parentElement;
-
-        this.timer = params.timer;
-        this.direction = params.direction;
-        this.intervalTimer = new SetInterval(params.timer);
-
-        this.html = document.createElement('div');
-        this.html.style.overflow = 'hidden';
-        this.html.style.whiteSpace = 'nowrap';
-        this.html.style.display = 'block';
-        this.html.style.marginLeft = '0px';
-    }
-    start() {
-        this.animation();
-    }
-    pause() {
-        this.intervalTimer.clear();
-    }
-    private animation() {
-        if (this.htmlWidth === 0) {
-            this.htmlWidth = this.html.scrollWidth;
-        }
-        // 确定滚动方案
-
-        // 确定滚动方向
-
-        // 开始滚动
-        this.intervalTimer.enable(() => {
-            this.htmlLeft -= 2;
-
-            // 循环条件
-            if (Math.abs(this.htmlLeft) >= this.htmlWidth) {
-                this.htmlLeft = this.parentElement.clientWidth;
-            }
-
-            this.html.style.marginLeft = this.htmlLeft + 'px';
-        });
-
-    }
-    active() {
-        this.childrenInnerHTML = this.parentElement.innerHTML;
-
-        this.html.innerHTML = this.childrenInnerHTML;
-
-        this.parentElement.innerHTML = '';
-        this.parentElement.appendChild(this.html);
-
-        this.start();
-    }
-    stay() {
-        this.pause();
-    }
-    uninstall() {
-        this.intervalTimer.clear();
-        this.parentElement.innerHTML = this.childrenInnerHTML;
-    }
-    updateInnerHTML(html: string) {
-        this.childrenInnerHTML = html;
-    }
-}
-export class CustomMarquee {
-    marqueeHTML: MarqueeHTML;
-
-    constructor(parentElement: HTMLElement) {
-        this.marqueeHTML = new MarqueeHTML(parentElement, { timer: 30, direction: 'left', position: 'left' })
-    }
-    active() {
-        this.marqueeHTML.active();
-    }
-    stay() {
-        this.marqueeHTML.stay();
-    }
-    uninstall() {
-        this.marqueeHTML.uninstall();
-    }
-    updateInnerHTML(html: string) {
-        this.marqueeHTML.updateInnerHTML(html);
-    }
-}
 export class HElement {
     private eleName: string | HTMLElement;
     private faterEle: any;
@@ -348,5 +203,84 @@ export class HElement {
         } else {
             return false;
         }
+    }
+}
+/**
+ * 上下滚动效果封装
+ */
+export class VerticalRoll {
+    private readonly ele: HElement;
+    private readonly height: number;
+    private readonly length: number;
+    private marginTop: number;
+    constructor(info: { ele: HElement, height: number, lenght: number }) {
+        this.ele = info.ele;
+        this.height = info.height;
+        this.marginTop = 0;
+        this.length = info.lenght;
+    }
+    toCeil() {
+        if (this.ele.element.scrollHeight > this.height) {
+            this.marginTop += this.length;
+            let full = Math.round(this.ele.element.scrollHeight);
+
+            if (this.marginTop > 0) {
+                this.marginTop = 0;
+            }
+
+            this.ele.style("margin-top", this.marginTop + 'px');
+        }
+    }
+    toFloor() {
+        if (this.ele.element.scrollHeight > this.height) {
+            this.marginTop -= this.length;
+            let full = -Math.round(this.ele.element.scrollHeight);
+            let difference = full + this.height;
+
+            if (this.marginTop < difference) {
+                this.marginTop = difference;
+            }
+
+            this.ele.style("margin-top", this.marginTop + 'px');
+        }
+    }
+}
+/**
+ * 左右滚动效果封装
+ */
+export class HorizontalRoll {
+    private readonly ele: HElement;
+    private readonly marquee: HElement;
+    private innerHtml: string;
+
+    private marginLeft: number;
+    constructor(ele: HElement) {
+        this.ele = ele;
+        this.marquee = new HElement(document.createElement('marquee'));
+    }
+    enable() {
+        let ele = this.ele.element;
+        let marquee = <HTMLMarqueeElement>this.marquee.element;
+        this.innerHtml = this.ele.html();
+        this.ele.style("whiteSpace", 'nowrap');
+
+        if (ele.scrollWidth > ele.clientWidth) {
+            this.ele.style("position", 'relative');
+            this.marquee.style("position", "absolute");
+            this.marquee.style("left", "0");
+            this.marquee.style("top", "0");
+
+            // 装载
+            this.marquee.html(this.innerHtml);
+            this.ele.html("");
+            ele.appendChild(marquee);
+
+            // 激活
+            marquee.start();
+        }
+    }
+    disable() {
+        // 卸载
+        this.ele.html(this.innerHtml);
     }
 }

@@ -26,10 +26,18 @@ export class PageSource {
         let cookie = this.cookie;
         if (url) {
             let referrer = cookie.getCookie();
-            referrer || cookie.setCookie(url);
+            if (!referrer) {
+                cookie.setCookie(url);
+            }
         } else {
             let referrer = cookie.getCookie();
-            referrer || cookie.setCookie(document.referrer);
+            if (!referrer) {
+                if (document.referrer) {
+                    cookie.setCookie(document.referrer);
+                } else {
+                    cookie.setCookie(null);
+                }
+            }
         }
     }
     takeToLocal() {
@@ -199,16 +207,16 @@ export class ParseUrl {
         //声明并初始化接收请求参数的对象
         var requestParameters: any = {};
         //如果该求青中有请求的参数，则获取请求的参数，否则打印提示此请求没有请求的参数
-        if (urlParameters.indexOf('?') != -1) {
+        let idx = urlParameters.indexOf('?');
+        if (idx != -1) {
             //获取请求参数的字符串
-            var parameters = decode(urlParameters.substr(1));
+            var parameters = urlParameters.substr((idx + 1));
             //将请求的参数以&分割中字符串数组
             let parameterArray = parameters.split('&');
             //循环遍历，将请求的参数封装到请求参数的对象之中
             for (let i = 0; i < parameterArray.length; i++) {
-                requestParameters[parameterArray[i].split('=')[0]] = (parameterArray[i].split('=')[1]);
+                requestParameters[parameterArray[i].split('=')[0]] = decode((parameterArray[i].split('=')[1]));
             }
-            //console.info('theRequest is =====', requestParameters);
         }
         return requestParameters;
     }
@@ -258,11 +266,11 @@ export class FormatUrl {
         return url || null;
     }
 }
-export class Json<T>{
-    public serializ = (content: (string | object)): string => {
+export let Json = {
+    serializ: (content: (string | object)): string => {
         return JSON.stringify(content);
-    }
-    public deSerializ = (content: string): T => {
+    },
+    deSerializ: (content: string) => {
         let result = null;
         if (content) {
             result = JSON.parse(content);
@@ -482,6 +490,7 @@ export const enum Key {
     VolumePlus = 259,
     VolumeMinus = 260,
     Mute = 91,
+    Mute2 = 261,
 
     //菜单键的键值有多个
     Menu1 = 272,

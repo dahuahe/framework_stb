@@ -36,6 +36,7 @@ import { FuncLock } from "./dataTool";
 interface IPramsOne {
     pageIndex: number;
     pageSize: number;
+    pageCount: number;
 }
 /**
  * 应用场景：带有下标的数据分页
@@ -79,9 +80,9 @@ export class ManagementPageDB<T>{
                 callback && callback(dt);
             } else {
                 // console.log('从数据库获取');
-                let pageSize = this.PageSize * this.RequestPageCount;
+                // let pageSize = this.PageSize * this.RequestPageCount;
 
-                this.OnBeforeSendRequest({ pageIndex: pageIndex, pageSize: pageSize }, (paddingList) => {
+                this.OnBeforeSendRequest({ pageIndex: pageIndex, pageSize: this.PageSize, pageCount: this.RequestPageCount }, (paddingList) => {
                     //追加当前缓存
                     if (paddingList.length >= 1) {
 
@@ -330,86 +331,82 @@ export class ManagementFlowDB<T>{
  * 支持数据开始下标与结束下标记录
  * 一次性缓存所有数据
  */
-class Panel<T>{
-    startAt: number;
-    stopAt: number;
-    pageIndex: number;
-    list: Array<T>;
-}
-export class ManagementPageDBToLocal<T>{
-    private PanelDictionary: Dictionary<Panel<T>>;      //页面集合
-    private DataSize: number                            //数据总共长度
+export class ManagementPageDBToNative<T>{
+    private PanelDictionary: Dictionary<Array<T>>;      // 页面集合
+    private NativeDataSize: number;                     // 已缓存数据条数
+
     private PageSize: number;
+    // 请求队列
+    private func: FuncLock;
 
-    constructor(pageSize: number) {
+    constructor(pageSize?: number) {
         this.PageSize = pageSize;
-        this.PanelDictionary = new Dictionary<Panel<T>>();
+        this.NativeDataSize = 0;
+        this.PanelDictionary = new Dictionary<Array<T>>();
+        this.func = new FuncLock();
     }
-    initData(data: Array<T>) {
-        this.PanelDictionary.clear();
-        this.DataSize = data.length;
-
-        // 根据页面大小进行数据分页
-        let length = data.length, size = this.PageSize, accumI = 0, list = [], accumPageI = 1, startAt = -1, stopAt = -1;
-        for (let i = 0; i < length; i++) {
-            accumI++;
-            list.push(data[i]);
-            if (startAt === -1) {
-                startAt = i;
-            }
-            stopAt = i;
-
-            if (accumI >= size) {
-                // 添加满足一页
-                accumI = 0;
-
-                let panel = new Panel<T>();
-                panel.list = <any>new Extend(true, list, null);
-                panel.startAt = startAt;
-                panel.stopAt = i;
-                panel.pageIndex = accumPageI;
-
-                this.PanelDictionary.set(`${accumPageI}`, panel);
-
-                accumPageI++;
-                list = [];
-                startAt = -1;
-            }
-        }
-        // 最后一页,添加不满一页
+    public initData(list: T[]) {
+        //追加当前缓存
         if (list.length >= 1) {
+            let pageIndex = 1;
 
-            let panel = new Panel<T>();
-            panel.list = <any>new Extend(true, list, null);
+            //添加多页数据
+            let nowDt = [];
+            let nowIndex = pageIndex;//页数下标标记开始为当前请求下标
+            for (let i = 0; i < list.length; i++) {
 
-            panel.startAt = startAt;
-            panel.stopAt = stopAt;
-            panel.pageIndex = accumPageI;
+                let item = list[i];
 
-            this.PanelDictionary.set(`${accumPageI}`, panel);
-        }
-    }
-    //根据页数
-    getItem(pageIndex: number): Panel<T> {
-        // console.log('get pageIndex:' + pageIndex);
-        // console.log(this.PanelDictionary.get(`${pageIndex}`));
+                nowDt.push(item);
 
-        return this.PanelDictionary.get(`${pageIndex}`);
-    }
-    getLists(): Array<Panel<T>> {
-        let list = [];
-        let data: any = this.PanelDictionary.getItems();
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                list.push(data[key]);
+                //一页数据已满，或者已便利完所有数据
+                if (nowDt.length >= this.PageSize || i + 1 === list.length) {
+                    this.addItem(nowIndex, nowDt);
+                    //清空当前页，继续填充下一页
+                    nowDt = [];
+                    ++nowIndex;
+
+                    //已便利完所有数据
+                    if (i + 1 === list.length) {
+                        break;
+                    }
+                }
             }
         }
-        return list;
     }
-    getItems() {
-        return this.PanelDictionary.getItems();
+    // 根据页数
+    public getItem(pageIndex: number, callback?: (list: Array<T>) => void) {
+        this.func.enable(() => {
+            let dt: Array<any> = [];
+
+            let pageList = this.PanelDictionary.get(`${pageIndex}`) || [];
+
+            if (pageList.length) {
+                // console.log('从缓存获取');
+                dt = pageList;
+                //根据页数获取
+                this.func.clear();
+                callback && callback(dt);
+            }
+        })
     }
-    getDataSize(): number {
-        return this.DataSize;
+    public addItem(pageIndex: number | string, value: Array<T>) {
+        if (!this.PanelDictionary.has(String(pageIndex))) {
+            this.PanelDictionary.set(String(pageIndex), value);
+            this.NativeDataSize += value.length; // 累加已缓存数据量
+        }
+    }
+    /**
+     * 缓存数目
+     */
+    public cacheCount(): number {
+        return this.NativeDataSize;
+    }
+    /**
+     * 清空缓存
+     */
+    public clearCache() {
+        this.PanelDictionary.clear();
+        this.NativeDataSize = 0;
     }
 }

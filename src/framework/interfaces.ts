@@ -88,7 +88,7 @@ interface VolumeChangingResponse {
     currentVolume: number;
 }
 interface VolumeInitResponse {
-    currentTime: number;
+    currentVolume: number;
 }
 interface ReleasedResponse {
     success: boolean;

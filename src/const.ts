@@ -1,7 +1,7 @@
 /**
  * 编辑作者：张诗涛
  * 创建时间：2018年1月18日12:12:43
- * 更新时间：2018年1月24日14点57分
+ * 更新时间：2018年3月8日 10点00分
  * 功能分类：安徽盒子
  */
 // 盒子相关属性
@@ -43,8 +43,17 @@ if (!Utility) {
 }
 // 返回launcher
 const Util = {
+    /**
+     * 安徽
+     */
     setValueByName: function () {
         return Utility.setValueByName("exitIptvApp")
+    },
+    /**
+     * 云南
+     */
+    getDomainUrl: function () {
+        return Authentication.CTCGetConfig("EPGDomain");
     }
 };
 

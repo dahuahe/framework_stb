@@ -86,8 +86,8 @@
 - 回掉和事件触发满足 this 的指针
 - 预定义开发生成代码 比如 if for 选项体
 - PageEvent 自定义 Focus 事件后提示注册的信息失效
-- 常用插件提取 比如（纵向自动滚动、自定义走马灯、可控制上下滚动查看）
 - // TODO
+
 
 # 日志
 **2017年9月5日11:33:59**
@@ -135,6 +135,22 @@
 - 更新 dataTool Key 对象新增 Home = 181 Pause = 263
 **2018年2月26日 17点22分**
 - 修复 Focus 第二次调用 initData 方法后 autoFile 的 Key.Right 和 Key.Left 异常问题
+**2018年3月8日 09点35分**
+- 更新 uiTool 工具库新增 VerietyRoll 模块
+- 更新 config 配置文件结构与属性命名
+- 更新 managementPageDB.ts 文件 修复分页容易产生歧义参数 删除 ManagementPageDBToLocal 模块 新增 ManagementPageDBToNative 模块作为替代
+- 更新 dataTool 工具库 ParseUrl 对象 支持传入完整格式的 url 与 location.search
+- 更新 dataTool 工具库 JSON 对象为静态对象使用不需要实例化
+- 更新 focus 对象 优化部分功能
+- 更新 pageEvent 对象 优化部分功能
+- 更新 const 支持 云南盒子首页地址获取
+- 更新 PageSource 修复cookie 对象返回 null undefined 异常
+- 更新 Player 对象 支持自定义总时长 自定义总时长播放完毕后结束视频流
+- 更新 Player 自动初始化当前系统音量
+- 更新 Player 公开化 mediaPlayer 属性
+- 更新 dataTool 模块 新增 Key.Mute2 云南静音键
+- 更新 完整的各个模板文件
+- 更新 uiTool 工具库 常用插件提取 比如（纵向自动滚动、自定义走马灯、可控制上下滚动查看）
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**

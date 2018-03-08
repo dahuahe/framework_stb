@@ -1,11 +1,12 @@
 
 /**
- * 更新时间：2018年2月8日 16点16分
+ * 更新时间：2018年3月8日 09点46分
  * 模块分类：焦点管理
+ * 模块说明：规范 Focus 最小原则 对于 width 1 height 1 元素尽可能不创建Focus 对象，因为基本无意义还多余资源与精力去管理
  */
 import { Key, Extend } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
-import { PageEvent, PageEventType, IPageEventResponse } from './pageEvent';
+import { PageEvent, PageEventType } from './pageEvent';
 import { SetTimeout } from './dataTool';
 var FocusType = {
     // 扩展插件相关事件
@@ -128,7 +129,7 @@ class Focus {
         this.dataArray.length = 0;
         this.recordArray.length = 0;
         this.site = null;
-        
+
         if (typeof data == 'number') {
             data = new Array(data);
         }
