@@ -1,4 +1,4 @@
-import { SetInterval } from '../data_tool/dataTool';
+import { SetInterval, SetTimeout } from '../data_tool/dataTool';
 
 /**
  * 对 HTMLElement 的封装
@@ -249,38 +249,58 @@ export class VerticalRoll {
  * 左右滚动效果封装
  */
 export class HorizontalRoll {
-    private readonly ele: HElement;
+    private readonly box: HElement;
     private readonly marquee: HElement;
     private innerHtml: string;
 
-    private marginLeft: number;
+    private marginLeft = 0;
+    private out = new SetTimeout(200);
+    private timer = new SetInterval(30);
+
     constructor(ele: HElement) {
-        this.ele = ele;
-        this.marquee = new HElement(document.createElement('marquee'));
+        this.box = ele;
+        this.marquee = new HElement(document.createElement('div'));
     }
     enable() {
-        let ele = this.ele.element;
+        this.marginLeft = 0;
+        this.out.clear();
+        this.timer.clear();
+
+        let ele = this.box.element, scrollWidth = ele.scrollWidth, clientWidth = ele.clientWidth, isFirst = true;
         let marquee = <HTMLMarqueeElement>this.marquee.element;
-        this.innerHtml = this.ele.html();
-        this.ele.style("whiteSpace", 'nowrap');
+        this.innerHtml = this.box.html();
+        this.box.style("white-space", 'nowrap');
 
         if (ele.scrollWidth > ele.clientWidth) {
-            this.ele.style("position", 'relative');
-            this.marquee.style("position", "absolute");
-            this.marquee.style("left", "0");
-            this.marquee.style("top", "0");
+
+            this.box.style("position", 'relative');
+            this.marquee.attr('style', "position:absolute;left:0;top:0;");
+
+            this.out.enable(() => {
+                this.timer.enable(() => {
+                    this.marginLeft -= 2;
+                    if ((-scrollWidth) > this.marginLeft) {
+                        if (!isFirst) {
+                            this.marginLeft = clientWidth;
+                        } else {
+                            isFirst = false;
+                        }
+                    }
+                    this.marquee.style('left', `${this.marginLeft}px`);
+                });
+            });
 
             // 装载
             this.marquee.html(this.innerHtml);
-            this.ele.html("");
+            this.box.html("");
             ele.appendChild(marquee);
-
-            // 激活
-            marquee.start();
         }
     }
     disable() {
         // 卸载
-        this.ele.html(this.innerHtml);
+        this.marginLeft = 0;
+        this.out.clear();
+        this.timer.clear();
+        this.box.html(this.innerHtml);
     }
 }

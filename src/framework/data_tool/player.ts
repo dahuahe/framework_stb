@@ -47,14 +47,14 @@ export class Player {
     private customTotalTime: number = 0;
     public readonly identCode: number = null;
 
-    // 进度条设置状态
-    private progressChanging = false;
     // 播放完毕
     private finish = false;
 
     // private settingVolumeTimer = new SetTimeout(1000);
     private settingProgressTimer = new SetTimeout(1000);
     private progressMonitor = new SetInterval(1000); // 视频播放进度以 秒 为单位进行播放，该参数禁止改变（部分盒子进度不会到达最后一或二秒便依赖该定时器进行模拟进度进行）
+
+    private startPlayCount = 0; // 开始播放触发次数
 
     constructor(params: { identCode: number }, pageEvent: IPageEvent) {
         this.identCode = params.identCode;
@@ -67,9 +67,9 @@ export class Player {
     play(playUrl: string) {
         this.configPlayUrl(playUrl);
         if (this.playUrl) {
-            this.finish = false;
             this.currentTime = 0;
             this.totalTime = 0;
+            this.startPlayCount = 0;
 
             // // 在播放过程中调用此方法可能异常，原因未深纠所以做结束处理再重新播放
             // this.pause(false);
@@ -89,9 +89,9 @@ export class Player {
 
         this.configPlayUrl(playUrl);
         if (this.playUrl) {
-            this.finish = false;
             this.currentTime = 0;
             this.totalTime = 0;
+            this.startPlayCount = 0;
 
             this.mediaPlay.setSingleMedia(this.playUrl);      // 播放源
             this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
@@ -193,7 +193,7 @@ export class Player {
 
         if (this.mediaPlay) {
             this.currentVolume = this.getVolume();
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentVolume: this.getVolume() });
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentTime: this.getVolume() });
         }
 
         // 播放器默认已经是全屏播放，这里不做重复处理，小窗播放情况下会重复配置，所以手动配置
@@ -204,10 +204,10 @@ export class Player {
      * 在播放之后执行才会生效
      */
     private startMonitorProgress(isTriggerStartPlayingEvent = true) {
-        let startPlayCount = 0; // 开始播放事件触发次数
         let stopTime = 0;      // 进度停止了多少秒（异常状态）
         let finishCount = 0;    // 播放完毕事件触发次数
         let buffer = 0;         // 缓冲时间
+        let difference = 0;     // 误差
 
         // 部分盒子到最后 1 或 2 s直接停止
         // 盒子开始播放时 当前进度返回 0 延迟 部分时间才返回当前进度
@@ -233,61 +233,64 @@ export class Player {
             }
             // 播放中 当前进度在进行中且至少是 1
             if (time > 0) {
-                // 自定义进度设置中
-                if (!this.progressChanging) {
-                    if (time > this.currentTime) {
-                        this.currentTime = time;
-                        // 视频总时间如果未获取到那么不做最大播放进度的异常处理
+                // 真实进度与界面进度误差不超过 5 s
+                difference = 0;
+                if (time < this.currentTime) {
+                    difference = this.currentTime - time;
+                }
+                if (time > this.currentTime || difference > 5) {
+                    this.currentTime = time;
+                    // 视频总时间如果未获取到那么不做最大播放进度的异常处理
+                    if (this.totalTime) {
+                        this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
+                    }
+                    // 播放中
+                    if (this.currentTime <= this.totalTime) {
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+                    }
+                    if (0 == finishCount) {
                         if (this.totalTime) {
-                            this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
-                        }
-                        // 自定义进度改变中不执行
-                        if (!this.progressChanging) {
-                            // 播放中
-                            if (this.currentTime <= this.totalTime) {
-                                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
-                                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+                            // 如果播放器计时器已经停止工作，并且总时间还未初始化，那么触发结束播放事件
+                            // 排除刚开始播放情况
+                            if (this.currentTime >= this.totalTime && 0 < this.currentTime && 0 < this.totalTime) {
+                                // 播放完毕
+                                finishCount++;
+                            }
+                        } else {
+                            // 视频流停止 3 s 时
+                            if (3 <= stopTime) {
+                                finishCount++;
                             }
                         }
-                        if (0 == finishCount) {
-                            if (this.totalTime) {
-                                // 如果播放器计时器已经停止工作，并且总时间还未初始化，那么触发结束播放事件
-                                // 排除刚开始播放情况
-                                if (this.currentTime >= this.totalTime && 0 < this.currentTime && 0 < this.totalTime) {
-                                    // 播放完毕
-                                    finishCount++;
-                                }
-                            } else {
-                                // 视频流停止 3 s 时
-                                if (3 <= stopTime) {
-                                    finishCount++;
-                                }
-                            }
-                        }
-                        // 延迟一秒
-                        else if (1 == finishCount) {
-                            finishCount++;
-                        }
-                        else if (2 == finishCount) {
-                            this.finish = true;
-                            stopTime = 0;
-                            this.stopMonitorProgress();
-                            this.stop();
-                            this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
-                        }
+                    }
+                    // 延迟一秒
+                    else if (1 == finishCount) {
+                        finishCount++;
+                    }
+                    else if (2 == finishCount) {
+                        this.finish = true;
+                        stopTime = 0;
+                        this.stopMonitorProgress();
+                        this.stop();
+                        this.pageEvent.trigger(this.identCode, PlayerType.FinishPlay);
                     }
                 }
             }
             // 开始播放 当前进度可以等于或大于 0 且仅触发一次
-            if (0 == startPlayCount && 0 <= this.currentTime) {
+            if (0 == this.startPlayCount && 0 <= this.currentTime) {
+                // 续播时结束后，重叠多个快件或快退事件对新进度进行干扰，这里进行重置
+                this.currentTime = 1;
                 // 开始播放事件触发，条件是影片从头开始播放，并且当前进度大于等于 1 ，并且仅执行一次
                 if (isTriggerStartPlayingEvent == true) {
                     // document.getElementById('msg').innerHTML = `触发开始播放事件第:${++startPlayCount}次`;
                     this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, <StartPlayingResponse>{ totalTime: this.totalTime });
                     this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
                     this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+
+                    this.finish = false;
                 }
-                startPlayCount++;
+                this.startPlayCount++;
             }
             if (this.totalTime <= 0) {
                 // 自定义总市场
@@ -326,8 +329,7 @@ export class Player {
     }
     private setCurrentProgress(value: number, speedOrReverse: boolean) {
         if (!this.finish) {
-            // 自定义进度设置中
-            this.progressChanging = true;
+            this.stopMonitorProgress();
 
             let setVal: any;
 
@@ -351,10 +353,10 @@ export class Player {
                 this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
                 this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
 
-                this.progressChanging = false;
-
                 // 恢复
                 this.resume(false);
+
+                this.startMonitorProgress(false);
             });
         }
     }
