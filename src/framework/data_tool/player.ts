@@ -193,7 +193,7 @@ export class Player {
 
         if (this.mediaPlay) {
             this.currentVolume = this.getVolume();
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentTime: this.getVolume() });
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentVolume: this.getVolume() });
         }
 
         // 播放器默认已经是全屏播放，这里不做重复处理，小窗播放情况下会重复配置，所以手动配置

@@ -1,37 +1,29 @@
 # framework_stb
-- 最后编辑时间：2018年1月9日15:11:08
+- 最后编辑时间：2018年3月12日 11点11分
 - 当前项目更新时间：自定义
 - 面向机顶盒开发的框架库 相对完善的底层库封装 并持续更新中...
 
 # 框架结构
-- ├─dist              // 编译文件
-- │  ├─images
-- │  ├─css
-- │  ├─js
-- │  └─*.html
-- ├─doc                       // 文档资料
-- └─src                       // 源码文件
--     ├─less                      // 公用样式
--     ├─framework                 // 框架基础库
--         ├─data_tool                 // 数据相关逻辑
--         └─ui_tool                   // html相关逻辑
--     ├─logic                     // 业务逻辑
--         ├─baseLogic.ts              // 业务逻辑父类
--         ├─logic.ts                  // 业务逻辑集合
--         └─template.ts               // templateLogic 模板文件用于快速创建可访问网络的 api
--     ├─model                     // 对象实体
--         ├─baseModel.ts              // 业务逻辑父类
--         ├─logic.ts                  // 业务逻辑集合
--         └─template.ts               // templateLogic 模板文件用于快速创建 api 对象实体类
--     ├─pages                     // page 页面相关文件
--         └─index                     // 页面文件夹(可添加多个具有相同文件的文件夹)
--             ├─*.less                // html 页面对应 css 文件
--             ├─*.ts                  // html 页面对应 js 文件
--             └─*.html                // html 页面文件
--     ├─config.ts                 // api 路径配置
--     ├─const.ts                  // apk 相关属性
--     ├─require.js
--     └─template.html             // html 模板文件用于快速创建兼容盒子的 html 页面
+├─dist                      // 输出目录
+│  ├─css
+│  ├─images
+│  └─js
+│      ├─framework          
+│      │  ├─data_tool
+│      │  └─ui_tool
+│      ├─logic              
+│      └─model              
+├─doc                       // 文档资料
+└─src                       // 源文件
+    ├─framework             // 框架文件
+    │  ├─data_tool
+    │  └─ui_tool
+    ├─less
+    ├─logic                 // 数据逻辑
+    ├─model                 // 实体文件
+    ├─pages                 // 页面文件
+    │  └─index
+    └─template              // 模板文件
 
 # frameword 对象详解
 ## Focus 描述
@@ -50,16 +42,9 @@
     - 属性类型：Function
     - 回掉类型：FocusResponse
     - 属性描述：activateClass 属性被取消时触发该回掉，同理activeClass未设置时不会触发该回掉
-### 使用 get
-### 使用 set
-### 使用
 
 ## Module 描述
 - 继承 Module 模块，当前模块不能再属性初始化时赋值然后在 initialize 或 subscribeEvent 调用
-### 初始化对象
-### 使用 get
-### 使用 set
-### 使用
 
 
 # 自动流程
@@ -87,7 +72,6 @@
 - 预定义开发生成代码 比如 if for 选项体
 - PageEvent 自定义 Focus 事件后提示注册的信息失效
 - // TODO
-
 
 # 日志
 **2017年9月5日11:33:59**
@@ -154,6 +138,9 @@
 - 更新 uiTool 走马灯逻辑调整给予 js 计时器实现
 **2018年3月9日 11点23分**
 - 更新 Player 快件到终点然后续播导致当前进度异常问题
+**2018年3月12日 10点54分**
+- 删除 carousel.ts 文件
+- 删除 arithmetic.ts 文件
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**
