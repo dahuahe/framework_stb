@@ -45,11 +45,13 @@ class FocusResponse {
 }
 interface IFocusSetting {
     /**
-     * 实例唯一标识（用于系统级事件通知，该字段必须唯一）
+     * @type Enum 模块唯一标识
+     * @description 实例唯一标识（用于系统级事件通知，该字段必须唯一）
      */
     identCode: string | number;
     /**
-     * 地图算法前置条件最大生成宽度 0 代表无线长
+     * @type String site 被设置焦点会应用该类定义的样式，site 失去焦点也会相应去掉该类样式
+     * @description 地图算法前置条件最大生成宽度 0 代表无线长
      */
     width?: number,
     /**

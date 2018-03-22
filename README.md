@@ -25,35 +25,42 @@
     │  └─index
     └─template              // 模板文件
 
-# frameword 对象详解
-## Focus 描述
-### 初始化对象
-- identCode
-    - 属性类型: Enum
-    - 属性描述: 模块唯一标识
-- activateClass
-    - 属性类型: String
-    - 属性描述: site 被设置焦点会应用该类定义的样式，site 失去焦点也会相应去掉该类样式
-- confirmClass
-    - 属性类型：Function
-    - 回掉类型：FocusResponse
-    - 属性描述：activateClass 属性被应用时触发该回掉，同理activeClass未设置时不会触发该回掉
-- cancelClass
-    - 属性类型：Function
-    - 回掉类型：FocusResponse
-    - 属性描述：activateClass 属性被取消时触发该回掉，同理activeClass未设置时不会触发该回掉
-
-## Module 描述
-- 继承 Module 模块，当前模块不能再属性初始化时赋值然后在 initialize 或 subscribeEvent 调用
-
 
 # 自动流程
     npm run start   // 开发流程
     npm run minify  // 发布流程
 
-# 对象名称
-# 对象详解
 # 概念描述
+    单一职责
+        单一职责的描述如下：
+        A class should have only one reason to change
+        类发生更改的原因应该只有一个
+
+        dataTool.ts 基础库
+        整个体系中最小单位对象。仅有一个或一组紧密相关的行为为一个主题服务。通过解耦使每个职责更加有弹性的变化
+
+        focus.ts 焦点对象
+        职责是初始化一组矩阵焦点与页面焦点映射关联。且具备一组对该矩阵图相关的职责属性方法
+
+        model 系列对象
+        实体类主要是作为数据管理和业务逻辑处理层面上存在的类别;
+        某个实体对象可与另一个实体对象关联，但他们都遵循单一职责，每个实体对象的定义都应该围绕一个主题且属性不可再分
+
+        ...
+
+    开闭原则
+        开闭原则的描述如下：
+        Software entities (classes, modules, functions, etc.) should be open for extension but closed for modification.
+        软件实体（类，模块，方法等等）应当对扩展开放，对修改关闭，即软件实体应当在不修改的前提下扩展。
+
+        pageEvent.ts 事件管理对象
+        采用事件订阅模式，也称观察者模式。同时也是 MVC 框架中各模块间通信的中间对象，订阅者仅关心在处理地方订阅并处理即可。增加其他事件类型也不用修改源码而只是订阅新的事件（Key、PageEventType、FocusType等等）。
+
+    里氏替换原则
+        里氏替换原则的描述如下：
+        Subtypes must be substitutable for their base types.
+        派生类型必须可以替换它的基类型。 
+    
 # 内部解析
 # 使用方式
 
