@@ -53,6 +53,10 @@ export var PagingHelper = {
     },
     getCountPage(dataSize: number, pageSize: number) {
         return Math.ceil(dataSize / pageSize);
+    },
+    getSerial(params: { pageSize: number, pageIndex: number, index: number }): number {
+        let dynamic = ((params.pageIndex - 1) * (params.pageSize) + (params.index));
+        return dynamic;
     }
 }
 /**

@@ -141,6 +141,12 @@
 **2018年3月12日 10点54分**
 - 删除 carousel.ts 文件
 - 删除 arithmetic.ts 文件
+**2018年3月22日 14点19分**
+- 更新 module 模块 增加基于 Module 模块扩展 ModulePage 对象支持播放底部选集翻页组件列表翻页组件
+- 更新 interfaces.ts 增加 IManagementDB<T> 接口定义
+- 更新 paging.ts 增加 getSerial 方法
+- 更新 focus 模块 增加 getSetting 方法
+- 更新 player 模块 增加 getTotal 方法
 
 # Focus 模块测试项参考
 **2018年1月5日11:57:35**

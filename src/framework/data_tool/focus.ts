@@ -8,27 +8,21 @@ import { Key, Extend } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
 import { PageEvent, PageEventType } from './pageEvent';
 import { SetTimeout } from './dataTool';
-/**
- * Focus 模块事件
- */
 var FocusType = {
+    // 扩展插件相关事件
     /**
-     * 坐标发生改变
+     * Focus 对象 - 坐标更新完毕
      */
     Changeed: 'FocusType.Changeed',
     /**
-     * 坐标被设置后
+     * Focus 对象 - 接收到Focus事件后触发
      */
     Focused: 'FocusType.Focused',
     /**
-     * 坐标被离开后
+     * Focus 对象 - 接收到Blur事件并处理完相应事件后执行
      */
     Blured: "FocusType.Blured"
 }
-/**
- * 坐标对象
- * 包含 x y 轴序数；index 自增长自然数(从0开始)；element Helement对象(对HTMLElement对象的封装)
- */
 class Site {
     public x: number = null;
     public y: number = null;
@@ -49,9 +43,6 @@ class FocusResponse {
     site: Site;
     type: "self" | "auto"
 }
-/**
- * Focus 类构造函数对象
- */
 interface IFocusSetting {
     /**
      * 实例唯一标识（用于系统级事件通知，该字段必须唯一）
@@ -92,11 +83,7 @@ interface IFocusSetting {
     enableSite?: Function
 }
 /**
- * @class Focus
- * @name 焦点类
- * @version v1.0.0
- * @namespace "/src/framework/data_tool/focus"
- * @description 将网页视图中具有矩阵规律的一组焦点(至少一个，建议两个或两个以上)进行抽象与实例化对象 Focus 关联。为该组焦点提供常用行为的方法(焦点移动以及相关事件)和用户自定定义方法的订阅(基于 PageEvent 类)
+ * @desc 移动对象，页面元素组的内存映射地图表。关联/控制页面元素
  */
 class Focus {
     private listHElement: HElement[] = [];
@@ -111,11 +98,6 @@ class Focus {
     // 配置参数
     private readonly setting: IFocusSetting;
 
-    /**
-     * 
-     * @param focusSetting 焦点行为以及属性配置
-     * @param pageEvent 页面事件对象
-     */
     constructor(focusSetting: IFocusSetting, pageEvent: IPageEvent) {
         let defaults: IFocusSetting = {
             width: 0, height: 0, autoFill: null, autoTarget: null,
@@ -142,11 +124,6 @@ class Focus {
             });
         }
     }
-    /**
-     * 初始化数据
-     * @param data HElement[]:网页焦点关联 HTML节点的Helment 实例数组 或者 number:网页焦点关联 HTML 节点的数量
-     * @description 根据参数和配置条件生成矩阵坐标，且该方法可重复调用(注意不要重复订阅相关事件)
-     */
     public initData(data: HElement[] | number) {
         this.listHElement.length = 0;
         this.dataArray.length = 0;
@@ -389,52 +366,23 @@ class Focus {
         response.success = true;
         this.event.trigger(this.setting.identCode, FocusType.Blured, response);
     }
-    /**
-     * 设置当前坐标 (废弃)
-     */
+    // 获取当前
     public setSite(): void;
-    /**
-     * 设置当前坐标
-     * @param leapId (废弃)
-     */
+    // 根据id获取
     public setSite(leapId: string): void;
-    /**
-     * 设置当前坐标
-     * @param index 对应 Site 对象 index 自增长自然数
-     */
+    // index 获取
     public setSite(index: number): void;
-    /**
-     * 设置当前坐标
-     * @param set 对应 Site 对象 x y index 属性全匹配
-     */
+    // 根据set获取 id/x/y/index/leapId全匹配
     public setSite(set: Site): void;
-    /**
-     * 设置当前坐标
-     * @param xy 对应 Site 对象 x y 轴序数
-     */
+    // 根据x and y 获取
     public setSite(x: number, y: number): void;
-    /**
-     * 设置当前坐标
-     * @param keyCode[keyCode] 对应 Key 对象枚举值
-     * @description 以当前坐标为基数支持一个或多个键码命令(Key.Left、Key.Up、Key.Right、Key.Down)且可重复。查找相对坐标。比如当前坐标在 0,0,0 输入命令[Key.Right] 那么设置坐标就是 0,1,1(至少焦点个数大于2且 配置属性 width 大于等于2前提下)
-     */
-    public setSite(keyCode: [number]): void;
-    /**
-     * 设置当前坐标
-     * @param target 'first' 设置 Site 对象矩阵中 index 自增长自然最小的坐标;'last' 设置 Site 对象矩阵中 index 自增长自然最大的坐标
-     */
+    // 根据键码获取
+    public setSite(keyCode: [number]): void;// keyCode => 34,56,32,32...
+    // 根据语义命令获取
     public setSite(target: 'first' | 'last'): void;
-    /**
-     * 设置当前坐标
-     * @param target x:'first|last' 设置 Site 对象矩阵中 x 轴序数最小(或最大)的坐标;y:'first|last' 设置 Site 对象矩阵中 y 轴序数 最小(或最大)的坐标;
-     * @description 序数预定义语义命令查找
-     */
+    // 根据语义命令并加条件
     public setSite(x: 'first' | 'last', y: 'first' | 'last'): void;
-    /**
-     * 设置当前坐标
-     * @param target x:'first|last' 设置 Site 对象矩阵中 x 轴序数最小(或最大)的坐标;y:number 设置 Site 对象矩阵中 y 轴序数 最小(或最大)的坐标;
-     * @description 序数预定义语义命令查找
-     */
+    // 根据语义与x,y的配合获取
     public setSite(x: 'first', y: number): void;
     // 根据语义与x,y的配合获取
     public setSite(x: 'last', y: number): void;
@@ -480,9 +428,6 @@ class Focus {
     // 获取当前
     public getSite(): Site;
     // index 获取
-    /**
-     * 
-     */
     public getSite(index: number): Site;
     // 根据set获取 id/x/y/index/leapId全匹配
     public getSite(set: Site): Site;
@@ -889,6 +834,9 @@ class Focus {
         this.event.off(this.setting.identCode, Key.VolumePlus);
         this.event.off(this.setting.identCode, Key.VolumeMinus);
         this.event.off(this.setting.identCode, Key.Mute);
+    }
+    getSetting() {
+        return this.setting;
     }
 }
 export { Site, Focus, FocusType, FocusResponse }

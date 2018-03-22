@@ -400,6 +400,9 @@ export class Player {
     setTotalTime(total: number) {
         this.customTotalTime = total;
     }
+    getTotal(){
+        return this.totalTime;
+    }
 }
 // 使用说明
 // 1. this.media = new Player({ identCode: ModuleType.Video }, this.event);
