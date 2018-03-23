@@ -33,7 +33,7 @@ class Module {
 }
 
 interface IModulePageToNative<T> {
-    activeClass: string,
+    activeClass?: string,
     onEachItemAfter: (v: T, i: number, e: HElement, ) => void;
 };
 /**
@@ -154,7 +154,7 @@ class ModulePage<T> extends Module {
                     curEles.push(this.boxs[i]);
                     this.boxs[i].show();
                     // 重置激活样式
-                    if (this.boxs[i].hasClass(activeClass)) {
+                    if (activeClass && this.boxs[i].hasClass(activeClass)) {
                         this.boxs[i].removeClas(activeClass);
                     }
                     // 重置焦点样式
@@ -206,7 +206,7 @@ class ModulePage<T> extends Module {
             this.previousSiteSerial = siteIndex;
 
             // 设置全局焦点
-            if (-1 != globalIndex) {
+            if (activeClass && -1 != globalIndex) {
                 this.foc.getSite(globalIndex).element.clas(activeClass);
             }
 
