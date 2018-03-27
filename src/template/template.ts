@@ -3,8 +3,8 @@
  * 创建时间：2018年3月8日 10点37分
  * 功能分类：首页逻辑页
  */
-import { Config } from "../config";
-import { AppEvent, Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue, EventEmitter, Mediator, FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey, Cookie, HElement, VerticalRoll, HorizontalRoll, ManagementPageDB, ManagementFlowDB, ManagementPageDBToNative, PageEvent, PageEventType, Module, Paging, PagingHelper, Site, Focus, FocusType, FocusResponse, Player, PlayerType } from "../framework/framework";
+import { Config } from "../../config";
+import { AppEvent, Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue, EventEmitter, Mediator, FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey, Cookie, HElement, VerticalRoll, HorizontalRoll, ManagementPageDB, ManagementFlowDB, ManagementPageDBToNative, PageEvent, PageEventType, Module, Paging, PagingHelper, Site, Focus, FocusType, FocusResponse, Player, PlayerType } from "../../framework/framework";
 import { } from "../../model/model";
 import { } from "../../logic/logic";
 
