@@ -1,3 +1,4 @@
+
 /**
  * @name 中介器
  */
@@ -22,14 +23,6 @@ interface IAppEvent {
     topic: string | number;
     data: any;
     handler: (e: any, data: any) => void;
-}
-interface IPageEvent {
-    trigger(identCode: string | number, topic: string | number, data?: any): void;
-    on(identCode: string | number, topic: string | number, callback: any): void;
-    off(identCode: string | number, topic: string | number): void;
-    target(identCode: string | number, data?: any): void;
-    hasSubscribe(identCode: string | number, topic: string | number): boolean;
-    getTargetIdentCode(): void;
 }
 // 配置部分
 interface IPlayerSetting {
@@ -102,4 +95,62 @@ interface StartPlayingResponse {
 // 数据分页
 interface IManagementDB<T> {
     getItem(pageIndex: number, callback?: (list: Array<T>) => void): void;
+}
+interface IHElement {
+    readonly element: HTMLElement;
+    constructor(eleName: string | HTMLElement, fatherEle?: HTMLDocument): void;
+    clas(clasName?: string): void;
+    removeClas(clasName: string): void;
+    html(html?: string): void
+    text(text?: string): void;
+
+    style(propName: string, value?: string): void;
+    removeStyle(propertyName?: string): void;
+    attr(name: string, value?: string): void;
+    removeAttr(name?: string): void;
+    show(): void;
+    hide(): void;
+    hasHide(): void;
+    hidden(): void;
+    visible(): void;
+    hasHidden(): void;
+    hasClass(clasName: string): void;
+    children(keyword: string): IHElement[];
+}
+// 焦点对象事件回掉参数类型
+interface ISite {
+    x: number;
+    y: number;
+    index: number;
+    element: IHElement;
+}
+interface IFocusChanged {
+    /**
+     * 模块唯一标识
+     */
+    identCode: number;
+    /**
+     * 事件执行状态
+     */
+    success: boolean;
+    /**
+     * 当前坐标对象
+     */
+    site: ISite;
+    /**
+     * 上一个坐标对象
+     */
+    previousSite: ISite;
+    /**
+     * 参数
+     */
+    data: any;
+    /**
+     * 键码
+     */
+    keyCode: number;
+    /**
+     * 事件触发是否来自系统(Focus 对象内部发出)
+     */
+    fromSystem: boolean;
 }

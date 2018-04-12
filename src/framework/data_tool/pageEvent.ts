@@ -15,8 +15,7 @@ import { EventEmitter } from './eventEmitter';
 import { SetTimeout, Key } from './dataTool';
 import { AppEvent } from './appEvent';
 
-var PageEventType = {
-    // 基本事件
+var PageType = {
     /**
      * 模块获取焦点
      */
@@ -35,7 +34,7 @@ var PageEventType = {
     Error: 'PageEventType.Error'
 }
 
-class PageEvent implements IPageEvent {
+class PageEvent {
     private readonly _eventEmitter: IEventEmitter;
     private readonly events: Array<{ target?: Document | Window, topic: string | number, data: any, handler: Array<string | number>; }>;
     private targetName: string | number = null;
@@ -59,7 +58,7 @@ class PageEvent implements IPageEvent {
                 if (null !== targetName)
                     this.target(targetName);
                 else
-                    this.trigger("*", PageEventType.Error, "当前 PageEvent 未设置默认焦点模块");
+                    this.trigger("*", PageType.Error, "当前 PageEvent 未设置默认焦点模块");
             }
         });
     }
@@ -108,19 +107,45 @@ class PageEvent implements IPageEvent {
     trigger(identCode: string | number, topic: string | number, data: any = null) {
         this._eventEmitter.triggerEvent(new AppEvent(`${identCode}-${topic}`, data, null));
     }
-    on(identCode: string | number, topic: string | number, callback: any) {
-        this._eventEmitter.subscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, callback));
+    on(identCodes: string | number, topic: string | number, callback: any): void;
+    on(identCodes: string[] | number[], topic: string | number, callback: any): void;
+    on(identCode: any, topic: string | number, callback: any): void {
+        // 单条数据
+        if (typeof identCode !== "object") {
+            this._eventEmitter.subscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, callback));
+        }
+        // 多条数据
+        else {
+            let data = identCode, len = data.length, i = 0, item: string;
+            for (; i < len; i++) {
+                item = `${data[i]}`;
+                this.on(item, topic, callback);
+            }
+        }
     }
-    off(identCode: string | number, topic: string | number) {
-        this._eventEmitter.unsubscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, null));
+    off(identCodes: string | number, topic: string | number): void;
+    off(identCodes: string[] | number[], topic: string | number): void;
+    off(identCode: any, topic: string | number): void {
+        // 单条数据
+        if (typeof identCode !== "object") {
+            this._eventEmitter.unsubscribeToEvents(new AppEvent(`${identCode}-${topic}`, null, null));
+        }
+        // 多条数据
+        else {
+            let data = identCode, len = data.length, i = 0, item: string;
+            for (; i < len; i++) {
+                item = `${data[i]}`;
+                this.off(item, topic);
+            }
+        }
     }
     hasSubscribe(identCode: string | number, topic: string | number): boolean {
         return this._eventEmitter.hasSubscribe(new AppEvent(`${identCode}-${topic}`, null, null));
     }
     target(identCode: string | number, data?: any) {
         // 是否有模块订阅该事件（通常为 Focus 也可以是其他自定义组件）
-        if (!this.hasSubscribe(identCode, PageEventType.Focus)) {
-            this.trigger("*", PageEventType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未订阅Focus相关事件当前操作无效");
+        if (!this.hasSubscribe(identCode, PageType.Focus)) {
+            this.trigger("*", PageType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未订阅Focus相关事件当前操作无效");
         } else {
             // 加入有效模块列表，否则不予执行
             // events 目前仅处理第一组数据的 keydown 事件。
@@ -136,20 +161,20 @@ class PageEvent implements IPageEvent {
                         let response: IPageEventResponse = {
                             Event: null,
                             Target: identCode,
-                            EventName: PageEventType.Blur,
+                            EventName: PageType.Blur,
                             KeyCode: -1,
                             Source: sourceTargetName,
                             Data: null
                         };
 
-                        this.trigger(this.targetName, PageEventType.Blur, response);
+                        this.trigger(this.targetName, PageType.Blur, response);
                     }
 
                     // 获取焦点事件
                     let response: IPageEventResponse = {
                         Event: null,
                         Target: identCode,
-                        EventName: PageEventType.Focus,
+                        EventName: PageType.Focus,
                         KeyCode: 0,
                         Data: data,
                         Source: sourceTargetName
@@ -158,11 +183,11 @@ class PageEvent implements IPageEvent {
                         this.previousName = this.targetName;
                     }
                     this.targetName = identCode;
-                    this.trigger(identCode, PageEventType.Focus, response);
+                    this.trigger(identCode, PageType.Focus, response);
                 }
 
             } else {
-                this.trigger("*", PageEventType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未加入 PageEvent 的 handler 列表当前操作无效");
+                this.trigger("*", PageType.Error, "当前 PageEvent 的 target 执行焦点移交时模块：" + identCode + " 未加入 PageEvent 的 handler 列表当前操作无效");
             }
         }
     }
@@ -174,7 +199,7 @@ class PageEvent implements IPageEvent {
     }
     private subscribeEvent() {
         // 程序异常调试参考信息
-        this.on("*", PageEventType.Error, (msg: any) => {
+        this.on("*", PageType.Error, (msg: any) => {
             console.log(msg);
         });
     }
@@ -184,7 +209,7 @@ class PageEvent implements IPageEvent {
             const ele = list[i];
             if (identCode == ele) {
                 delete list[i];
-                this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块启用")
+                this.trigger("*", PageType.Error, "PageEvent 已将 " + identCode + " 模块启用")
                 break;
             }
         }
@@ -224,7 +249,7 @@ class PageEvent implements IPageEvent {
         }
         if (!isAdd) {
             list.push(identCode);
-            this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块锁定")
+            this.trigger("*", PageType.Error, "PageEvent 已将 " + identCode + " 模块锁定")
         }
         // 锁定 keyCode
         if (keyCodes && keyCodes.length) {
@@ -265,7 +290,7 @@ class PageEvent implements IPageEvent {
                 const ele = list[i];
                 if (identCode == ele) {
                     delete list[i];
-                    this.trigger("*", PageEventType.Error, "PageEvent 已将 " + identCode + " 模块解锁")
+                    this.trigger("*", PageType.Error, "PageEvent 已将 " + identCode + " 模块解锁")
                     break;
                 }
             }
@@ -295,11 +320,11 @@ class PageEvent implements IPageEvent {
             }
             if (isAdd) {
                 keycodes.push(keyCode);
-                this.trigger("*", PageEventType.Error, "PageEvent 已将 keyCode:" + keyCode + " 禁用");
+                this.trigger("*", PageType.Error, "PageEvent 已将 keyCode:" + keyCode + " 禁用");
             }
         } else {
             this.lockKeycodes[identCode] = [keyCode];
-            this.trigger("*", PageEventType.Error, "PageEvent 已将 keyCode:" + keyCode + " 禁用");
+            this.trigger("*", PageType.Error, "PageEvent 已将 keyCode:" + keyCode + " 禁用");
         }
     }
     private unlockKeycode(identCode: number, keyCode?: number) {
@@ -310,7 +335,7 @@ class PageEvent implements IPageEvent {
                     const ele = keycodes[i];
                     if (keyCode == ele) {
                         delete keycodes[i];
-                        this.trigger("*", PageEventType.Error, "PageEvent 已将 keyCode:" + keyCode + " 启用");
+                        this.trigger("*", PageType.Error, "PageEvent 已将 keyCode:" + keyCode + " 启用");
                         break;
                     }
                 }
@@ -318,7 +343,7 @@ class PageEvent implements IPageEvent {
         } else {
             // 删除所有相关 keyCode 集合
             this.lockKeycodes[identCode] = [];
-            this.trigger("*", PageEventType.Error, "PageEvent 已将 identCode:" + identCode + " 解锁");
+            this.trigger("*", PageType.Error, "PageEvent 已将 identCode:" + identCode + " 解锁");
         }
     }
     /**
@@ -343,4 +368,4 @@ class PageEvent implements IPageEvent {
         return isLock;
     }
 }
-export { PageEvent, PageEventType }
+export { PageEvent, PageType }

@@ -6,7 +6,7 @@
 /// <reference path="./player.d.ts" />
 import { SetTimeout, SetInterval } from '../data_tool/dataTool';
 import { Mediator } from '../../framework/data_tool/mediator';
-import { PageEventType } from '../../framework/data_tool/pageEvent';
+import { PageType } from '../../framework/data_tool/pageEvent';
 import { Guid, FuncLock } from '../../framework/data_tool/dataTool';
 
 declare let MediaPlayer: any;
@@ -73,7 +73,7 @@ class Player {
             this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, { currentVolume: this.currentVolume });
             this.startMonitorProgress(true);
         } else {
-            this.pageEvent.trigger(this.identCode, PageEventType.Error, { message: 'playUrl not found' });
+            this.pageEvent.trigger(this.identCode, PageType.Error, { message: 'playUrl not found' });
         }
     }
     playPoint(playUrl: string, point: number, left = 0, top = 0, width = 1280, height = 720) {
@@ -88,7 +88,7 @@ class Player {
 
             this.startMonitorProgress(true);
         } else {
-            this.pageEvent.trigger(this.identCode, PageEventType.Error, { message: 'playUrl not found' });
+            this.pageEvent.trigger(this.identCode, PageType.Error, { message: 'playUrl not found' });
         }
     }
     // 恢复

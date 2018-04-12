@@ -16,7 +16,7 @@
 /// <reference path="./player.d.ts" />
 import { SetTimeout, SetInterval } from '../data_tool/dataTool';
 import { Mediator } from '../../framework/data_tool/mediator';
-import { PageEventType } from '../../framework/data_tool/pageEvent';
+import { PageType } from '../../framework/data_tool/pageEvent';
 import { Guid } from '../../framework/data_tool/dataTool';
 
 // 此类做枚举使用

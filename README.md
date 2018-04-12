@@ -42,7 +42,6 @@
 - APK 暴露的方法不要使用 let var 去定义 否则导致为空
 
 # 需要改进的功能
-- 简化事件订阅复杂程度，重构 Module 基类 增加订阅方式 onPage onFocus 等方法并提供参数强类型支持
 - 播放器当前进度事件加一个总时长参数
 - 播放器总市场初始化加一个当前开始时间点参数
 - 回掉和事件触发满足 this 的指针（配合新的订阅方式使用）
@@ -58,6 +57,7 @@
 - 更新 teleplay 系列
 - 模块主动触发支持 Key.Enter 等事件
 - 更新 FOCUS 兼容非矩形模块
+- 各时间类型回掉参数调整
 
 # 更新日志
 **2018年4月12日 14点17分**
@@ -66,6 +66,10 @@
 - 更新 framework.ts
 - 更新 Helement 模块 支持直接关系选择器筛选子节点
 - 更新 PagingHelper 模块
+- 更新 PageEvent 模块 扩展 on off 方法支持批量处理
+- 更新 Focus 模块 删除 FocusType.Focused FocusType.Blured 事件
+- 更新 Module 模块 新增基于 PageEvent 模块的事件订阅方式 且提供回掉参数强类型支持
+- 更新 interface.ts 删除 IPageEvent 接口 调整各事件类型属性成员
 
 **2018年3月30日 17点56分**
 - 更新 teleplay.ts 新增 recoverPage 恢复页面方法

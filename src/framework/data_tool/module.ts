@@ -1,6 +1,6 @@
 
 /**
- * 更新时间：2018年4月12日 14点27分
+ * 更新时间：2018年4月12日 15点33分
  * 模块分类：组建基类
  * 模块说明：以 Module 为基类定义 initialize 和 subscribeToEvents 方法为组件提供初始化和事件定义基本能力。
  *          基于 Module 类的再次继承 实现更为复杂且具通用性价值组件提供能力且保留用户自定义实现入口 initialize 和 subscribeToEvents 方法
@@ -11,16 +11,13 @@ import { ManagementPageDBToNative } from "./managementPageDB";
 import { Focus } from "./focus";
 import { HElement } from "../ui_tool/uiTool";
 import { Key } from "./dataTool";
-import { ManagementPageDB } from "../framework";
+import { ManagementPageDB, PageType, FocusType, FocusResponse } from "../framework";
 import { Dictionary } from "./collection";
 
 /**
  * 组件基类
  */
 class Module {
-    /**
-     * 页面事件
-     */
     protected event: PageEvent;
     constructor(pageEvent: PageEvent) {
         this.event = pageEvent;
@@ -30,6 +27,31 @@ class Module {
     }
     protected subscribeToEvents() {
         throw new Error('There is no implementation subscribeToEvents()');
+    }
+    protected on(identCode: string | number, topic: string | number, callback: any): void;
+    protected on(identCodes: string[] | number[], topic: string | number, callback: any): void;
+    protected on(identCode: any, topic: string | number, callback: any) {
+        this.event.on(identCode, topic, callback);
+    }
+    protected onfocus(identCode: string | number, callback: (e: IPageEventResponse) => void): void;
+    protected onfocus(identCodes: string[] | number[], callback: (e: IPageEventResponse) => void): void;
+    protected onfocus(identCode: any, callback: any) {
+        this.event.on(identCode, PageType.Focus, callback);
+    }
+    protected onblur(identCode: string | number, callback: (e: IPageEventResponse) => void): void;
+    protected onblur(identCodes: string[] | number[], callback: (e: IPageEventResponse) => void): void;
+    protected onblur(identCode: any, callback: any) {
+        this.event.on(identCode, PageType.Blur, callback);
+    }
+    protected onKeydown(identCode: string | number, callback: (e: IPageEventResponse) => void): void;
+    protected onKeydown(identCodes: string[] | number[], callback: (e: IPageEventResponse) => void): void;
+    protected onKeydown(identCode: any, callback: any) {
+        this.event.on(identCode, PageType.Keydown, callback);
+    }
+    protected onchanged(identCode: string | number, callback: (e: IFocusChanged) => void): void;
+    protected onchanged(identCodes: string[] | number[], callback: (e: IFocusChanged) => void): void;
+    protected onchanged(identCode: any, callback: any) {
+        this.event.on(identCode, FocusType.Changed, callback);
     }
 }
 
@@ -152,9 +174,9 @@ class ModulePage<T> extends Module {
     /**
      * 根据模块标识加载渲染页面
      */
-    private loadView(key: string, pageIndex: number, siteIndex: number);
-    private loadView(key: string, pageIndex: number, direction?: Key.Left | Key.Right | Key.Up | Key.Down);
-    private loadView(key: string, pageIndex: number, direction?: any) {
+    private loadView(key: string, pageIndex: number, siteIndex: number): void;
+    private loadView(key: string, pageIndex: number, direction?: Key.Left | Key.Right | Key.Up | Key.Down): void;
+    private loadView(key: string, pageIndex: number, direction?: any): void {
 
         let set = this.dic.get(key);
         let pg = set.pg;

@@ -216,7 +216,7 @@ export class HElement {
 
         keyword = keyword.replace(/\s/g, "");
 
-        let data = father.childNodes, len = data.length, item;
+        let data = father.childNodes, len = data.length, item: any;
 
         let tagName = keyword.toUpperCase(), className = "." === keyword.substr(0, 1) ? keyword.substr(1, keyword.length) : "";
 
