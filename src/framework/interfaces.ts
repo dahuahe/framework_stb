@@ -102,5 +102,4 @@ interface StartPlayingResponse {
 // 数据分页
 interface IManagementDB<T> {
     getItem(pageIndex: number, callback?: (list: Array<T>) => void): void;
-    initData(list: T[]): void;
 }

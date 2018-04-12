@@ -1,3 +1,9 @@
+
+/**
+ * 更新时间：2018年4月12日 14点39分
+ * 模块分类：HTML View 插件
+ * 模块说明：以 HTMLElement 为基础，将常用动作抽象为多个模块进行管理复用
+ */
 import { SetInterval, SetTimeout } from '../data_tool/dataTool';
 
 /**
@@ -204,11 +210,46 @@ export class HElement {
             return false;
         }
     }
+    children(keyword = ""): HElement[] {
+        // 父节点
+        let father = this.element, retuList = [];
+
+        keyword = keyword.replace(/\s/g, "");
+
+        let data = father.childNodes, len = data.length, item;
+
+        let tagName = keyword.toUpperCase(), className = "." === keyword.substr(0, 1) ? keyword.substr(1, keyword.length) : "";
+
+        // nodeType
+        for (let i = 0; i < len; i++) {
+            item = data[i];
+            if (item.nodeType === 1) {
+                // all children node
+                if (!keyword) {
+                    retuList.push(new HElement(item));
+                }
+                // className
+                else if (className) {
+                    if (item.className && className === item.className) {
+                        retuList.push(new HElement(item));
+                    }
+                }
+                // assign type node
+                else {
+                    // tag name
+                    if (tagName === item.tagName) {
+                        retuList.push(new HElement(item));
+                    }
+                }
+            }
+        }
+        return retuList;
+    }
 }
 /**
- * 上下滚动效果封装
+ * 上下滚动效果封装（流）
  */
-export class VerticalRoll {
+export class VerticalFlowRoll {
     private readonly ele: HElement;
     private readonly height: number;
     private readonly length: number;
@@ -222,7 +263,6 @@ export class VerticalRoll {
     toCeil() {
         if (this.ele.element.scrollHeight > this.height) {
             this.marginTop += this.length;
-            let full = Math.round(this.ele.element.scrollHeight);
 
             if (this.marginTop > 0) {
                 this.marginTop = 0;
@@ -242,6 +282,205 @@ export class VerticalRoll {
             }
 
             this.ele.style("margin-top", this.marginTop + 'px');
+        }
+    }
+    isRoll() {
+        return this.ele.element.scrollHeight > this.height;
+    }
+    isCeil() {
+        if (this.ele.element.scrollHeight > this.height) {
+            if (this.marginTop >= 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+    isFloor() {
+        if (this.ele.element.scrollHeight > this.height) {
+            let full = -Math.round(this.ele.element.scrollHeight);
+            let difference = full + this.height;
+
+            if (this.marginTop <= difference) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+}
+export class VerticalRoll {
+    private readonly ele: HElement;
+    private readonly height: number;
+    private readonly length: number;
+    private marginTop: number;
+    constructor(info: { ele: HElement, height: number, lenght: number }) {
+        this.ele = info.ele;
+        this.height = info.height;
+        this.marginTop = 0;
+        this.length = info.lenght;
+    }
+    toCeil() {
+        if (this.ele.element.scrollHeight > this.height) {
+            // 不足一步不处理
+            if ((this.marginTop + this.length) > 0) {
+
+            } else {
+                this.marginTop += this.length;
+                this.ele.style("margin-top", this.marginTop + 'px');
+            }
+        }
+    }
+    toFloor() {
+        if (this.ele.element.scrollHeight > this.height) {
+
+            let full = -Math.round(this.ele.element.scrollHeight);
+            let difference = full + this.height;
+            // 不足一步不处理
+            if ((this.marginTop - this.length) < difference) {
+
+            } else {
+                this.marginTop -= this.length;
+                this.ele.style("margin-top", this.marginTop + 'px');
+            }
+        }
+    }
+    isRoll() {
+        return this.ele.element.scrollHeight > (this.height + this.length);
+    }
+    isCeil() {
+        if (this.ele.element.scrollHeight > this.height) {
+            if (this.marginTop >= 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+    isFloor() {
+        if (this.ele.element.scrollHeight > this.height) {
+            let full = -Math.round(this.ele.element.scrollHeight);
+            let difference = full + this.height;
+
+            if (this.marginTop <= difference) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+}
+export class VerticalVisualRangeRoll {
+    private readonly ele: HElement;
+    private readonly height: number;
+    private readonly length: number;
+    private marginTop: number;
+
+    private rollCeil = 0; // 允许混动范围
+    private rollFloor = 0; // 允许滚动范围
+    private serial = 0;// 当前序号
+
+    constructor(info: { ele: HElement, height: number, lenght: number }) {
+        this.ele = info.ele;
+        this.height = info.height;
+        this.marginTop = 0;
+        this.length = info.lenght;
+
+        this.rollCeil = 0;
+        this.rollFloor = Math.floor(this.height / this.length) - 1;
+    }
+    toCeil() {
+        if (this.ele.element.scrollHeight > this.height) {
+
+            let full = -Math.round(this.ele.element.scrollHeight);
+            let difference = full + this.height;
+            // 不足一步不处理
+
+            // 是否已滚动到分界线（上）
+            if ((this.marginTop + this.length) <= 0) {
+                // 可视区域内滚动
+                if (this.serial > this.rollCeil) {
+                    // console.log("可视区域内滚动")
+                }
+                // 非可视区内滚动
+                else {
+                    // console.log("非可视区内滚动")
+                    this.marginTop += this.length;
+                    this.ele.style("margin-top", this.marginTop + 'px');
+
+                    this.rollCeil--;
+                    this.rollFloor--;
+                }
+            } else {
+                // 不允许滚动
+                // console.log("不允许滚动");
+            }
+            if ((this.serial - 1) >= this.rollCeil) {
+                this.serial--;
+            } else {
+                // console.log("序号到达顶部");
+            }
+        }
+    }
+    toFloor() {
+        if (this.ele.element.scrollHeight > this.height) {
+
+            let full = -Math.round(this.ele.element.scrollHeight);
+            let difference = full + this.height;
+            // 不足一步不处理
+
+            // 是否已滚动到分界线（下）
+            if ((this.marginTop - this.length) >= difference) {
+                // 允许滚动
+
+                // 可视区域内滚动
+                if (this.serial < this.rollFloor) {
+                    // console.log("可视区域内滚动")
+
+                }
+                // 非可视区内滚动
+                else {
+                    // console.log("非可视区内滚动");
+                    this.marginTop -= this.length;
+                    this.ele.style("margin-top", this.marginTop + 'px');
+
+                    this.rollCeil++;
+                    this.rollFloor++;
+                }
+
+            } else {
+                // 不允许滚动
+                // console.log("不允许滚动")
+            }
+            if ((this.serial + 1) <= this.rollFloor) {
+                this.serial++;
+            } else {
+                // console.log("序号到达底部");
+            }
+        }
+    }
+    isRoll() {
+        return this.ele.element.scrollHeight > (this.height + this.length);
+    }
+    toSerial(index: number) {
+        if (index > this.serial) {
+            let difference = (index - this.serial);
+            for (let i = 0; i < difference; i++) {
+                this.toFloor();
+            }
+        } else {
+            let difference = (index - this.serial);
+            for (let i = 0; i < difference; i++) {
+                this.toCeil();
+            }
         }
     }
 }

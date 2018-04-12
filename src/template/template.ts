@@ -1,7 +1,7 @@
 /**
  * 编辑作者：张诗涛
- * 创建时间：2018年3月8日 10点37分
- * 功能分类：首页逻辑页
+ * 创建时间：2018年3月26日 15点29分
+ * 功能分类：专题列表逻辑页
  */
 import { Config } from "../../config";
 import { AppEvent, Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue, EventEmitter, Mediator, FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey, Cookie, HElement, VerticalRoll, HorizontalRoll, ManagementPageDB, ManagementFlowDB, ManagementPageDBToNative, PageEvent, PageEventType, Module, Paging, PagingHelper, Site, Focus, FocusType, FocusResponse, Player, PlayerType } from "../../framework/framework";
@@ -38,24 +38,12 @@ class DefaultModule extends Module {
     initialize() {
         this.foc = new Focus({
             identCode: ModuleType.Default,
-            className: "active"
+            className: "active",
         }, this.event);
     }
     subscribeToEvents() {
         // Key 键码事件
         this.event.on(ModuleType.Default, Key.Enter, () => {
-
-        });
-        // PageEvent 页面事件
-        this.event.on(ModuleType.Default, PageEventType.Focus, () => {
-
-        });
-        // Focus 焦点事件
-        this.event.on(ModuleType.Default, FocusType.Changeed, () => {
-
-        });
-        // Player 播放器
-        this.event.on(ModuleType.Default, PlayerType.StartPlaying, () => {
 
         });
     }
@@ -68,7 +56,7 @@ class DefaultModule extends Module {
 /**
  * 全局变量
  */
-let modDefu: DefaultModule;
+let modDefu = new DefaultModule(pageEvent);
 
 let cokStatus = new Cookie('template_status');
 let source = new PageSource("template_source");
@@ -77,12 +65,13 @@ let request = <IRequest>new ParseUrl(window.location.search).getDecodeURICompone
 // ...
 
 function main() {
-
-    // 实例化
-    modDefu = new DefaultModule(pageEvent);
-    // ...
+    entrancePage();
 
     subscribeToEvents();
+
+
+
+    recoverPage();
 }
 function subscribeToEvents() {
     // 全局事件定义 ...
@@ -92,7 +81,16 @@ function openBlank() {
     // ...
 }
 function entrancePage() {
+    source.saveToLocal();
+
+}
+function leavePage() {
+    // ...
+    cokStatus.setCookie(Json.serializ({ code: null, index: null }));
+}
+function recoverPage() {
     let leave = Json.deSerializ(cokStatus.getCookie());
+
 
     if (leave) {
         let index = leave.index;
@@ -100,16 +98,12 @@ function entrancePage() {
         // ...
     }
 }
-function leavePage() {
-    // ...
-    cokStatus.setCookie(Json.serializ({ code: null, index: null }));
-}
 function previousPage() {
     let url = source.takeToLocal();
-    source.removeToLocal();
     cokStatus.clearCookie();
 
     if (url) {
+        source.removeToLocal();
         window.location.href = url;
     } else {
         // ...

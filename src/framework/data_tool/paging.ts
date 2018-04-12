@@ -1,6 +1,6 @@
 /**
  * 编辑作者：张诗涛
- * 创建时间：2017年11月27日17:34:39
+ * 更新时间：2018年4月12日 14点50分
  * 功能分类：分页辅助类
  */
 export var PagingHelper = {
@@ -101,6 +101,12 @@ export class Paging {
     }
     isPreviousPage(): boolean {
         return (-1 + this.pageIndex) < 1 ? false : true;
+    }
+    clear() {
+        this.pageIndex = 1;
+        this.pageSize = 0;
+        this.countPage = 0;
+        this.dataSize = 0;
     }
 }
 /**

@@ -5,13 +5,12 @@ import { Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue } from "./data_to
 import { EventEmitter } from "./data_tool/eventEmitter";
 import { Mediator } from "./data_tool/mediator";
 import { FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey, Cookie } from "./data_tool/dataTool";
-import { HElement, VerticalRoll, HorizontalRoll } from "./ui_tool/uiTool";
+import { HElement, VerticalRoll, HorizontalRoll,VerticalFlowRoll ,VerticalVisualRangeRoll} from "./ui_tool/uiTool";
 import { ManagementPageDB, ManagementFlowDB, ManagementPageDBToNative } from "./data_tool/managementPageDB";
 import { PageEvent, PageEventType } from "./data_tool/pageEvent";
-import { Module } from "./data_tool/module";
+import { Module, ModulePage } from "./data_tool/module";
 import { Paging, PagingHelper } from "./data_tool/paging";
 import { Site, Focus, FocusType, FocusResponse } from "./data_tool/focus";
-import { Player, PlayerType } from "./data_tool/player";
 
 export {
     AppEvent,
@@ -19,11 +18,10 @@ export {
     EventEmitter,
     Mediator,
     FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey, Cookie,
-    HElement, VerticalRoll, HorizontalRoll,
+    HElement, VerticalRoll, HorizontalRoll,VerticalFlowRoll,VerticalVisualRangeRoll,
     ManagementPageDB, ManagementFlowDB, ManagementPageDBToNative,
     PageEvent, PageEventType,
-    Module,
+    Module, ModulePage,
     Paging, PagingHelper,
-    Site, Focus, FocusType, FocusResponse,
-    Player, PlayerType
+    Site, Focus, FocusType, FocusResponse
 };

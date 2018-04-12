@@ -14,7 +14,7 @@
  *          1. 开始播放前调用 configDisplayFull 全屏方法，配置UI层级视频大小等基本信息
  */
 /// <reference path="./player.d.ts" />
-import { SetTimeout, SetInterval } from './dataTool';
+import { SetTimeout, SetInterval } from '../data_tool/dataTool';
 import { Mediator } from '../../framework/data_tool/mediator';
 import { PageEventType } from '../../framework/data_tool/pageEvent';
 import { Guid } from '../../framework/data_tool/dataTool';
