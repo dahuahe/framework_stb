@@ -51,15 +51,6 @@ interface IEventEmitter {
     unsubscribeToEvents(event: IAppEvent): void;
     hasSubscribe(event: IAppEvent): boolean;
 }
-// 页面事件对象
-interface IPageEventResponse {
-    Event: any,
-    Target: string | number,
-    EventName: string | number,
-    KeyCode: number,
-    Data: any,
-    Source: string | number;
-}
 
 // 播放器
 interface MuteVolumeResponse {
@@ -98,11 +89,10 @@ interface IManagementDB<T> {
 }
 interface IHElement {
     readonly element: HTMLElement;
-    constructor(eleName: string | HTMLElement, fatherEle?: HTMLDocument): void;
-    clas(clasName?: string): void;
-    removeClas(clasName: string): void;
-    html(html?: string): void
-    text(text?: string): void;
+    clas(clasName?: string): void | string;
+    removeClas(clasName: string): string;
+    html(html?: string): any;
+    text(text?: string): void | string;
 
     style(propName: string, value?: string): void;
     removeStyle(propertyName?: string): void;
@@ -110,7 +100,7 @@ interface IHElement {
     removeAttr(name?: string): void;
     show(): void;
     hide(): void;
-    hasHide(): void;
+    hasHide(): boolean;
     hidden(): void;
     visible(): void;
     hasHidden(): void;
@@ -124,7 +114,7 @@ interface ISite {
     index: number;
     element: IHElement;
 }
-interface IFocusChanged {
+interface IChanged {
     /**
      * 模块唯一标识
      */
@@ -141,6 +131,65 @@ interface IFocusChanged {
      * 上一个坐标对象
      */
     previousSite: ISite;
+    /**
+     * 参数
+     */
+    data: any;
+    /**
+     * 键码
+     */
+    keyCode: number;
+    /**
+     * 事件触发是否来自系统(Focus 对象内部发出)
+     */
+    fromSystem: boolean;
+}
+// PageEvent 事件对象
+interface IFocus {
+    /**
+     * 模块唯一标识
+     */
+    identCode: number;
+    /**
+     * 来源
+     */
+    source: number;
+    /**
+     * 参数
+     */
+    data: any;
+    /**
+     * 事件触发是否来自系统(Focus 对象内部发出)
+     */
+    fromSystem: boolean;
+}
+interface IBlur {
+    /**
+    * 模块唯一标识
+    */
+    identCode: number;
+    /**
+     * 来源
+     */
+    source: number;
+    /**
+     * 参数
+     */
+    data: any;
+    /**
+     * 事件触发是否来自系统(Focus 对象内部发出)
+     */
+    fromSystem: boolean;
+}
+interface IKeydown {
+    /**
+    * 模块唯一标识
+    */
+    identCode: number;
+    /**
+     * 来源
+     */
+    source: number;
     /**
      * 参数
      */

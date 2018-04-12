@@ -1,0 +1,72 @@
+html,
+body {
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    font-family: "微软雅黑";
+    line-height: 1;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+* {
+    list-style: none;
+}
+
+body {
+    width: 1280px;
+    height: 720px;
+    border: 1px solid gray;
+}
+
+.container {
+    float: left;
+    border: 1px solid blueviolet;
+    width: 510px;
+    height: 510px;
+    div {
+        float: left;
+        width: 100px;
+        height: 100px;
+        border: 1px solid yellowgreen;
+        &.focus {
+            background-image: url("../images/head.png");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        &.body {
+            background-image: url("../images/body.png");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        &.fish{
+            background-image: url("../images/fish.jpg");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+    }
+}
+
+#con-rg {
+    float: right;
+}
+
+#title {
+    float: left;
+    width: 1280px;
+    height: 100px;
+    line-height: 100px;
+    margin: 0 auto;
+    font-size: 30px;
+    text-align: center;
+    color: green;
+}
+
+#tips {
+    width: auto;
+    min-height: 30px;
+    margin: 0 auto;
+    margin-top: 650px;
+    font-size: 12px;
+    text-align: center;
+}

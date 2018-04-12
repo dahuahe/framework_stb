@@ -74,9 +74,17 @@ class PageEvent {
                 for (let j = 0; j < ele.handler.length; j++) {
                     let targetName = ele.handler[j];
 
-                    // 触发目标为焦点事件
+                    // 焦点事件
                     if (this.targetName == targetName) {
-                        let params: IPageEventResponse = { Event: e, Target: targetName, EventName: ele.topic, KeyCode: e.keyCode, Source: null, Data: null };
+
+                        const res: IKeydown = {
+                            identCode: parseInt(targetName),
+                            source: <number>this.previousName,
+                            data: undefined,
+                            keyCode: e.keyCode,
+                            fromSystem: true
+                        }
+
                         let trigger = false;
                         if (!this.hasDisable(targetName)) {
                             if (!this.hasLock(targetName)) {
@@ -90,11 +98,11 @@ class PageEvent {
                         }
                         if (trigger) {
                             // 发布当前触发事件简码事件
-                            if (params && params.KeyCode) {
-                                this.trigger(targetName, params.KeyCode, params);
+                            if (res && res.keyCode) {
+                                this.trigger(targetName, res.keyCode, res);
                             }
                             // topic 为 number 类型默认当中 keyCode 处理
-                            this.trigger(targetName, ele.topic, params);
+                            this.trigger(targetName, ele.topic, res);
                             // 所有模块的事件
                             // this.trigger("*", ele.topic, params);
                         }
@@ -158,32 +166,28 @@ class PageEvent {
                     // 失去焦点事件
                     if (this.targetName !== null) {
 
-                        let response: IPageEventResponse = {
-                            Event: null,
-                            Target: identCode,
-                            EventName: PageType.Blur,
-                            KeyCode: -1,
-                            Source: sourceTargetName,
-                            Data: null
-                        };
+                        const res: IFocus = {
+                            identCode: <number>identCode,
+                            source: <number>sourceTargetName,
+                            data: data,
+                            fromSystem: false
+                        }
 
-                        this.trigger(this.targetName, PageType.Blur, response);
+                        this.trigger(this.targetName, PageType.Blur, res);
                     }
 
                     // 获取焦点事件
-                    let response: IPageEventResponse = {
-                        Event: null,
-                        Target: identCode,
-                        EventName: PageType.Focus,
-                        KeyCode: 0,
-                        Data: data,
-                        Source: sourceTargetName
-                    };
+                    const res: IFocus = {
+                        identCode: <number>identCode,
+                        source: <number>sourceTargetName,
+                        data: data,
+                        fromSystem: false
+                    }
                     if (null !== this.targetName) {
                         this.previousName = this.targetName;
                     }
                     this.targetName = identCode;
-                    this.trigger(identCode, PageType.Focus, response);
+                    this.trigger(identCode, PageType.Focus, res);
                 }
 
             } else {

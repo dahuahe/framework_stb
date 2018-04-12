@@ -9,7 +9,7 @@ import { SetInterval, SetTimeout } from '../data_tool/dataTool';
 /**
  * 对 HTMLElement 的封装
  */
-export class HElement {
+export class HElement implements IHElement {
     private eleName: string | HTMLElement;
     private faterEle: any;
 
@@ -70,7 +70,7 @@ export class HElement {
             this.element = <HTMLElement>_element;
         }
     }
-    clas = (clasName?: string) => {
+    clas(clasName?: string) {
         let ele = this.element;
         if (ele) {
             let keyName = clasName || null;
@@ -92,7 +92,7 @@ export class HElement {
             }
         }
     }
-    removeClas = (clasName: string) => {
+    removeClas(clasName: string) {
         let ele = this.element;
         if (ele) {
             let keyName = clasName || null;
@@ -112,7 +112,7 @@ export class HElement {
             }
         }
     }
-    html = (html?: string) => {
+    html(html?: string) {
         let _element = this.element;
         if (html || html === '' || html === "") {
             _element.innerHTML = html;
@@ -120,7 +120,7 @@ export class HElement {
             return _element.innerHTML;
         }
     }
-    text = (text?: string) => {
+    text(text?: string) {
         let _element = this.element;
         if (text || text === '' || text === "") {
             _element.innerText = text;
@@ -128,7 +128,7 @@ export class HElement {
             return _element.innerText;
         }
     }
-    style = (propName: string, value?: string) => {
+    style(propName: string, value?: string) {
         let ele = this.element;
         let val = value || null;
         if (!ele.hasAttribute('style')) {
@@ -140,11 +140,11 @@ export class HElement {
             ele.style.setProperty(propName, value);
         }
     }
-    removeStyle = (propertyName?: string) => {
+    removeStyle(propertyName?: string): void {
         let ele = this.element;
         ele && ele.style.removeProperty(propertyName);
     }
-    attr = (name: string, value?: string) => {
+    attr(name: string, value?: string) {
         let ele = this.element;
         let val = value || null;
 
@@ -154,53 +154,53 @@ export class HElement {
             ele.setAttribute(name, value);
         }
     }
-    removeAttr = (name?: string) => {
+    removeAttr(name?: string): void {
         let ele = this.element;
         ele && ele.removeAttribute(name);
     }
-    show = () => {
+    show(): void {
         let ele = this.element;
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
         ele.style.setProperty('display', 'block');
     }
-    hide = () => {
+    hide(): void {
         let ele = this.element;
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
         ele.style.setProperty('display', 'none');
     }
-    hasHide = () => {
+    hasHide() {
         let ele = this.element;
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
         return ele.style.getPropertyValue('display') === 'none' ? true : false;
     }
-    hidden = () => {
+    hidden(): void {
         let ele = this.element;
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
         ele.style.setProperty('visibility', 'hidden');
     }
-    visible = () => {
+    visible(): void {
         let ele = this.element;
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
         ele.style.setProperty('visibility', 'visible');
     }
-    hasHidden = () => {
+    hasHidden() {
         let ele = this.element;
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
         return ele.style.getPropertyValue('visibility') === 'hidden' ? true : false;
     }
-    hasClass = (clasName: string) => {
+    hasClass(clasName: string) {
         let curClsName = this.element.className || "";
         let keyName = clasName || null;
 

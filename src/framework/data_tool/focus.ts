@@ -48,8 +48,8 @@ interface IFocusSetting {
     autoTarget?: [{ keyCode: Key.Left | Key.Up | Key.Right | Key.Down | Key.Enter | Key.Backspace, target: string | number }],
     className?: string,
     leaveClass?: string,
-    usingClass?: (info: IFocusChanged) => void,
-    cancelClass?: (info: IFocusChanged) => void,
+    usingClass?: (info: IChanged) => void,
+    cancelClass?: (info: IChanged) => void,
     /**
      * 基本动作是否启用 (上、下、左、右)
      * false：禁用 Focus 对象内置 上、下、左、右、事件的处理，通过自定义订阅 PageEvent 的 keydown 事件完成相关业务需求
@@ -233,7 +233,7 @@ class Focus {
             // 焦点转移成功后
             // 焦点转移失败后
             if (!autoTarget) {
-                const res: IFocusChanged = {
+                const res: IChanged = {
                     identCode: parseInt(<string>this.setting.identCode),
                     success: false,
                     site: this.site || null,
@@ -247,7 +247,7 @@ class Focus {
         }
         if (this.handlerAutoClass(args)) {
 
-            const res: IFocusChanged = {
+            const res: IChanged = {
                 identCode: parseInt(<string>this.setting.identCode),
                 success: true,
                 site: this.site || null,
@@ -260,9 +260,9 @@ class Focus {
         }
     }
     private onKeydown(args: any) {
-        let data: IPageEventResponse = args;
+        let res: IKeydown = args;
         // 合法参数 key.left key.up key.right key.dn
-        let keyCode = data.KeyCode;
+        let keyCode = res.keyCode;
         if (keyCode === Key.Left || keyCode === Key.Up || keyCode === Key.Right || keyCode === Key.Down) {
             this.setSite([keyCode]);
         }
@@ -293,7 +293,7 @@ class Focus {
                 if (className) {
                     ele.removeClas(this.setting.className);
 
-                    const res: IFocusChanged = {
+                    const res: IChanged = {
                         identCode: parseInt(<string>this.setting.identCode),
                         success: true,
                         site: present || null,
@@ -690,7 +690,7 @@ class Focus {
                     if (className) {
                         ele.removeClas(this.setting.className);
 
-                        const res: IFocusChanged = {
+                        const res: IChanged = {
                             identCode: parseInt(<string>this.setting.identCode),
                             success: true,
                             site: present || null,
@@ -715,7 +715,7 @@ class Focus {
                     if (className) {
                         ele.clas(className);
 
-                        const res: IFocusChanged = {
+                        const res: IChanged = {
                             identCode: parseInt(<string>this.setting.identCode),
                             success: true,
                             site: present || null,

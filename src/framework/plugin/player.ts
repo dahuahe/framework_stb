@@ -16,7 +16,7 @@
 /// <reference path="./player.d.ts" />
 import { SetTimeout, SetInterval } from '../data_tool/dataTool';
 import { Mediator } from '../../framework/data_tool/mediator';
-import { PageType } from '../../framework/data_tool/pageEvent';
+import { PageType, PageEvent } from '../../framework/data_tool/pageEvent';
 import { Guid } from '../../framework/data_tool/dataTool';
 
 // 此类做枚举使用
@@ -43,7 +43,7 @@ export class Player {
     private totalTime: number = 0;
     private currentTime: number = 0;
     private currentVolume: number = 0;
-    private pageEvent: IPageEvent;
+    private pageEvent: PageEvent;
     private customTotalTime: number = 0;
     public readonly identCode: number = null;
 
@@ -56,7 +56,7 @@ export class Player {
 
     private startPlayCount = 0; // 开始播放触发次数
 
-    constructor(params: { identCode: number }, pageEvent: IPageEvent) {
+    constructor(params: { identCode: number }, pageEvent: PageEvent) {
         this.identCode = params.identCode;
         this.pageEvent = pageEvent;
         this.createPlayer(pageEvent);
@@ -172,7 +172,7 @@ export class Player {
     displaySmall(displayArea: { left: number, top: number, width: number, height: number }) {
         this.configDisplay("size", displayArea);
     }
-    private createPlayer(pageEvent: IPageEvent) {
+    private createPlayer(pageEvent: PageEvent) {
         // 创建实例
         this.mediaPlay = new MediaPlayer();
 

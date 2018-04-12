@@ -6,7 +6,7 @@
 /// <reference path="./player.d.ts" />
 import { SetTimeout, SetInterval } from '../data_tool/dataTool';
 import { Mediator } from '../../framework/data_tool/mediator';
-import { PageType } from '../../framework/data_tool/pageEvent';
+import { PageType, PageEvent } from '../../framework/data_tool/pageEvent';
 import { Guid, FuncLock } from '../../framework/data_tool/dataTool';
 
 declare let MediaPlayer: any;
@@ -36,7 +36,7 @@ class Player {
     private currentTime: number = 0;
     private currentVolume: number = 0;
     private muteVolume: number = 0;
-    private pageEvent: IPageEvent;
+    private pageEvent: PageEvent;
     public readonly identCode: number;
     private muteStatus: boolean = false;
 
@@ -51,7 +51,7 @@ class Player {
     // 进度实时获取
     private progressMonitor = new SetInterval(300);
 
-    constructor(info: { identCode: number }, pageEvent: IPageEvent) {
+    constructor(info: { identCode: number }, pageEvent: PageEvent) {
         this.identCode = info.identCode;
         this.pageEvent = pageEvent;
     }

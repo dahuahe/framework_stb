@@ -11,7 +11,7 @@ import { ManagementPageDBToNative } from "./managementPageDB";
 import { Focus } from "./focus";
 import { HElement } from "../ui_tool/uiTool";
 import { Key } from "./dataTool";
-import { ManagementPageDB, PageType, FocusType, FocusResponse } from "../framework";
+import { ManagementPageDB, PageType, FocusType } from "../framework";
 import { Dictionary } from "./collection";
 
 /**
@@ -33,23 +33,23 @@ class Module {
     protected on(identCode: any, topic: string | number, callback: any) {
         this.event.on(identCode, topic, callback);
     }
-    protected onfocus(identCode: string | number, callback: (e: IPageEventResponse) => void): void;
-    protected onfocus(identCodes: string[] | number[], callback: (e: IPageEventResponse) => void): void;
+    protected onfocus(identCode: string | number, callback: (e: IFocus) => void): void;
+    protected onfocus(identCodes: string[] | number[], callback: (e: IFocus) => void): void;
     protected onfocus(identCode: any, callback: any) {
         this.event.on(identCode, PageType.Focus, callback);
     }
-    protected onblur(identCode: string | number, callback: (e: IPageEventResponse) => void): void;
-    protected onblur(identCodes: string[] | number[], callback: (e: IPageEventResponse) => void): void;
+    protected onblur(identCode: string | number, callback: (e: IBlur) => void): void;
+    protected onblur(identCodes: string[] | number[], callback: (e: IBlur) => void): void;
     protected onblur(identCode: any, callback: any) {
         this.event.on(identCode, PageType.Blur, callback);
     }
-    protected onKeydown(identCode: string | number, callback: (e: IPageEventResponse) => void): void;
-    protected onKeydown(identCodes: string[] | number[], callback: (e: IPageEventResponse) => void): void;
+    protected onKeydown(identCode: string | number, callback: (e: IKeydown) => void): void;
+    protected onKeydown(identCodes: string[] | number[], callback: (e: IKeydown) => void): void;
     protected onKeydown(identCode: any, callback: any) {
         this.event.on(identCode, PageType.Keydown, callback);
     }
-    protected onchanged(identCode: string | number, callback: (e: IFocusChanged) => void): void;
-    protected onchanged(identCodes: string[] | number[], callback: (e: IFocusChanged) => void): void;
+    protected onchanged(identCode: string | number, callback: (e: IChanged) => void): void;
+    protected onchanged(identCodes: string[] | number[], callback: (e: IChanged) => void): void;
     protected onchanged(identCode: any, callback: any) {
         this.event.on(identCode, FocusType.Changed, callback);
     }
