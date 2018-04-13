@@ -130,3 +130,45 @@ gulp.task('typedoc', () => {
       name: 'EPG Front End Framework'
     }))
 })
+
+// 创建页面
+gulp.task('page', () => {
+  var fileName = process.argv[3]
+
+  if (0 !== fileName.indexOf('--')) {
+    return new Error('错误：请输入页面名称 -pageName')
+  }else {
+    fileName = fileName.substr(2, fileName.length)
+
+    return gulp.src(['./src/template/template.html', './src/template/template.ts', './src/template/template.less'])
+      .pipe(rename({basename: fileName}))
+      .pipe(replace('/index', '/' + fileName))
+      .pipe(gulp.dest('./src/pages/' + fileName))
+  }
+})
+// 创建 logic
+gulp.task('logic', () => {
+  var fileName = process.argv[3]
+
+  if (0 !== fileName.indexOf('--')) {
+    return new Error('错误：请输入文件名称 -logicName')
+  }else {
+    fileName = fileName.substr(2, fileName.length)
+    return gulp.src(['./src/template/templateLogic.ts'])
+      .pipe(rename({dirname: '',basename: fileName}))
+      .pipe(gulp.dest('./src/logic/'))
+  }
+})
+// 创建 model
+gulp.task('model', () => {
+  var fileName = process.argv[3]
+
+  if (0 !== fileName.indexOf('--')) {
+    return new Error('错误：请输入文件名称 -modelName')
+  }else {
+    fileName = fileName.substr(2, fileName.length)
+    return gulp.src(['./src/template/templateModel.ts'])
+      .pipe(rename({dirname: '',basename: fileName}))
+      .pipe(gulp.dest('./src/model/'))
+  }
+})

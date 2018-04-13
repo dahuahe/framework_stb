@@ -135,7 +135,7 @@ export class Player {
             b = true;
             clearTimeout(timer);
         }
-        this.pageEvent.trigger(this.identCode, PlayerType.Released, <ReleasedResponse>{ success: b });
+        this.pageEvent.trigger(this.identCode, PlayerType.Released, <IReleased>{ success: b });
     }
     plusVolume(value: number) {
         this.setCurrentVolume(value, true);
@@ -151,11 +151,11 @@ export class Player {
     }
     setMute() {
         this.mediaPlay.setMuteFlag(1);
-        this.pageEvent.trigger(this.identCode, PlayerType.MuteVolume, <MuteVolumeResponse>{ currentVolume: this.currentVolume });
+        this.pageEvent.trigger(this.identCode, PlayerType.MuteVolume, <IMuteVolume>{ currentVolume: this.currentVolume });
     }
     resumeVolume() {
         this.mediaPlay.setMuteFlag(0);
-        this.pageEvent.trigger(this.identCode, PlayerType.ResumeVolume, <ResumeVolumeResponse>{ currentVolume: this.currentVolume });
+        this.pageEvent.trigger(this.identCode, PlayerType.ResumeVolume, <IResumeVolume>{ currentVolume: this.currentVolume });
     }
     isMute(): boolean {
         return Boolean(this.mediaPlay.getMuteFlag());
@@ -193,7 +193,7 @@ export class Player {
 
         if (this.mediaPlay) {
             this.currentVolume = this.getVolume();
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <VolumeInitResponse>{ currentVolume: this.getVolume() });
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <IVolumeInit>{ currentVolume: this.getVolume() });
         }
 
         // 播放器默认已经是全屏播放，这里不做重复处理，小窗播放情况下会重复配置，所以手动配置
@@ -246,8 +246,8 @@ export class Player {
                     }
                     // 播放中
                     if (this.currentTime <= this.totalTime) {
-                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
-                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <IProgressChanging>{ currentTime: this.currentTime, totalTime: this.totalTime });
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <IProgressChanged>{ currentTime: this.currentTime, totalTime: this.totalTime });
                     }
                     if (0 == finishCount) {
                         if (this.totalTime) {
@@ -284,9 +284,9 @@ export class Player {
                 // 开始播放事件触发，条件是影片从头开始播放，并且当前进度大于等于 1 ，并且仅执行一次
                 if (isTriggerStartPlayingEvent == true) {
                     // document.getElementById('msg').innerHTML = `触发开始播放事件第:${++startPlayCount}次`;
-                    this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, <StartPlayingResponse>{ totalTime: this.totalTime });
-                    this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
-                    this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, <IStartPlaying>{ totalTime: this.totalTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <IProgressChanging>{ currentTime: this.currentTime, totalTime: this.totalTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <IProgressChanged>{ currentTime: this.currentTime, totalTime: this.totalTime });
 
                     this.finish = false;
                 }
@@ -301,7 +301,7 @@ export class Player {
                 }
 
                 if (this.totalTime > 0) {
-                    this.pageEvent.trigger(this.identCode, PlayerType.TotalProgressInit, <TotalProgressInitResponse>{ totalTime: this.totalTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.TotalProgressInit, <ITotalProgressInit>{ totalTime: this.totalTime, currentTime: this.currentTime });
                 }
             }
         };
@@ -343,7 +343,7 @@ export class Player {
             this.currentTime = this.currentTime > this.totalTime ? this.totalTime : this.currentTime;
 
             // 及时更新目标进度已便让界面实时更新
-            this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <ProgressChangingResponse>{ currentTime: this.currentTime });
+            this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <IProgressChanging>{ currentTime: this.currentTime, totalTime: this.totalTime });
 
             // 显示加载真实进度
             this.settingProgressTimer.enable(() => {
@@ -351,7 +351,7 @@ export class Player {
                 this.pause(false);
 
                 this.mediaPlay.playByTime(1, parseInt(<any>this.currentTime), 1);
-                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <ProgressChangedResponse>{ currentTime: this.currentTime });
+                this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <IProgressChanged>{ currentTime: this.currentTime, totalTime: this.totalTime });
 
                 // 恢复
                 this.resume(false);
@@ -371,10 +371,10 @@ export class Player {
             this.currentVolume = this.currentVolume > 100 ? 100 : this.currentVolume;
 
             // 及时更新界面音量状态
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanging, <VolumeChangingResponse>{ currentVolume: this.currentVolume });
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanging, <IVolumeChanging>{ currentVolume: this.currentVolume });
 
             this.mediaPlay.setVolume(parseInt(<any>this.currentVolume));
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanged, <VolumeChangedResponse>{ currentVolume: this.currentVolume });
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeChanged, <IVolumeChanged>{ currentVolume: this.currentVolume });
             // // 延时设置真实音量
             // this.settingVolumeTimer.enable(() => {
 
@@ -400,7 +400,7 @@ export class Player {
     setTotalTime(total: number) {
         this.customTotalTime = total;
     }
-    getTotal(){
+    getTotal() {
         return this.totalTime;
     }
 }

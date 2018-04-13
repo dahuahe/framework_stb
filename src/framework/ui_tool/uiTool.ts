@@ -130,11 +130,11 @@ export class HElement implements IHElement {
     }
     style(propName: string, value?: string) {
         let ele = this.element;
-        let val = value || null;
+
         if (!ele.hasAttribute('style')) {
             ele.setAttribute('style', '');
         }
-        if (!val) {
+        if (undefined === value) {
             return ele.style.getPropertyValue(propName);
         } else {
             ele.style.setProperty(propName, value);

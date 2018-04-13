@@ -53,34 +53,37 @@ interface IEventEmitter {
 }
 
 // 播放器
-interface MuteVolumeResponse {
+interface IMuteVolume {
     currentVolume: number
 }
-interface ResumeVolumeResponse {
+interface IResumeVolume {
     currentVolume: number
 }
-interface ProgressChangingResponse {
+interface IProgressChanging {
     currentTime: number;
-}
-interface ProgressChangedResponse {
-    currentTime: number;
-}
-interface VolumeChangedResponse {
-    currentVolume: number;
-}
-interface VolumeChangingResponse {
-    currentVolume: number;
-}
-interface VolumeInitResponse {
-    currentVolume: number;
-}
-interface ReleasedResponse {
-    success: boolean;
-}
-interface TotalProgressInitResponse {
     totalTime: number;
 }
-interface StartPlayingResponse {
+interface IProgressChanged {
+    currentTime: number;
+    totalTime: number;
+}
+interface IVolumeChanged {
+    currentVolume: number;
+}
+interface IVolumeChanging {
+    currentVolume: number;
+}
+interface IVolumeInit {
+    currentVolume: number;
+}
+interface IReleased {
+    success: boolean;
+}
+interface ITotalProgressInit {
+    currentTime: number;
+    totalTime: number;
+}
+interface IStartPlaying {
     totalTime: number;
 }
 // 数据分页

@@ -70,7 +70,7 @@ class Player {
             // MediaPlayer.initMediaPlayer(120, playUrl);
 
             this.currentVolume = this.getVolume() || 0;
-            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, { currentVolume: this.currentVolume });
+            this.pageEvent.trigger(this.identCode, PlayerType.VolumeInit, <IVolumeInit>{ currentVolume: this.currentVolume });
             this.startMonitorProgress(true);
         } else {
             this.pageEvent.trigger(this.identCode, PageType.Error, { message: 'playUrl not found' });
@@ -97,7 +97,7 @@ class Player {
             MediaPlayer.resume();
 
             if (isTriggerPlayerTypeEvent) {
-                this.pageEvent.trigger(this.identCode, PlayerType.ResumePlaying);
+                this.pageEvent.trigger(this.identCode, PlayerType.ResumePlaying, <IResumeVolume>{});
             }
         }
     }
@@ -116,8 +116,8 @@ class Player {
 
                     // 播放中
                     if (this.currentTime < this.totalTime) {
-                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, { currentTime: this.currentTime });
-                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, { currentTime: this.currentTime });
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanging, <IProgressChanging>{ currentTime: this.currentTime, totalTime: this.totalTime });
+                        this.pageEvent.trigger(this.identCode, PlayerType.ProgressChanged, <IProgressChanged>{ currentTime: this.currentTime, totalTime: this.totalTime });
                     }
                     else {
 
@@ -140,9 +140,9 @@ class Player {
                     if (isTriggerStartPlayingEvent === true && isAfter === false) {
                         isAfter = true;
                         this.lock.clear();
-                        this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, this.totalTime);
+                        this.pageEvent.trigger(this.identCode, PlayerType.StartPlaying, <IStartPlaying>{ totalTime: this.totalTime });
                     }
-                    this.pageEvent.trigger(this.identCode, PlayerType.TotalProgressInit, { totalTime: this.totalTime });
+                    this.pageEvent.trigger(this.identCode, PlayerType.TotalProgressInit, <ITotalProgressInit>{ totalTime: this.totalTime, currentTime: this.currentTime });
                 }
             }
 
@@ -180,7 +180,7 @@ class Player {
         this.stopMonitorProgress();
 
         MediaPlayer.stop();
-        this.pageEvent.trigger(this.identCode, PlayerType.ReleasePlaying);
+        this.pageEvent.trigger(this.identCode, PlayerType.ReleasePlaying, <IReleased>{ success: true });
     }
     // 音量 + 
     plusVolume(value: number) {

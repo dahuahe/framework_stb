@@ -17,7 +17,6 @@ let pageEvent = new PageEvent(MType.Left, [
     }
 ], true);
 
-// 获取 HTMLElement 对象实例（类似 jquery 选择器）
 let eleTips = new HElement('#tips');
 
 let focLeft = new Focus({

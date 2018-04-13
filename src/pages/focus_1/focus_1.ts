@@ -5,12 +5,10 @@
  */
 import { Focus, FocusType, PageEvent, PageType, HElement, Key, Json } from "../../framework/framework";
 
-// 模块定义
 enum MType {
     Left
 }
 
-// 事件管理
 let pageEvent = new PageEvent(MType.Left, [
     {
         topic: PageType.Keydown, data: null, handler: [

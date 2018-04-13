@@ -45,12 +45,13 @@ let focRight = new Focus({
 // 初始化数据
 focRight.initData(new HElement("#con-rg").children("div"));
 
-// 订阅右侧模块订阅 获取焦点 失去焦点事件
+// 订阅右侧模块 获取焦点 失去焦点事件
 pageEvent.on(MType.Right, PageType.Focus, (e: IFocus) => {
     // 当前坐标信息
     let site = focRight.getSite();
 
     eleTips.html(`焦点从左侧模块 移交 到右侧模块 且当前左侧坐标为 ${Json.serializ(site)}`);
+
 });
 pageEvent.on(MType.Right, PageType.Blur, (e: IFocus) => {
     // 当前坐标信息

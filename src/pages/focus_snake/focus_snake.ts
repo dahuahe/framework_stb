@@ -19,7 +19,7 @@ let pageEvent = new PageEvent(MType.Left, [
 
 let eleTips = new HElement('#tips');
 let fishIndex = -1; // 记录鱼坐标
-let len = 1; // 记录身体长度
+let len = 1;        // 记录身体长度
 
 let focLeft = new Focus({
     identCode: MType.Left,
@@ -29,12 +29,31 @@ let focLeft = new Focus({
 
 focLeft.initData(new HElement("#con-lf").children("div"));
 
-// 监听蛇爬行事件
+// 监听蛇爬行
 pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
     let ele = e.site.element;
 
     // 有效的爬行动作
     if (e.success) {
+        // 重置方向
+        focLeft.record().forEach((v, i) => {
+            v.element.removeClas("head");
+            v.element.removeClas("body");
+            v.element.style("background-image", "");
+        });
+        // 方向
+        if (Key.Left === e.keyCode) {
+            e.site.element.style("background-image", "url('./images/head_left.png')");
+        }
+        else if (Key.Up === e.keyCode) {
+            e.site.element.style("background-image", "url('./images/head_up.png')");
+        }
+        else if (Key.Right === e.keyCode) {
+            e.site.element.style("background-image", "url('./images/head_right.png')");
+        }
+        else if (Key.Down === e.keyCode) {
+            e.site.element.style("background-image", "url('./images/head_down.png')");
+        }
 
         // 吃到鱼
         if (fishIndex === e.site.index) {
@@ -72,7 +91,7 @@ pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
         });
 
         focLeft.record().reverse();
-    }else{
+    } else {
 
     }
 });

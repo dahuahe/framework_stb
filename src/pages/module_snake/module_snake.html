@@ -8,16 +8,19 @@
     <meta name="page-view-size" content="1280*720">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link rel="stylesheet" href="./css/focus_4.css">
+    <link rel="stylesheet" href="./css/module_snake.css">
 </head>
 
 <body>
     <!-- 缓存图片 -->
-    <img hidden src="./images/head.png" alt="">
+    <img hidden src="./images/head_up.png" alt="">
+    <img hidden src="./images/head_right.png" alt="">
+    <img hidden src="./images/head_down.png" alt="">
+    <img hidden src="./images/head_left.png" alt="">
     <img hidden src="./images/body.png" alt="">
     <img hidden src="./images/fish.jpg" alt="">
 
-    <div id="title">利用 Focus 对象历史记录制作贪吃蛇</div>
+    <div id="title">Module 配合 Focus 对象历史记录制作清晰可扩展的贪吃蛇</div>
     <div id="con-lf" class="container">
         <div></div>
         <div></div>
@@ -47,7 +50,7 @@
     </div>
 
     <div id="tips"></div>
-    <script data-main='./js/focus_4' src="./js/require.js"></script>
+    <script data-main='./js/module_snake' src="./js/require.js"></script>
 </body>
 
 </html>

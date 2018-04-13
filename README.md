@@ -29,6 +29,12 @@
 # 自动流程
     npm run start   // 开发流程
     npm run minify  // 发布流程
+    npm run server  // 本地服务
+    npm run doc     // 框架文档
+    
+    gulp page --页面名称   // 创建页面
+    gulp page --文件名称   // 创建文件
+    gulp page --文件名称   // 创建文件
 
 # 内部解析
 # 使用方式
@@ -42,36 +48,29 @@
 - APK 暴露的方法不要使用 let var 去定义 否则导致为空
 
 # 需要改进的功能
-- 播放器当前进度事件加一个总时长参数
-- 播放器总市场初始化加一个当前开始时间点参数
-- 回掉和事件触发满足 this 的指针（配合新的订阅方式使用）
-- 预定义开发生成代码 比如 if for 选项体
-- PageEvent 自定义 Focus 事件后提示注册的信息失效（偶发情况）
-- 订阅事件支持一组 场景：页面多个模块具有多个相同事件比如几乎每个模块都具有返回的动作，且返回的执行逻辑是一致的（里氏替换）可以传入参数，进行批量注册某一个事件
-- 处理 Focus autoFile autoTarget 兼容性，后者会影响前者其他事件
+- 预定义代码段比如 if for
+- PageEvent 自定义模块 Focus 事件注册后提示注册的信息失效（偶发情况）
+- Focus 对象 autoFile autoTarget 属性兼容性，后者会影响前者状态（目前最好不要同时配置两个属性）
 - Focus 当前当前模块失去焦点时为当前焦点增加 单元格 change 事件通知内容为单元格改变失败
-- HElement 添加元素选择器 关系选择器(当前管理改为列表存储)以 jquery 选择器为参考对象，且兼容子类 元素选择 类选择 ID选择 children 支持链式调用,以及根据条件筛选
-- 简化编码复杂程度
+- HElement children 支持链式调用,以及根据条件筛选
 - Focus 对象如果该模块不是当前焦点 调用 setSite 时 样式处理（增加事件通知的类型，以此判断当前对象属于那个动作，改变Focus 默认处理，如果不是焦点则不添加样式）
-- 更新 template 最新默认代码
-- 更新 teleplay 系列
 - 模块主动触发支持 Key.Enter 等事件
-- 更新 FOCUS 兼容非矩形模块
-- 各时间类型回掉参数调整
-- 新增 一键命令创建文件夹
-- 利用框架制作游戏
+- Focus 兼容非矩形模块
 
 # 更新日志
-**2018年4月12日 14点17分**
+**2018年4月13日 10点36分 v2.0.0**
 - 更新 ModulePage 修复已知 bug
 - 更新 uiTool.ts 新增 VerticalRoll、VerticalFlowRoll、VerticalVisualRangeRoll 、HorizontalRoll 模块
 - 更新 framework.ts
-- 更新 Helement 模块 支持直接关系选择器筛选子节点
+- 更新 Helement 模块 支持直接关系选择器（类选择器、ID选择器、节点类型选择器）筛选子节点
 - 更新 PagingHelper 模块
-- 更新 PageEvent 模块 扩展 on off 方法支持批量处理
+- 更新 PageEvent 模块 扩展 on off 方法支持批量处理;
 - 更新 Focus 模块 删除 FocusType.Focused FocusType.Blured 事件
 - 更新 Module 模块 新增基于 PageEvent 模块的事件订阅方式 且提供回掉参数强类型支持
 - 更新 interface.ts 删除 IPageEvent 接口 调整各事件类型属性成员
+- 更新 Player PlayerSpecial 播放器进度改变事件回调中增加总时长属性;总时长初始化事件回调加当前进度参数
+- 更新 简化编码复杂程度（ModulePage、）
+- 增加 Gulp 命令创建完整页面结构（.html、.less、.ts、logic.ts、entity.ts）
 
 **2018年3月30日 17点56分**
 - 更新 teleplay.ts 新增 recoverPage 恢复页面方法

@@ -162,26 +162,26 @@ class PageEvent {
 
                 // 如果被标记为禁用则不处理
                 if (!this.hasDisable(Math.round(<number>identCode))) {
-                    let sourceTargetName = this.targetName;
-                    // 失去焦点事件
+                    let pre = this.targetName;
+                    // 失去焦点
                     if (this.targetName !== null) {
 
-                        const res: IFocus = {
+                        const res: IBlur = {
                             identCode: <number>identCode,
-                            source: <number>sourceTargetName,
+                            source: <number>pre,
                             data: data,
-                            fromSystem: false
+                            fromSystem: true
                         }
 
                         this.trigger(this.targetName, PageType.Blur, res);
                     }
 
-                    // 获取焦点事件
+                    // 获取焦点
                     const res: IFocus = {
                         identCode: <number>identCode,
-                        source: <number>sourceTargetName,
+                        source: <number>pre,
                         data: data,
-                        fromSystem: false
+                        fromSystem: true
                     }
                     if (null !== this.targetName) {
                         this.previousName = this.targetName;
