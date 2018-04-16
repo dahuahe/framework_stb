@@ -15,7 +15,7 @@ class Site implements ISite {
     public x: number = null;
     public y: number = null;
     public index: number = null;
-    public element: HElement = null;
+    public element: IHElement = null;
 }
 interface IFocusSetting {
     /**
@@ -48,21 +48,33 @@ interface IFocusSetting {
     autoTarget?: [{ keyCode: Key.Left | Key.Up | Key.Right | Key.Down | Key.Enter | Key.Backspace, target: string | number }],
     className?: string,
     leaveClass?: string,
+    /**
+     * 应用预定义 class 样式触发
+     */
     usingClass?: (info: IChanged) => void,
+    /**
+     * 取消预定义 class 样式触发
+     */
     cancelClass?: (info: IChanged) => void,
     /**
      * 基本动作是否启用 (上、下、左、右)
      * false：禁用 Focus 对象内置 上、下、左、右、事件的处理，通过自定义订阅 PageEvent 的 keydown 事件完成相关业务需求
      */
     enableMove?: boolean,
+    /**
+     * 启用某单元格触发
+     */
     disableSite?: Function,
+    /**
+     * 离开某单元格触发
+     */
     enableSite?: Function
 }
 /**
  * @desc 移动对象，页面元素组的内存映射地图表。关联/控制页面元素
  */
 class Focus {
-    private listHElement: HElement[] = [];
+    private listHElement: IHElement[] = [];
     private map: Array<Array<Site>>;
     private site: Site = null;
     private dataArray: Array<Site> = [];
@@ -100,23 +112,22 @@ class Focus {
             });
         }
     }
-    public initData(data: HElement[] | number) {
+    public initData(ele: IHElement) {
         this.listHElement.length = 0;
         this.dataArray.length = 0;
         this.recordArray.length = 0;
         this.site = null;
 
-        if (typeof data == 'number') {
-            data = new Array(data);
-        }
-        this.map = this.createMap(data);
+        if (ele) {
+            this.map = this.createMap(ele);
 
-        if (this.map.length > 0) {
-            this.site = this.map[0][0];         // 初始化坐标
-            this.instanceStatus = true;
+            if (this.map.length > 0) {
+                this.site = this.map[0][0];         // 初始化坐标
+                this.instanceStatus = true;
+            }
         }
     }
-    private createMap(data: HElement[]): Array<Array<Site>> {
+    private createMap(ele: IHElement): Array<Array<Site>> {
         let xRow = this.setting.height;
         let yCol = this.setting.width;
 
@@ -125,9 +136,9 @@ class Focus {
             xRow = 1;
 
         if (xRow === 0 && yCol > 0) {
-            let count = parseInt((data.length / yCol).toString());
+            let count = parseInt((ele.length / yCol).toString());
             //判断余数
-            if (count === data.length / yCol) {
+            if (count === ele.length / yCol) {
                 xRow = count + 1;
             } else {
                 //有余数，多循环一圈
@@ -135,9 +146,9 @@ class Focus {
             }
         }
         if (yCol === 0 && xRow > 0) {
-            let count = parseInt((data.length / xRow).toString());
+            let count = parseInt((ele.length / xRow).toString());
             //判断余数
-            if (count === data.length / xRow) {
+            if (count === ele.length / xRow) {
                 yCol = count + 1;
             } else {
                 //有余数，多循环一圈
@@ -156,8 +167,8 @@ class Focus {
                 yArr = [];
                 for (let j = 0; j < yCol; j++) {
                     //创建单元格
-                    if (index < data.length) {
-                        let site = new Site(), item = data[index];
+                    if (index < ele.length) {
+                        let site = new Site(), item = ele.eq(index);
                         site.x = i;
                         site.y = j;
                         site.index = index;
@@ -176,7 +187,7 @@ class Focus {
                 }
             }
             //结束
-            if (data.length <= index) {
+            if (ele.length <= index) {
                 isAll = false;
             }
         } while (isAll);
@@ -275,7 +286,7 @@ class Focus {
             if (this.setting.leaveClass) {
                 let ele = this.site.element;
                 if (ele) {
-                    ele.removeClas(this.setting.leaveClass);
+                    ele.removeClass(this.setting.leaveClass);
                 }
             }
             this.setSite();
@@ -291,7 +302,7 @@ class Focus {
             if (ele) {
                 let className = this.setting.className;
                 if (className) {
-                    ele.removeClas(this.setting.className);
+                    ele.removeClass(this.setting.className);
 
                     const res: IChanged = {
                         identCode: parseInt(<string>this.setting.identCode),
@@ -309,7 +320,7 @@ class Focus {
             // 移除焦点样式
             if (this.setting.leaveClass) {
                 if (ele) {
-                    ele.clas(this.setting.leaveClass);
+                    ele.addClass(this.setting.leaveClass);
                 }
             }
         }
@@ -688,7 +699,7 @@ class Focus {
                 if (ele) {
                     let className = this.setting.className;
                     if (className) {
-                        ele.removeClas(this.setting.className);
+                        ele.removeClass(this.setting.className);
 
                         const res: IChanged = {
                             identCode: parseInt(<string>this.setting.identCode),
@@ -713,19 +724,23 @@ class Focus {
                     // 应用 className
                     let className = this.setting.className;
                     if (className) {
-                        ele.clas(className);
 
-                        const res: IChanged = {
-                            identCode: parseInt(<string>this.setting.identCode),
-                            success: true,
-                            site: present || null,
-                            previousSite: null,
-                            data: undefined,
-                            keyCode: null,
-                            fromSystem: true
+                        // 非焦点状态不设置样式
+                        let target = this.event.getTargetIdentCode();
+                        if (target === this.setting.identCode) {
+                            ele.addClass(className);
+
+                            const res: IChanged = {
+                                identCode: parseInt(<string>this.setting.identCode),
+                                success: true,
+                                site: present || null,
+                                previousSite: null,
+                                data: undefined,
+                                keyCode: null,
+                                fromSystem: true
+                            }
+                            this.setting.usingClass && this.setting.usingClass(res);
                         }
-
-                        this.setting.usingClass && this.setting.usingClass(res);
                     }
                 }
             }

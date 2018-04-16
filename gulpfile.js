@@ -111,10 +111,19 @@ gulp.task('tsmin', function () {
 //     }))
 //     .pipe(gulp.dest('./dist/images'))
 // })
+
+gulp.task('bootstrap', function () {
+  return gulp.src(['src/framework/bootstrap/bootstrap.less'])
+    .pipe(less())
+    .pipe(minify())
+    .pipe(rename({suffix:".min"}))
+    .pipe(gulp.dest('dist/css'))
+})
+
 // minify
 gulp.task('minify', ['tsmin', 'lessmin', 'htmlmin', 'js'])
 // noraml
-gulp.task('watch', ['ts', 'less', 'html', 'js'], function () {
+gulp.task('watch', ['ts', 'less', 'html', 'js', 'bootstrap'], function () {
   gulp.watch(config.include.less, ['less'])
   gulp.watch(config.include.ts, ['ts'])
   gulp.watch(config.include.html, ['html'])

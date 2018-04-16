@@ -37,8 +37,8 @@ pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
     if (e.success) {
         // 重置方向
         focLeft.record().forEach((v, i) => {
-            v.element.removeClas("head");
-            v.element.removeClas("body");
+            v.element.removeClass("head");
+            v.element.removeClass("body");
             v.element.style("background-image", "");
         });
         // 方向
@@ -58,7 +58,7 @@ pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
         // 吃到鱼
         if (fishIndex === e.site.index) {
 
-            ele.removeClas('fish');
+            ele.removeClass('fish');
             // 身体长大一节
             if (len <= 10) {
                 len++;
@@ -73,8 +73,8 @@ pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
 
         // 重置身体
         focLeft.record().forEach((v, i) => {
-            v.element.removeClas("head");
-            v.element.removeClas("body");
+            v.element.removeClass("head");
+            v.element.removeClass("body");
         });
 
         // 绘画身体
@@ -83,9 +83,9 @@ pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
         focLeft.record().forEach((v, i) => {
             if (i < len) {
                 if (i === 0) {
-                    v.element.clas("head");
+                    v.element.addClass("head");
                 } else {
-                    v.element.clas("body");
+                    v.element.addClass("body");
                 }
             }
         });
@@ -127,5 +127,5 @@ function createFish() {
     } while (-1 === idx);
 
     fishIndex = idx;
-    focLeft.getSites()[fishIndex].element.clas('fish');
+    focLeft.getSites()[fishIndex].element.addClass('fish');
 }

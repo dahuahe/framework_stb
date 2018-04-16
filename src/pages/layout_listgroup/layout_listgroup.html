@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 盒子开发时应用该设定 720P -->
+    <meta name="page-view-size" content="1280*720">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/layout_listgroup.css">
+</head>
+
+<body>
+    <h1>列表组
+        <small>
+            列表组是灵活又强大的组件，不仅能用于显示一组简单的元素，还能用于复杂的定制的内容。
+        </small>
+    </h1>
+    <h1>基本实例
+        <small>
+            最简单的列表组仅仅是一个带有多个列表条目的无序列表，另外还需要设置适当的类。我们提供了一些预定义的样式，你可以根据自身的需求通过 CSS 自己定制。
+        </small>
+    </h1>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <span class="badge">3</span>
+            Cras justo odio
+        </li>
+        <li class="list-group-item">Dapibus ac facilisis in</li>
+        <li class="list-group-item">Morbi leo risus</li>
+        <li class="list-group-item">Porta ac consectetur ac</li>
+        <li class="list-group-item">Vestibulum at eros</li>
+    </ul>
+
+    <h1>徽章
+        <small>
+            给列表组加入徽章组件，它会自动被放在右边。
+        </small>
+    </h1>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <span class="badge">
+                <img style="width:20px;height:20px;" src="./images/thumbnails.png" alt="">
+            </span>
+            Cras justo odio
+        </li>
+    </ul>
+    <script data-main='./js/layout_listgroup' src="./js/require.js"></script>
+</body>
+
+</html>

@@ -57,16 +57,16 @@ class Module {
 
 interface ISetting {
     foc: Focus;
-    boxs: HElement[];
+    boxs: IHElement[];
     pg: Paging;
     db: ManagementPageDB<any> | ManagementPageDBToNative<any>;
     activeClass: string,
 
-    showItemBox: (e: HElement) => void;
-    hideItemBox: (e: HElement) => void;
+    showItemBox: (e: IHElement) => void;
+    hideItemBox: (e: IHElement) => void;
     onDBLoadList: (list: any[], s: ISetting) => void;
     onDBLoadView?: (list: any[], s: ISetting) => void;
-    onDBLoadData: (v: any, i: number, e: HElement, s: ISetting) => void;
+    onDBLoadData: (v: any, i: number, e: IHElement, s: ISetting) => void;
     // private
     comfirmGlobalSerial?: number;    // 全局 序号 不会大于总数据长度且0开始
     currentList?: any[],
@@ -125,11 +125,11 @@ class ModulePage<T> extends Module {
 
             if (dy === set.comfirmGlobalSerial) {
                 if (!v.hasClass(set.activeClass)) {
-                    v.clas(set.activeClass);
+                    v.addClass(set.activeClass);
                 }
             } else {
                 if (v.hasClass(set.activeClass)) {
-                    v.removeClas(set.activeClass);
+                    v.removeClass(set.activeClass);
                 }
             }
         })
@@ -191,14 +191,14 @@ class ModulePage<T> extends Module {
         set.db.getItem(pageIndex, (data) => {
             set.onDBLoadList && set.onDBLoadList(data, set);
 
-            let len = set.pg.getPageSize(), dif = len - data.length, globalIndex = -1, siteIndex = 0, curEles = [], dynamicGlobalSerial = -1, size = set.pg.getPageSize(), preIndex = 0;
+            let len = set.pg.getPageSize(), dif = len - data.length, globalIndex = -1, siteIndex = 0, curEles: HTMLElement[] = [], dynamicGlobalSerial = -1, size = set.pg.getPageSize(), preIndex = 0;
             let pre = set.foc.getSite();
 
             set.currentList = data;
 
             // 没有数据
             if (!data || !data.length) {
-                set.foc.initData(0);
+                set.foc.initData(null);
                 set.boxs.forEach((v, i) => {
                     set.hideItemBox(v);
                 });
@@ -221,7 +221,7 @@ class ModulePage<T> extends Module {
                         globalIndex = i;
                     }
 
-                    curEles.push(box);
+                    curEles.push(box.get(0));
                     set.showItemBox(box);
 
 
@@ -231,16 +231,16 @@ class ModulePage<T> extends Module {
 
                 // 重置激活样式
                 if (actCls && box.hasClass(actCls)) {
-                    box.removeClas(actCls);
+                    box.removeClass(actCls);
                 }
                 // 重置焦点样式
                 if (box.hasClass(focCls)) {
-                    box.removeClas(focCls);
+                    box.removeClass(focCls);
                 }
             }
 
             // init
-            foc.initData(curEles);
+            foc.initData(new HElement(curEles));
 
             pre = pre || foc.getSite();
 
@@ -306,12 +306,12 @@ class ModulePage<T> extends Module {
 
             // 设置全局焦点样式
             if (-1 !== globalIndex) {
-                boxs[globalIndex].clas(actCls);
+                boxs[globalIndex].addClass(actCls);
             }
 
             // 非激活模块异常处理
             if (foc.getIdentCode() != this.event.getTargetIdentCode()) {
-                foc.getSite().element.removeClas(focCls);
+                foc.getSite().element.removeClass(focCls);
             }
 
             set.onDBLoadView && set.onDBLoadView(data, set);

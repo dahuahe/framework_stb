@@ -51,8 +51,8 @@ class SnakeModule extends Module {
             if (e.success) {
                 // 重置方向
                 this.foc.record().forEach((v, i) => {
-                    v.element.removeClas("head");
-                    v.element.removeClas("body");
+                    v.element.removeClass("head");
+                    v.element.removeClass("body");
                     v.element.style("background-image", "");
                 });
                 // 方向
@@ -72,7 +72,7 @@ class SnakeModule extends Module {
                 // 吃到鱼
                 if (this.fishIndex === e.site.index) {
 
-                    ele.removeClas('fish');
+                    ele.removeClass('fish');
                     // 身体长大一节
                     if (this.len <= 10) {
                         this.len++;
@@ -87,8 +87,8 @@ class SnakeModule extends Module {
 
                 // 重置身体
                 this.foc.record().forEach((v, i) => {
-                    v.element.removeClas("head");
-                    v.element.removeClas("body");
+                    v.element.removeClass("head");
+                    v.element.removeClass("body");
                 });
 
                 // 绘画身体
@@ -97,9 +97,9 @@ class SnakeModule extends Module {
                 this.foc.record().forEach((v, i) => {
                     if (i < this.len) {
                         if (i === 0) {
-                            v.element.clas("head");
+                            v.element.addClass("head");
                         } else {
-                            v.element.clas("body");
+                            v.element.addClass("body");
                         }
                     }
                 });
@@ -136,7 +136,7 @@ class SnakeModule extends Module {
         } while (-1 === idx);
 
         this.fishIndex = idx;
-        this.foc.getSites()[this.fishIndex].element.clas('fish');
+        this.foc.getSites()[this.fishIndex].element.addClass('fish');
     }
 }
 

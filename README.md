@@ -33,11 +33,8 @@
     npm run doc     // 框架文档
     
     gulp page --页面名称   // 创建页面
-    gulp page --文件名称   // 创建文件
-    gulp page --文件名称   // 创建文件
-
-# 内部解析
-# 使用方式
+    gulp model --文件名称   // 创建文件
+    gulp logic --文件名称   // 创建文件
 
 # 盒子与浏览器差异
 - 盒子关机后 cookie 清空（通常）
@@ -51,13 +48,16 @@
 - 预定义代码段比如 if for
 - PageEvent 自定义模块 Focus 事件注册后提示注册的信息失效（偶发情况）
 - Focus 对象 autoFile autoTarget 属性兼容性，后者会影响前者状态（目前最好不要同时配置两个属性）
-- Focus 当前当前模块失去焦点时为当前焦点增加 单元格 change 事件通知内容为单元格改变失败
-- HElement children 支持链式调用,以及根据条件筛选
-- Focus 对象如果该模块不是当前焦点 调用 setSite 时 样式处理（增加事件通知的类型，以此判断当前对象属于那个动作，改变Focus 默认处理，如果不是焦点则不添加样式）
-- 模块主动触发支持 Key.Enter 等事件
+- HElement children 支持链式调用,以及根据条件筛选,所有方法链式调用
 - Focus 兼容非矩形模块
+- 将 HTMLElement 相关常用特效及其功能按照Bootstrap插件形势开发，且不依赖于Jquery
+- 更新 引入定制版 Bootstrap 包括基本通用样式 组件样式（导航、缩略图以及自定义缩略图样式、警告框、进度条（自己去实现，作为JS组建）、列表组（以及加徽章或者图标）、tabs（自己实现，作为js组件）、徽章
 
 # 更新日志
+**2018年4月16日 10点44分 v2.0.1**
+- 更新 Focus 模块 setSite 方法（设置坐标）如果当前焦点非当前模块时不做添加样式操作;调整 initData 参数为 HElement 对象
+- 更新 Helement 模块 API接口参数调整;支持链式调用;支持子节点筛选（类选择器、ID选择器、节点类型选择器）
+
 **2018年4月13日 10点36分 v2.0.0**
 - 更新 ModulePage 修复已知 bug
 - 更新 uiTool.ts 新增 VerticalRoll、VerticalFlowRoll、VerticalVisualRangeRoll 、HorizontalRoll 模块
@@ -205,7 +205,24 @@
     
     依赖反转原则
 
-    
+# Less 框架结构（Bootstrap v3.3.7）
+    通用 CSS
+        Print media styles
+        Typography
+        Code
+        Grid system
+        Forms
+        Buttons
+        Responsive utilities
+    组件
+        Navs
+        Thumbnails
+        Alerts
+        List groups
+        Panels
+    JS组建
+        Tabs
+        Progressbar
 
 # 应用项目
 - 安徽文艺演出（2017）

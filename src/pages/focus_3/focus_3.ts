@@ -51,7 +51,6 @@ pageEvent.on(MType.Right, PageType.Focus, (e: IFocus) => {
     let site = focRight.getSite();
 
     eleTips.html(`焦点从左侧模块 移交 到右侧模块 且当前左侧坐标为 ${Json.serializ(site)}`);
-
 });
 pageEvent.on(MType.Right, PageType.Blur, (e: IFocus) => {
     // 当前坐标信息

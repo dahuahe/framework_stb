@@ -91,24 +91,40 @@ interface IManagementDB<T> {
     getItem(pageIndex: number, callback?: (list: Array<T>) => void): void;
 }
 interface IHElement {
-    readonly element: HTMLElement;
-    clas(clasName?: string): void | string;
-    removeClas(clasName: string): string;
-    html(html?: string): any;
-    text(text?: string): void | string;
+    readonly length: number;
 
-    style(propName: string, value?: string): void;
-    removeStyle(propertyName?: string): void;
-    attr(name: string, value?: string): void;
-    removeAttr(name?: string): void;
-    show(): void;
-    hide(): void;
-    hasHide(): boolean;
-    hidden(): void;
-    visible(): void;
-    hasHidden(): void;
-    hasClass(clasName: string): void;
-    children(keyword: string): IHElement[];
+    // (eleName: string): HElement;
+    // (htmlElement: HTMLElement): HElement;
+    // (htmlElements: HTMLElement[]): HElement;
+    // (eleName: string | HTMLElement | HTMLElement[]): HElement;
+    addClass(clasName: string): this;
+    removeClass(): this;
+    removeClass(clasName: string): this;
+    removeClass(clasName?: string): this;
+    html(): string;
+    html(html: string): this;
+    html(html?: string): this;
+    text(): string;
+    text(text: string): this;
+    text(text?: string): this | string;
+    style(propName: string): string;
+    style(propName: string, value: string): this;
+    style(propName: string, value?: string): this | string;
+    removeStyle(): this;
+    removeStyle(propertyName: string): this;
+    removeStyle(propertyName?: string): this;
+    attr(name: string): string;
+    attr(name: string, value: string): this;
+    attr(name: string, value?: string): this;
+    removeAttr(name: string): this;
+    show(): this;
+    hide(): this;
+    hidden(): this;
+    visible(): this;
+    hasClass(clasName: string): boolean;
+    children(keyword: string): IHElement;
+    eq(index: number): IHElement;
+    get(index: number): HTMLElement;
 }
 // 焦点对象事件回掉参数类型
 interface ISite {

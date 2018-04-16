@@ -10,240 +10,299 @@ import { SetInterval, SetTimeout } from '../data_tool/dataTool';
  * 对 HTMLElement 的封装
  */
 export class HElement implements IHElement {
-    private eleName: string | HTMLElement;
-    private faterEle: any;
+    private readonly eles: HTMLElement[] = [];
 
-    public readonly element: HTMLElement;
+    public readonly length: number = 0;
 
-    constructor(eleName: string | HTMLElement, fatherEle?: HTMLDocument) {
+    constructor(eleName: string);
+    constructor(htmlElement: HTMLElement);
+    constructor(htmlElements: HTMLElement[]);
+    constructor(eleName: string | HTMLElement | HTMLElement[]) {
 
-        this.eleName = eleName;
-        this.faterEle = fatherEle;
-
-        let _getHtmlElement = (eleName: string) => {
+        let getHtmlElements = (eleName: string): HTMLElement[] => {
             if (!eleName)
-                return null;
-            let element = null;
+                return [];
+            let eles: HTMLElement[] = [];
             //接收的document类型(可扩展)
             let char = eleName.substring(0, 1);
             let charV = eleName.substring(1, eleName.length);
 
             if (char === '#') {
-                element = document.getElementById(charV);
+                let ele = document.getElementById(charV);
+                if (ele) {
+                    eles.push(document.getElementById(charV));
+                }
             } else if (char === '.') {
-                element = document.getElementsByClassName(charV)[0];
-            } else {
-                // 根据属性名获取
-                let charIdx = eleName.indexOf('=');
-                if (charIdx !== -1 && charIdx > 0) {
-                    let charPrefix = eleName.substr(1, charIdx - 1);
-                    let charSuffix = eleName.substr(charIdx + 1, (eleName.length - charPrefix.length) - 3);
-
-                    let items = document.getElementsByTagName('*');
-                    for (let i = 0; i < items.length; i++) {
-                        let ele = items[i];
-                        let name = ele.getAttribute(charPrefix);
-                        if (name === charSuffix) {
-                            element = ele;
-                        }
-                    }
+                let data = document.getElementsByClassName(charV), len = data.length;
+                for (let i = 0; i < len; i++) {
+                    eles.push(<HTMLElement>data.item(i));
                 }
             }
-
-            return element || null;
+            return eles;
         }
 
-        let ele: HElement;
-        let _eleName: string;
-        let _element: HTMLElement | Element;
+        let name: string;
+        let eles: HTMLElement[] = [];
 
         if (typeof eleName === 'string') {
-            _eleName = eleName;
-            _element = _getHtmlElement(eleName);
-        } else {
-            _eleName = eleName.id;
-            _element = eleName;
+            name = eleName;
+            eles = getHtmlElements(eleName);
         }
-        if (!_element) {
-            // return null;
-        } else {
-            this.element = <HTMLElement>_element;
+        else if (eleName instanceof Array) {
+            eles = eleName;
+        }
+        else {
+            name = eleName.id;
+            eles.push(eleName);
+        }
+
+        if (eles && eles.length) {
+            this.length = eles.length;
+            this.eles = eles;
         }
     }
-    clas(clasName?: string) {
-        let ele = this.element;
-        if (ele) {
+    addClass(clasName: string): this {
+        let eles = this.eles;
+        if (eles && eles.length) {
             let keyName = clasName || null;
 
             if (keyName && keyName.trim()) {
-                let arr = ele.className.split(" ") || [], length = arr.length;
-                for (let i = 0; i < length; i++) {
-                    const item = arr[i];
-                    if (item == clasName) {
-                        delete arr[i];
-                        break;
+
+                let data = eles;
+
+                data.forEach((v) => {
+
+                    let arr = v.className.split(" ") || [], len_2 = arr.length;
+                    for (let i_2 = 0; i_2 < len_2; i_2++) {
+                        const item = arr[i_2];
+                        if (item == clasName) {
+                            delete arr[i_2];
+                            break;
+                        }
                     }
-                }
-                // 添加
-                arr.push(clasName);
-                ele.className = arr.join(" ").trim();
-            } else {
-                return ele.className;
+                    // 添加
+                    arr.push(clasName);
+                    v.className = arr.join(" ").trim();
+                });
             }
         }
+        return this;
     }
-    removeClas(clasName: string) {
-        let ele = this.element;
-        if (ele) {
+    removeClass(): this;
+    removeClass(clasName: string): this;
+    removeClass(clasName?: string): this {
+        let eles = this.eles;
+        if (eles && eles.length) {
             let keyName = clasName || null;
 
             if (keyName && keyName.trim()) {
-                let arr = ele.className.split(" ") || [], length = arr.length;
-                for (let i = 0; i < length; i++) {
-                    const item = arr[i];
-                    if (item == clasName) {
-                        delete arr[i];
-                        ele.className = arr.join(" ").trim();
-                        break;
+
+                let data = eles;
+
+                data.forEach((v) => {
+
+                    let arr = v.className.split(" ") || [], len_2 = arr.length;
+                    for (let i = 0; i < len_2; i++) {
+                        const item = arr[i];
+                        if (item == clasName) {
+                            delete arr[i];
+                            v.className = arr.join(" ").trim();
+                            break;
+                        }
                     }
-                }
+
+                });
+
             } else {
-                return ele.className;
+                eles.forEach((v) => {
+                    v.className = "";
+                });
             }
         }
+        return this;
     }
-    html(html?: string) {
-        let _element = this.element;
-        if (html || html === '' || html === "") {
-            _element.innerHTML = html;
-        } else {
-            return _element.innerHTML;
+    html(): string;
+    html(html: string): this;
+    html(html?: string): this | string {
+        let eles = this.eles;
+        if (eles && eles.length) {
+            if (html || html === '' || html === "") {
+                eles.forEach((v) => {
+                    v.innerHTML = html;
+                });
+            } else {
+                return eles[0].innerHTML;
+            }
         }
+        return this;
     }
-    text(text?: string) {
-        let _element = this.element;
+    text(): string;
+    text(text: string): this;
+    text(text?: string): this | string {
+        let eles = this.eles;
         if (text || text === '' || text === "") {
-            _element.innerText = text;
+            eles.forEach((v) => {
+                v.innerText = text;
+            });
+            return this;
         } else {
-            return _element.innerText;
+            return eles[0].innerText;
         }
     }
-    style(propName: string, value?: string) {
-        let ele = this.element;
+    style(propName: string): string;
+    style(propName: string, value: string): this;
+    style(propName: string, value?: string): this | string {
+        let eles = this.eles;
 
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
+        if (eles && eles.length) {
+
+            if (undefined === value) {
+                return eles[0].style.getPropertyValue(propName);
+            } else {
+
+                eles.forEach((v) => {
+
+                    if (!v.hasAttribute('style')) {
+                        v.setAttribute('style', '');
+                    }
+
+                    v.style.setProperty(propName, value);
+                });
+            }
         }
+        return this;
+    }
+    removeStyle(): this;
+    removeStyle(propertyName: string): this;
+    removeStyle(propertyName?: string) {
+        let eles = this.eles;
+        if (eles && eles.length) {
+
+            if (undefined === propertyName) {
+                eles.forEach((v) => {
+                    v.setAttribute("style", "");
+                });
+            } else {
+                eles.forEach((v) => {
+                    v.style.removeProperty(propertyName);
+                });
+            }
+        }
+        return this;
+    }
+    attr(name: string): string;
+    attr(name: string, value: string): this;
+    attr(name: string, value?: string): this | string {
+        let eles = this.eles;
+
         if (undefined === value) {
-            return ele.style.getPropertyValue(propName);
+            return eles[0].getAttribute(name);
         } else {
-            ele.style.setProperty(propName, value);
+            eles.forEach((v) => {
+                v.setAttribute(name, value);
+            });
         }
+        return this;
     }
-    removeStyle(propertyName?: string): void {
-        let ele = this.element;
-        ele && ele.style.removeProperty(propertyName);
+    removeAttr(name: string): this {
+        let eles = this.eles;
+        eles.forEach((v) => {
+            v.removeAttribute(name);
+        });
+        return this;
     }
-    attr(name: string, value?: string) {
-        let ele = this.element;
-        let val = value || null;
+    show(): this {
+        let eles = this.eles;
+        eles.forEach((v) => {
+            if (!v.hasAttribute('style')) {
+                v.setAttribute('style', '');
+            }
+            v.style.setProperty('display', 'block');
+        });
+        return this;
+    }
+    hide(): this {
+        let eles = this.eles;
+        eles.forEach((v) => {
+            if (!v.hasAttribute('style')) {
+                v.setAttribute('style', '');
+            }
+            v.style.setProperty('display', 'none');
+        });
+        return this;
+    }
+    hidden(): this {
+        let eles = this.eles;
+        eles.forEach((v) => {
+            if (!v.hasAttribute('style')) {
+                v.setAttribute('style', '');
+            }
+            v.style.setProperty('visibility', 'hidden');
+        });
+        return this;
+    }
+    visible(): this {
+        let eles = this.eles;
+        eles.forEach((v) => {
+            if (!v.hasAttribute('style')) {
+                v.setAttribute('style', '');
+            }
+            v.style.setProperty('visibility', 'visible');
+        });
+        return this;
+    }
+    hasClass(clasName: string): boolean {
+        let name = this.eles[0].className || "";
 
-        if (!val) {
-            return ele.getAttribute(name);
-        } else {
-            ele.setAttribute(name, value);
-        }
-    }
-    removeAttr(name?: string): void {
-        let ele = this.element;
-        ele && ele.removeAttribute(name);
-    }
-    show(): void {
-        let ele = this.element;
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
-        }
-        ele.style.setProperty('display', 'block');
-    }
-    hide(): void {
-        let ele = this.element;
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
-        }
-        ele.style.setProperty('display', 'none');
-    }
-    hasHide() {
-        let ele = this.element;
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
-        }
-        return ele.style.getPropertyValue('display') === 'none' ? true : false;
-    }
-    hidden(): void {
-        let ele = this.element;
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
-        }
-        ele.style.setProperty('visibility', 'hidden');
-    }
-    visible(): void {
-        let ele = this.element;
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
-        }
-        ele.style.setProperty('visibility', 'visible');
-    }
-    hasHidden() {
-        let ele = this.element;
-        if (!ele.hasAttribute('style')) {
-            ele.setAttribute('style', '');
-        }
-        return ele.style.getPropertyValue('visibility') === 'hidden' ? true : false;
-    }
-    hasClass(clasName: string) {
-        let curClsName = this.element.className || "";
-        let keyName = clasName || null;
-
-        if (keyName && curClsName) {
-            return curClsName.indexOf(clasName) === -1 ? false : true;
+        if (clasName && name) {
+            return name.indexOf(clasName) === -1 ? false : true;
         } else {
             return false;
         }
     }
-    children(keyword = ""): HElement[] {
-        // 父节点
-        let father = this.element, retuList = [];
+    children(keyword = ""): IHElement {
+
+        let eles = this.eles, retuList: HTMLElement[] = [];
 
         keyword = keyword.replace(/\s/g, "");
 
-        let data = father.childNodes, len = data.length, item: any;
-
         let tagName = keyword.toUpperCase(), className = "." === keyword.substr(0, 1) ? keyword.substr(1, keyword.length) : "";
 
-        // nodeType
-        for (let i = 0; i < len; i++) {
-            item = data[i];
-            if (item.nodeType === 1) {
-                // all children node
-                if (!keyword) {
-                    retuList.push(new HElement(item));
-                }
-                // className
-                else if (className) {
-                    if (item.className && className === item.className) {
-                        retuList.push(new HElement(item));
+        eles.forEach((v) => {
+            let data = v.childNodes, len = data.length, item: any;
+
+            // nodeType
+            for (let i = 0; i < len; i++) {
+                item = data[i];
+                if (item.nodeType === 1) {
+                    // all children node
+                    if (!keyword) {
+                        retuList.push(item);
                     }
-                }
-                // assign type node
-                else {
-                    // tag name
-                    if (tagName === item.tagName) {
-                        retuList.push(new HElement(item));
+                    // className
+                    else if (className) {
+                        if (item.className && className === item.className) {
+                            retuList.push(item);
+                        }
+                    }
+                    // assign type node
+                    else {
+                        // tag name
+                        if (tagName === item.tagName) {
+                            retuList.push(item);
+                        }
                     }
                 }
             }
-        }
-        return retuList;
+        });
+
+        return new HElement(retuList);
+    }
+    eq(index: number): IHElement {
+        return new HElement(this.eles[index]);
+    }
+    get(index: number): HTMLElement {
+        return this.eles[index];
     }
 }
 /**
@@ -261,7 +320,7 @@ export class VerticalFlowRoll {
         this.length = info.lenght;
     }
     toCeil() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
             this.marginTop += this.length;
 
             if (this.marginTop > 0) {
@@ -272,9 +331,9 @@ export class VerticalFlowRoll {
         }
     }
     toFloor() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
             this.marginTop -= this.length;
-            let full = -Math.round(this.ele.element.scrollHeight);
+            let full = -Math.round(this.ele.get(0).scrollHeight);
             let difference = full + this.height;
 
             if (this.marginTop < difference) {
@@ -285,10 +344,10 @@ export class VerticalFlowRoll {
         }
     }
     isRoll() {
-        return this.ele.element.scrollHeight > this.height;
+        return this.ele.get(0).scrollHeight > this.height;
     }
     isCeil() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
             if (this.marginTop >= 0) {
                 return false;
             } else {
@@ -299,8 +358,8 @@ export class VerticalFlowRoll {
         }
     }
     isFloor() {
-        if (this.ele.element.scrollHeight > this.height) {
-            let full = -Math.round(this.ele.element.scrollHeight);
+        if (this.ele.get(0).scrollHeight > this.height) {
+            let full = -Math.round(this.ele.get(0).scrollHeight);
             let difference = full + this.height;
 
             if (this.marginTop <= difference) {
@@ -325,7 +384,7 @@ export class VerticalRoll {
         this.length = info.lenght;
     }
     toCeil() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
             // 不足一步不处理
             if ((this.marginTop + this.length) > 0) {
 
@@ -336,9 +395,9 @@ export class VerticalRoll {
         }
     }
     toFloor() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
 
-            let full = -Math.round(this.ele.element.scrollHeight);
+            let full = -Math.round(this.ele.get(0).scrollHeight);
             let difference = full + this.height;
             // 不足一步不处理
             if ((this.marginTop - this.length) < difference) {
@@ -350,10 +409,10 @@ export class VerticalRoll {
         }
     }
     isRoll() {
-        return this.ele.element.scrollHeight > (this.height + this.length);
+        return this.ele.get(0).scrollHeight > (this.height + this.length);
     }
     isCeil() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
             if (this.marginTop >= 0) {
                 return false;
             } else {
@@ -364,8 +423,8 @@ export class VerticalRoll {
         }
     }
     isFloor() {
-        if (this.ele.element.scrollHeight > this.height) {
-            let full = -Math.round(this.ele.element.scrollHeight);
+        if (this.ele.get(0).scrollHeight > this.height) {
+            let full = -Math.round(this.ele.get(0).scrollHeight);
             let difference = full + this.height;
 
             if (this.marginTop <= difference) {
@@ -398,9 +457,9 @@ export class VerticalVisualRangeRoll {
         this.rollFloor = Math.floor(this.height / this.length) - 1;
     }
     toCeil() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
 
-            let full = -Math.round(this.ele.element.scrollHeight);
+            let full = -Math.round(this.ele.get(0).scrollHeight);
             let difference = full + this.height;
             // 不足一步不处理
 
@@ -431,9 +490,9 @@ export class VerticalVisualRangeRoll {
         }
     }
     toFloor() {
-        if (this.ele.element.scrollHeight > this.height) {
+        if (this.ele.get(0).scrollHeight > this.height) {
 
-            let full = -Math.round(this.ele.element.scrollHeight);
+            let full = -Math.round(this.ele.get(0).scrollHeight);
             let difference = full + this.height;
             // 不足一步不处理
 
@@ -468,7 +527,7 @@ export class VerticalVisualRangeRoll {
         }
     }
     isRoll() {
-        return this.ele.element.scrollHeight > (this.height + this.length);
+        return this.ele.get(0).scrollHeight > (this.height + this.length);
     }
     toSerial(index: number) {
         if (index > this.serial) {
@@ -505,8 +564,8 @@ export class HorizontalRoll {
         this.out.clear();
         this.timer.clear();
 
-        let ele = this.box.element, scrollWidth = ele.scrollWidth, clientWidth = ele.clientWidth, isFirst = true;
-        let marquee = <HTMLMarqueeElement>this.marquee.element;
+        let ele = this.box.get(0), scrollWidth = ele.scrollWidth, clientWidth = ele.clientWidth, isFirst = true;
+        let marquee = <HTMLMarqueeElement>this.marquee.get(0);
         this.innerHtml = this.box.html();
         this.box.style("white-space", 'nowrap');
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 盒子开发时应用该设定 720P -->
+    <meta name="page-view-size" content="1280*720">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/uitool_1.css">
+</head>
+
+<body>
+    <h1>HElement 对象基本使用</h1>
+    <div id="page">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2">1-1</div>
+                <div class="col-md-2">1-2</div>
+                <div class="col-md-2">1-3</div>
+                <div class="col-md-2">1-4</div>
+                <div class="col-md-2">1-5</div>
+                <div class="col-md-2">1-6</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">1-7</div>
+                <div class="col-md-2">1-8</div>
+                <div class="col-md-2">1-9</div>
+                <div class="col-md-2">1-10</div>
+                <div class="col-md-2">1-11</div>
+                <div class="col-md-2">1-12</div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2">2-1</div>
+                <div data-tips="这是第三行第二格的data-tips属性" class="col-md-2">2-2</div>
+                <div class="col-md-2">2-3</div>
+                <div class="col-md-2">2-4</div>
+                <div class="col-md-2">2-5</div>
+                <div class="col-md-2">2-6</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">2-7</div>
+                <div class="col-md-2">2-8</div>
+                <div class="col-md-2">2-9</div>
+                <div class="col-md-2">2-10</div>
+                <div class="col-md-2">2-11</div>
+                <div class="col-md-2">2-12</div>
+            </div>
+        </div>
+    </div>
+    <h2>创建一个 HElement 对象输出到控制台</h2>
+    <input id="btn-console-helement" class="btn btn-default btn-lg" type="button" value="创建">
+
+    <h2>HElement 代替原生ID选择器</h2>
+    <input id="btn-console-page" class="btn btn-default btn-lg" type="button" value="获取#page元素">
+
+    <h2>HElement 代替原生类选择器</h2>
+    <input id="btn-console-container" class="btn btn-default btn-lg" type="button" value="获取.container输出到控制台">
+    <input id="btn-console-row" class="btn btn-default btn-lg" type="button" value="获取.row输出到控制台">
+
+    <h2>HElement 方法</h2>
+    <input id="btn-console-addclass" class="btn btn-default btn-lg" type="button" value="给第一行文字添加.red类样式">
+    <input id="btn-console-removeclass" class="btn btn-default btn-lg" type="button" value="给第一行文字删除.red类样式">
+    <input id="btn-console-length" class="btn btn-default btn-lg" type="button" value="获取.row元素个数">
+    <input id="btn-console-hidden" class="btn btn-default btn-lg" type="button" value="隐藏(hidden)第二行文字">
+    <input id="btn-console-visible" class="btn btn-default btn-lg" type="button" value="显示(visible)第二行文字">
+    <input id="btn-console-hide" class="btn btn-default btn-lg" type="button" value="隐藏(hide)第二行文字">
+    <input id="btn-console-show" class="btn btn-default btn-lg" type="button" value="显示(show)第二行文字">
+    <input id="btn-console-getattr" class="btn btn-default btn-lg" type="button" value="输出第三行第二格的data-tips属性到控制台">
+    <input id="btn-console-setattr" class="btn btn-default btn-lg" type="button" value="改变第三行第二格的data-tips属性">
+    <input id="btn-console-setstyle" class="btn btn-default btn-lg" type="button" value="设置第二行第二格的style属性设置border:1px solid red;">
+    <input id="btn-console-gettyle" class="btn btn-default btn-lg" type="button" value="输出第二行第二格的style属性border属性值到控制台">
+    <input id="btn-console-more" class="btn btn-default btn-lg btn-danger" type="button" value="更多API请参考docs文档说明">
+
+    <script data-main='./js/uitool_1' src="./js/require.js"></script>
+</body>
+
+</html>
