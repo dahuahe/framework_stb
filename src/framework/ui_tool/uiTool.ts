@@ -260,13 +260,19 @@ export class HElement implements IHElement {
             return false;
         }
     }
-    children(keyword = ""): IHElement {
+    children(): IHElement;
+    children(keyword: string): IHElement;
+    children(keyword?: string): IHElement {
 
-        let eles = this.eles, retuList: HTMLElement[] = [];
+        let eles = this.eles, retuList: HTMLElement[] = [], tagName: string, className: string;
 
-        keyword = keyword.replace(/\s/g, "");
+        if (keyword) {
 
-        let tagName = keyword.toUpperCase(), className = "." === keyword.substr(0, 1) ? keyword.substr(1, keyword.length) : "";
+            keyword = keyword.replace(/\s/g, "");
+
+            tagName = keyword.toUpperCase(), className = "." === keyword.substr(0, 1) ? keyword.substr(1, keyword.length) : "";
+
+        }
 
         eles.forEach((v) => {
             let data = v.childNodes, len = data.length, item: any;
@@ -276,7 +282,7 @@ export class HElement implements IHElement {
                 item = data[i];
                 if (item.nodeType === 1) {
                     // all children node
-                    if (!keyword) {
+                    if (undefined === keyword) {
                         retuList.push(item);
                     }
                     // className
@@ -295,7 +301,6 @@ export class HElement implements IHElement {
                 }
             }
         });
-
         return new HElement(retuList);
     }
     eq(index: number): IHElement {

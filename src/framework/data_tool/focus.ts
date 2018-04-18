@@ -1,17 +1,23 @@
-
 /**
- * 更新时间：2018年4月12日 14点45分
+ * 更新时间：2018年4月18日 10点48分
  * 模块分类：焦点管理
  * 模块说明：规范 Focus 最小原则 对于 width 1 height 1 元素尽可能不创建Focus 对象，因为基本无意义还多余资源与精力去管理
+ * 代码版本：v2.0.2
  */
-import { Key, Extend } from './dataTool';
+import { Key, Extend, Guid, Json, SetTimeout } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
 import { PageEvent, PageType } from './pageEvent';
-import { SetTimeout } from './dataTool';
+import { Dictionary } from './collection';
 const FocusType = {
     Changed: 'FocusType.Changeed'
 }
+
 class Site implements ISite {
+    /**
+     * 共有的坐标（优先）
+     */
+    public common: ISite;
+    public guid: string;
     public x: number = null;
     public y: number = null;
     public index: number = null;
@@ -69,6 +75,10 @@ interface IFocusSetting {
      * 离开某单元格触发
      */
     enableSite?: Function
+    /**
+     * 横跨列纵跨行
+     */
+    span?: { index: number, colspan?: number, rowspan?: number }[]
 }
 /**
  * @desc 移动对象，页面元素组的内存映射地图表。关联/控制页面元素
@@ -131,6 +141,126 @@ class Focus {
         let xRow = this.setting.height;
         let yCol = this.setting.width;
 
+        // 扩展：span 配置
+        // 创建数组 保存 GUID 跨行数据 跨列数据
+
+        // colspan
+        // 转换数组 生成唯一 GUID 保存对应 HTMLElement 对象，将跨越动作数据加入创建的数组中
+        // 便利跨越数据数组，根据GUID便利转换后数组，执行添加数据操作，先执行跨列操作，再进行跨行操作
+
+        // rowspan
+        // 转换数组 生成唯一 GUID 保存对应 HTMLElement 对象，将跨越动作数据加入创建的数组中
+        // 便利跨越数据数组，根据GUID便利转换后数组，执行添加数据操作，先执行跨列操作，再进行跨行操作
+
+        // 转为为 HElement 对象执行后续操作
+
+        // 创建数组 保存 GUID 跨行数据 跨列数据
+        let spans = this.setting.span, constConvertDatas: { ele: HTMLElement, guid: string }[] = [], convertDatas: { ele: HTMLElement, guid: string }[] = [], spanDatas: { guid: string, length: number }[] = [], countHtmlSpans: HTMLElement[] = [];
+        let spanLen = (spans && spans.length) ? spans.length : 0;
+
+        // 扩展：span 配置
+        if (spans && spans.length) {
+            let len = ele.length, g = new Guid(), guid: string, colspan = 0, rowspan = 0;
+
+            // colspan
+            // 将跨越动作数据加入创建的数组中
+            for (let i = 0; i < len; i++) {
+                colspan = 0;
+                rowspan = 0;
+                guid = g.getGuid();
+                // 转换数组 生成唯一 GUID 保存对应 HTMLElement 对象
+                convertDatas.push({ ele: ele.get(i), guid: guid });
+                constConvertDatas.push({ ele: ele.get(i), guid: guid });
+
+                if (spans.some((v) => {
+                    if (i === v.index && 1 < v.colspan) {
+                        colspan = v.colspan - 1;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })) {
+                    spanDatas.push({ guid: guid, length: colspan });
+                }
+            }
+            // 便利跨越数据数组，根据GUID便利转换后数组，执行添加数据操作，先执行跨列操作，再进行跨行操作
+            if (constConvertDatas.length && spanDatas.length) {
+
+                let data = convertDatas, len = data.length, item;
+
+                spanDatas.forEach((v) => {
+                    for (let i = 0; i < len; i++) {
+                        item = data[i];
+                        if (item.guid === v.guid) {
+                            // 先执行跨列操作
+                            if (undefined !== v.length) {
+                                for (let i_2 = 0; i_2 < v.length; i_2++) {
+                                    data.splice(i, 0, item);
+                                }
+                            }
+                            // 再进行跨行操作
+                            break;
+                        }
+                    }
+                });
+            }
+
+            let data = constConvertDatas; len = data.length;
+            spanDatas.length = 0;
+            let width = yCol || 0;
+
+            // 无限宽不做跨行处理
+            if (0 !== width) {
+                // rowspan
+                // 将跨越动作数据加入创建的数组中
+                for (let i = 0; i < len; i++) {
+                    colspan = 0;
+                    rowspan = 0;
+                    guid = data[i].guid;
+
+                    if (spans.some((v) => {
+
+                        if (i === v.index && 1 < v.rowspan) {
+                            rowspan = v.rowspan - 1;
+
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    })) {
+                        spanDatas.push({ guid: guid, length: rowspan });
+                    }
+                }
+                // 便利跨越数据数组，根据GUID便利转换后数组，执行添加数据操作，先执行跨列操作，再进行跨行操作
+                if (constConvertDatas.length && spanDatas.length) {
+
+                    let data = convertDatas, len = data.length, item;
+
+                    spanDatas.forEach((v) => {
+                        for (let i = 0; i < len; i++) {
+                            item = data[i];
+
+                            if (item.guid === v.guid) {
+
+                                // 进行跨行操作
+                                if (undefined !== v.length) {
+                                    for (let i_2 = 0; i_2 < v.length; i_2++) {
+                                        data.splice(i + width, 0, item);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    });
+                }
+            }
+
+            // 转为为 HElement 对象执行后续操作
+            ele = new HElement(convertDatas.map((v) => {
+                return v.ele;
+            }));
+        }
+
         //至少生成一行
         if (xRow === 0 && yCol === 0)
             xRow = 1;
@@ -168,14 +298,22 @@ class Focus {
                 for (let j = 0; j < yCol; j++) {
                     //创建单元格
                     if (index < ele.length) {
-                        let site = new Site(), item = ele.eq(index);
+                        let site = new Site();
                         site.x = i;
                         site.y = j;
                         site.index = index;
-                        site.element = item;
+
+                        if (spans && spanLen) {
+                            let item = convertDatas[index];
+                            site.element = new HElement(item.ele);
+                            site.guid = item.guid;
+                        } else {
+                            site.element = ele.eq(index);
+                        }
+
                         yArr.push(site);
                         this.dataArray.push(site);
-                        this.listHElement.push(item);
+                        this.listHElement.push(site.element);
                     } else {
                         break;
                     }
@@ -193,6 +331,25 @@ class Focus {
         } while (isAll);
         //根据数据源无线填充高度
 
+        // 为 common 属性赋值
+        if (spans && spans.length) {
+            let data = this.dataArray, len = data.length;
+
+            let star = false, item;
+            data.forEach((v) => {
+                star = false;
+                for (let i = 0; i < len; i++) {
+                    item = data[i];
+                    if (v.guid === item.guid) {
+                        if (!star) {
+                            star = true;
+                        } else {
+                            item.common = v;
+                        }
+                    }
+                }
+            });
+        }
         //生成实体
         return xArr;
     }
@@ -225,6 +382,7 @@ class Focus {
         });
     }
     private onChange(args: any) {
+
         if (args.result === 'failure') {
             // 处理焦点移交规则 如果成功不触发当前 change 事件 如果失败 将流程转交给 内部移动规则处理
             let autoTarget = this.handlerAutoTarget(args);
@@ -267,6 +425,7 @@ class Focus {
                 keyCode: args.keyCode,
                 fromSystem: true
             }
+
             this.event.trigger(this.setting.identCode, FocusType.Changed, res);
         }
     }
@@ -275,7 +434,7 @@ class Focus {
         // 合法参数 key.left key.up key.right key.dn
         let keyCode = res.keyCode;
         if (keyCode === Key.Left || keyCode === Key.Up || keyCode === Key.Right || keyCode === Key.Down) {
-            this.setSite([keyCode]);
+            this.setSite(keyCode, "common");
         }
     }
     private onFocus() {
@@ -353,6 +512,7 @@ class Focus {
     public setSite(x: number, y: 'first'): void;
     // 根据语义与x,y的配合获取
     public setSite(x: number, y: 'last'): void;
+    public setSite(keyCode: number, y: "common"): void;// keyCode => 34,56,32,32...
     public setSite(valOne?: string | number | Site | [number] | 'first' | 'last', valTwo?: string | number | 'first' | 'last') {
         let retSite: Site = null;
         if (!this.instanceStatus)
@@ -365,6 +525,9 @@ class Focus {
             // The current command is forbidden
             if (valOne[i] === Key.Left || valOne[i] === Key.Up || valOne[i] === Key.Right || valOne[i] === Key.Down)
                 keyCode = valOne[i];
+        }
+        else if (typeof valOne === "number" && valTwo === "common") {
+            keyCode = valOne;
         }
 
         let isExecuteAutoFill = true;
@@ -410,6 +573,8 @@ class Focus {
     public getSite(x: number, y: 'first'): Site;
     // 根据语义与x,y的配合获取
     public getSite(x: number, y: 'last'): Site;
+    // 根据 common 获取相邻坐标
+    public getSite(keyCode: number, y: "common"): Site;// keyCode => 34,56,32,32...
     public getSite(valOne?: string | number | Site | [number] | 'first' | 'last', valTwo?: string | number | 'first' | 'last'): Site {
         let ret: Site = null;
 
@@ -529,10 +694,209 @@ class Focus {
         }
         // public getSite(x: number, y: 'last');
         else if (typeof valOne === 'number' && valTwo === 'last') {
-
             ret = this.map[valOne][this.map[valOne].length - 1];
         }
-        return ret || null;
+        // public getSite(keyCode: number, y: "common"): Site;// keyCode => 34,56,32,32...
+        else if (typeof valOne == "number" && valTwo === "common") {
+            // 上 | 下 | 左 | 右
+
+            // 找到单条
+            let code = valOne, cur = this.site;
+            if (code === Key.Left) {
+
+                if (this.map[cur.x]) {
+                    let dynamic = this.map[cur.x][cur.y - 1], isRoll = false;
+                    if (dynamic) {
+
+                        if (undefined !== cur.guid) {
+                            if (cur.guid === dynamic.guid) {
+                                isRoll = true;
+                            } else {
+                                if (this.map[dynamic.x] && this.map[dynamic.x][dynamic.y - 1]) {
+                                    if (dynamic.guid === this.map[dynamic.x][dynamic.y - 1].guid) {
+                                        isRoll = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 采用普通单元格获取
+                        if (!isRoll) {
+                            cur = dynamic;
+                        }
+                        // 采用循环获取
+                        else {
+                            let condition = true;
+                            do {
+                                if (this.map[dynamic.x] && this.map[dynamic.x][dynamic.y - 1]) {
+                                    dynamic = this.map[dynamic.x][dynamic.y - 1];
+
+                                    if (dynamic && cur.guid !== dynamic.guid) {
+                                        condition = false;
+                                    }
+                                } else {
+                                    dynamic = null;
+                                    condition = false;
+                                }
+
+                            } while (condition);
+                            cur = dynamic;
+                        }
+                    } else {
+                        cur = null;
+                    }
+
+                } else {
+                    cur = null;
+                }
+            } else if (code === Key.Up) {
+                if (this.map[cur.x - 1]) {
+                    let dynamic = this.map[cur.x - 1][cur.y], isRoll = false;
+                    if (dynamic) {
+
+                        if (undefined !== cur.guid) {
+                            if (cur.guid === dynamic.guid) {
+                                isRoll = true;
+                            } else {
+                                if (this.map[dynamic.x - 1] && this.map[dynamic.x - 1][dynamic.y]) {
+                                    if (dynamic.guid === this.map[dynamic.x - 1][dynamic.y].guid) {
+                                        isRoll = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 采用普通单元格获取
+                        if (!isRoll) {
+                            cur = dynamic;
+                        }
+                        // 采用循环获取
+                        else {
+                            let condition = true;
+                            do {
+
+                                if (this.map[dynamic.x - 1] && this.map[dynamic.x - 1][dynamic.y]) {
+                                    dynamic = this.map[dynamic.x - 1][dynamic.y];
+
+                                    if (dynamic && cur.guid !== dynamic.guid) {
+                                        condition = false;
+                                    }
+                                } else {
+                                    dynamic = null;
+                                    condition = false;
+                                }
+
+
+                            } while (condition);
+                            cur = dynamic;
+                        }
+                    } else {
+                        cur = null;
+                    }
+
+                } else {
+                    cur = null;
+                }
+            } else if (code === Key.Right) {
+                if (this.map[cur.x]) {
+                    let dynamic = this.map[cur.x][cur.y + 1], isRoll = false;
+                    if (dynamic) {
+
+                        if (undefined !== cur.guid) {
+                            if (cur.guid === dynamic.guid) {
+                                isRoll = true;
+                            } else {
+                                if (this.map[dynamic.x] && this.map[dynamic.x][dynamic.y + 1]) {
+                                    if (dynamic.guid === this.map[dynamic.x][dynamic.y + 1].guid) {
+                                        isRoll = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 采用普通单元格获取
+                        if (!isRoll) {
+                            cur = dynamic;
+                        }
+                        // 采用循环获取
+                        else {
+                            let condition = true;
+                            do {
+
+                                if (this.map[dynamic.x] && this.map[dynamic.x][dynamic.y + 1]) {
+                                    dynamic = this.map[dynamic.x][dynamic.y + 1];
+
+                                    if (dynamic && cur.guid !== dynamic.guid) {
+                                        condition = false;
+                                    }
+                                } else {
+                                    dynamic = null;
+                                    condition = false;
+                                }
+
+                            } while (condition);
+                            cur = dynamic;
+                        }
+                    } else {
+                        cur = null;
+                    }
+
+                } else {
+                    cur = null;
+                }
+
+            } else if (code === Key.Down) {
+                if (this.map[cur.x + 1]) {
+                    let dynamic = this.map[cur.x + 1][cur.y], isRoll = false;
+                    if (dynamic) {
+
+                        if (undefined !== cur.guid) {
+                            if (cur.guid === dynamic.guid) {
+                                isRoll = true;
+                            } else {
+                                if (this.map[dynamic.x + 1] && this.map[dynamic.x + 1][dynamic.y]) {
+                                    if (dynamic.guid === this.map[dynamic.x + 1][dynamic.y].guid) {
+                                        isRoll = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 采用普通单元格获取
+                        if (!isRoll) {
+                            cur = dynamic;
+                        }
+                        // 采用循环获取
+                        else {
+                            let condition = true;
+                            do {
+
+                                if (this.map[dynamic.x + 1] && this.map[dynamic.x + 1][dynamic.y]) {
+
+                                    dynamic = this.map[dynamic.x + 1][dynamic.y];
+
+                                    if (dynamic && cur.guid !== dynamic.guid) {
+                                        condition = false;
+                                    }
+                                } else {
+                                    dynamic = null;
+                                    condition = false;
+                                }
+
+                            } while (condition);
+                            cur = dynamic;
+                        }
+                    } else {
+                        cur = null;
+                    }
+
+                } else {
+                    cur = null;
+                }
+            }
+            ret = cur;
+        }
+        return ret;
     }
     public getSites(): Array<Site> {
         return this.dataArray;
@@ -642,13 +1006,16 @@ class Focus {
         let params = args.arguments;
         // 必须在配有焦点移交规则的情况下
         // 必须是在 system.change.site 失败后执行
-        // 必须是keyCode类型(并且没有连续KeyCode指令)
+        // 必须是keyCode类型(并且没有连续KeyCode指令)|keyCode 加 common 命令类型
         // 处理 left up right dn 规则
         if (this.setting.autoTarget && this.setting.autoTarget.length > 0) {
             if (args && args.result === 'failure') {
                 if (params && params instanceof Array && params.length > 0) {
-                    if (params[0] && params[0] instanceof Array && params[0][0] && params[0].length === 1) {
+                    // 
+                    if ((params[0] && params[0] instanceof Array && params[0][0] && params[0].length === 1) || (params.length === 2 && "common" === params[1])) {
+
                         let keyCode = params[0][0];
+                        keyCode = keyCode || params[0];
                         let autoTarget = this.setting.autoTarget;
 
                         if (Key.Left == keyCode || Key.Up == keyCode || Key.Right == keyCode || Key.Down == keyCode) {
@@ -767,7 +1134,7 @@ class Focus {
         for (var i = 0; i < map.length; i++) {
             let temp = '';
             for (let j = 0; j < map[i].length; j++) {
-                temp += map[i][j]['x'] + ':' + map[i][j]['y'] + ':' + map[i][j]['index'] + '|';
+                temp += map[i][j]['x'] + ':' + map[i][j]['y'] + ':' + map[i][j]['index'] + `(${map[i][j].guid.substr(0, 3)})|`;
             }
             console.log(temp + '/n');
         }

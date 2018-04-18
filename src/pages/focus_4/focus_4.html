@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 盒子开发时应用该设定 720P -->
+    <meta name="page-view-size" content="1280*720">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/focus_4.css">
+</head>
+
+<body>
+    <h1>Focus 对象非矩形视图使用演示</h1>
+    <small>设计思路参考于 html table 标签 所配合 colspan rowspan 属性使用效果 因此这里采用 table 标签布局进行演示</small>
+
+    <table id="tab">
+        <thead></thead>
+        <tbody>
+            <tr>
+                <td colspan="2">1</td>
+                <td rowspan="2">2</td>
+                <td colspan="2">3</td>
+                <td rowspan="2">4</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr />
+    <table id="tab-bottom">
+        <thead></thead>
+        <tbody>
+            <tr>
+                <td rowspan="2">1</td>
+                <td colspan="4">2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script data-main='./js/focus_4' src="./js/require.js"></script>
+</body>
+
+</html>

@@ -122,12 +122,15 @@ interface IHElement {
     hidden(): this;
     visible(): this;
     hasClass(clasName: string): boolean;
+    children(): IHElement;
     children(keyword: string): IHElement;
     eq(index: number): IHElement;
     get(index: number): HTMLElement;
 }
 // 焦点对象事件回掉参数类型
 interface ISite {
+    common: ISite;
+    guid: string;
     x: number;
     y: number;
     index: number;

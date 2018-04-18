@@ -29,7 +29,6 @@ focLeft.initData(new HElement("#con-lf").children("div"));
 
 // 订阅坐标改变事件
 pageEvent.on(MType.Left, FocusType.Changed, (e: IChanged) => {
-
     // 获取当前坐标对象
     let site = focLeft.getSite();
 
