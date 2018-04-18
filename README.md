@@ -1,7 +1,7 @@
 # framework_stb
-- 最后编辑时间：2018年4月16日 17点55分
+- 最后编辑时间：2018年4月18日 17点57分
 - 作者联系方式：QQ 442331311
-- 面向机顶盒开发的框架库 相对完善的底层库封装 常用业务模块(焦点、翻页、缓存、播放器、事件分发、自定义组建扩展) 并持续更新中...
+- 面向机顶盒开发的框架库 相对完善的底层库封装(Json序列化、Guid、Random、KeyCode、funckLock、SetTimeout、SetInterval、Cookie、PageSource、FormatTime)常用业务模块(焦点、翻页、缓存、播放器、事件分发、自定义组建扩展) 并持续更新中...
 
 # 框架结构
 ├─dist                      // 输出目录
@@ -36,6 +36,68 @@
     gulp model --文件名称   // 创建文件
     gulp logic --文件名称   // 创建文件
 
+
+# 设计思路
+    单一职责
+        单一职责的描述如下：
+        A class should have only one reason to change
+        类发生更改的原因应该只有一个
+
+        dataTool.ts 基础库
+        整个体系中最小单位对象。仅有一个或一组紧密相关的行为为一个主题服务。通过解耦使每个职责更加有弹性的变化
+
+        focus.ts 焦点对象
+        职责是初始化一组矩阵焦点与页面焦点映射关联。且具备一组对该矩阵图相关的职责属性方法
+
+        model 系列对象
+        实体类主要是作为数据管理和业务逻辑处理层面上存在的类别;
+        某个实体对象可与另一个实体对象关联，但他们都遵循单一职责，每个实体对象的定义都应该围绕一个主题且属性不可再分
+
+        ...
+
+    开闭原则
+        开闭原则的描述如下：
+        Software entities (classes, modules, functions, etc.) should be open for extension but closed for modification.
+        软件实体（类，模块，方法等等）应当对扩展开放，对修改关闭，即软件实体应当在不修改的前提下扩展。
+
+        pageEvent.ts 事件管理对象
+        采用事件订阅模式，也称观察者模式。同时也是 MVC 框架中各模块间通信的中间对象，订阅者仅关心在处理地方订阅并处理即可。增加其他事件类型也不用修改源码而只是订阅新的事件（Key、PageEventType、FocusType等等）。
+
+        ...
+
+    里氏替换原则
+        里氏替换原则的描述如下：
+        Subtypes must be substitutable for their base types.
+        派生类型必须可以替换它的基类型。 
+
+        module.ts 系列模块
+        将页面所有焦点元素作为一个或多个模块进行管理 Module 对象作为基类为模块提供基本约束 initialize 和 subscribeToEvents 子类实现这两个方法实现对 pageEvent 订阅和处理相关业务逻辑。在此基础上可实现更为复杂的 Module 模块作为基类被子类继承，但未子类提供处理更复杂业务的能力
+
+        ...
+    
+    接口隔离原则
+    
+    依赖反转原则
+
+# Less 框架结构（Bootstrap v3.3.7）
+    通用 CSS
+        Print media styles
+        Typography
+        Code
+        Grid system
+        Forms
+        Buttons
+        Responsive utilities
+    组件
+        Navs
+        Thumbnails
+        Alerts
+        List groups
+        Panels
+    JS组建
+        Tabs
+        Progressbar
+
 # 盒子与浏览器差异
 - 盒子关机后 cookie 清空（通常）
 - launcher 相关方法不要通过闭包或 require 加载，出现接口无法访问问题
@@ -52,11 +114,12 @@
 - 更新 引入定制版 Bootstrap 包括基本通用样式 组件样式（导航、缩略图以及自定义缩略图样式、警告框、进度条（自己去实现，作为JS组建）、列表组（以及加徽章或者图标）、tabs（自己实现，作为js组件）、徽章
 - 执行性能检测
 - 更改 Focus 对象算法以 Dome 坐标为基础
+- 新增 positon 方法
 
 # 更新日志
 **2018年4月18日 11点39分 v2.0.2**
 - 更新 Focus 模块兼容非矩形焦点组
-- 新增 layout 布局框架引入定制版 Bootstrap 通用样式 组件样式（导航、缩略图以及自定义缩略图样式、警告框、进度条（自己去实现，作为JS组建）、列表组（以及加徽章或者图标）、tabs（自己实现，作为js组件）、徽章
+- 新增 layout 布局框架引入定制版 Bootstrap 通用样式 组件样式（导航、缩略图以及自定义缩略图样式、警告框、进度条（自己去实现，作为JS组建）、列表组（以及加徽章或者图标）、tabs（自己实现，作为js组件）、徽章、媒体对象
 
 **2018年4月16日 10点44分 v2.0.1**
 - 更新 Focus 模块 setSite 方法（设置坐标）如果当前焦点非当前模块时不做添加样式操作;调整 initData 参数为 HElement 对象
@@ -166,67 +229,6 @@
 - √ PageEvent 增加初始化时 targetName 属性可以为 null 意思是当前页面无焦点。然后通过 target 方法在需要地方手动设置
 - √ EventMeitter 加入队列管理事件执行队列与顺序（发射器）
 - √ PageEvent 定义日志打印接口并且实现相应逻辑，订阅 * - PageEventType.Error 通过浏览器函数 console.log() 输出日志
-
-# 设计思路
-    单一职责
-        单一职责的描述如下：
-        A class should have only one reason to change
-        类发生更改的原因应该只有一个
-
-        dataTool.ts 基础库
-        整个体系中最小单位对象。仅有一个或一组紧密相关的行为为一个主题服务。通过解耦使每个职责更加有弹性的变化
-
-        focus.ts 焦点对象
-        职责是初始化一组矩阵焦点与页面焦点映射关联。且具备一组对该矩阵图相关的职责属性方法
-
-        model 系列对象
-        实体类主要是作为数据管理和业务逻辑处理层面上存在的类别;
-        某个实体对象可与另一个实体对象关联，但他们都遵循单一职责，每个实体对象的定义都应该围绕一个主题且属性不可再分
-
-        ...
-
-    开闭原则
-        开闭原则的描述如下：
-        Software entities (classes, modules, functions, etc.) should be open for extension but closed for modification.
-        软件实体（类，模块，方法等等）应当对扩展开放，对修改关闭，即软件实体应当在不修改的前提下扩展。
-
-        pageEvent.ts 事件管理对象
-        采用事件订阅模式，也称观察者模式。同时也是 MVC 框架中各模块间通信的中间对象，订阅者仅关心在处理地方订阅并处理即可。增加其他事件类型也不用修改源码而只是订阅新的事件（Key、PageEventType、FocusType等等）。
-
-        ...
-
-    里氏替换原则
-        里氏替换原则的描述如下：
-        Subtypes must be substitutable for their base types.
-        派生类型必须可以替换它的基类型。 
-
-        module.ts 系列模块
-        将页面所有焦点元素作为一个或多个模块进行管理 Module 对象作为基类为模块提供基本约束 initialize 和 subscribeToEvents 子类实现这两个方法实现对 pageEvent 订阅和处理相关业务逻辑。在此基础上可实现更为复杂的 Module 模块作为基类被子类继承，但未子类提供处理更复杂业务的能力
-
-        ...
-    
-    接口隔离原则
-    
-    依赖反转原则
-
-# Less 框架结构（Bootstrap v3.3.7）
-    通用 CSS
-        Print media styles
-        Typography
-        Code
-        Grid system
-        Forms
-        Buttons
-        Responsive utilities
-    组件
-        Navs
-        Thumbnails
-        Alerts
-        List groups
-        Panels
-    JS组建
-        Tabs
-        Progressbar
 
 # 应用项目
 - 安徽文艺演出（2017）

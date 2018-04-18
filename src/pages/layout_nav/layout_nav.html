@@ -12,67 +12,67 @@
     <link rel="stylesheet" href="./css/layout_nav.css">
 </head>
 
-<body id="page">
-    <h1>标签页</h1>
-    <ul class="nav nav-tabs">
-        <li role="presentation" class="active">
-            <a href="#">Home</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Profile</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Messages</a>
-        </li>
-    </ul>
-    <h1>胶囊式标签页</h1>
-    <ul class="nav nav-pills">
-        <li role="presentation" class="active">
-            <a href="#">Home</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Profile</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Messages</a>
-        </li>
-    </ul>
-    <h3>胶囊是标签页也是可以垂直方向堆叠排列的。只需添加 .nav-stacked 类。</h3>
-    <ul class="nav nav-pills nav-stacked">
-        <li role="presentation" class="active">
-            <a href="#">Home</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Profile</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Messages</a>
-        </li>
-    </ul>
-    <h3>两端对齐的标签页</h3>
-    <ul class="nav nav-pills nav-justified">
-        <li role="presentation" class="active">
-            <a href="#">Home</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Profile</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Messages</a>
-        </li>
-    </ul>
-    <h3>添加 .disabled 类，从而实现链接为灰色且没有鼠标悬停效果。</h3>
-    <ul class="nav nav-pills nav-justified">
-        <li role="presentation" class="active">
-            <a href="#">Home</a>
-        </li>
-        <li role="presentation">
-            <a href="#">Profile</a>
-        </li>
-        <li role="presentation" class="disabled">
-            <a href="#">Messages</a>
-        </li>
-    </ul>
+<body>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            导航
+        </div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active">
+                    <a href="#">Home</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Profile</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Messages</a>
+                </li>
+            </ul>
+
+            <hr/>
+            <ul class="nav nav-pills">
+                <li role="presentation" class="active">
+                    <a href="#">Home</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Profile</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Messages</a>
+                </li>
+            </ul>
+
+
+            <hr/>
+
+            <ul class="nav nav-pills nav-stacked">
+                <li role="presentation" class="active">
+                    <a href="#">Home</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Profile</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Messages</a>
+                </li>
+            </ul>
+
+            <hr/>
+
+            <ul class="nav nav-pills nav-justified">
+                <li role="presentation" class="active">
+                    <a href="#">Home</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Profile</a>
+                </li>
+                <li role="presentation">
+                    <a href="#">Messages</a>
+                </li>
+            </ul>
+        </div>
+    </div>
     <script data-main='./js/layout_nav' src="./js/require.js"></script>
 </body>
 
