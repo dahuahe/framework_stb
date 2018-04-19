@@ -467,6 +467,7 @@ export var Random = {
 export const enum Key {
     Backspace = 8,
     Enter = 13,
+    Spacing = 32,
 
     PageUp = 33,
     PageDown = 34,

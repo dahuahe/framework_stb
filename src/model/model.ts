@@ -1,5 +1,5 @@
-// import { CategoryEntity, CategoryType } from "";
+import { TetrisType, TetrisEntity } from "./tetrisEntity";
 
-// export {
-
-// }
+export {
+    TetrisType, TetrisEntity
+}

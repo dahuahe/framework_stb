@@ -560,7 +560,7 @@ class Focus {
     // 根据x and y 获取
     public getSite(x: number, y: number): Site;
     // 根据键码获取
-    public getSite(keyCode: [number]): Site;// keyCode => 34,56,32,32...
+    public getSite(keyCode: number[]): Site;// keyCode => 34,56,32,32...
     // 根据语义命令获取
     public getSite(target: 'first' | 'last'): Site;
     // 根据语义命令并加条件
@@ -575,7 +575,7 @@ class Focus {
     public getSite(x: number, y: 'last'): Site;
     // 根据 common 获取相邻坐标
     public getSite(keyCode: number, y: "common"): Site;// keyCode => 34,56,32,32...
-    public getSite(valOne?: string | number | Site | [number] | 'first' | 'last', valTwo?: string | number | 'first' | 'last'): Site {
+    public getSite(valOne?: string | number | Site | number[] | 'first' | 'last', valTwo?: string | number | 'first' | 'last'): Site {
         let ret: Site = null;
 
         if (!this.instanceStatus)
@@ -677,7 +677,9 @@ class Focus {
         }
         // Get the site by x and y
         else if (typeof valOne === 'number' && typeof valTwo === 'number') {
-            ret = this.map[valOne][valTwo];
+            if (this.map[valOne] && this.map[valOne][valTwo]) {
+                ret = this.map[valOne][valTwo];
+            }
         }
         // Get the site by x and y public getSite(x: 'first', y: number);
         else if (valOne === 'first' && typeof valTwo === 'number') {
@@ -689,7 +691,6 @@ class Focus {
         }
         // public getSite(x: number, y: 'first');
         else if (typeof valOne === 'number' && valTwo === 'first') {
-
             ret = this.map[valOne][0];
         }
         // public getSite(x: number, y: 'last');
@@ -1172,6 +1173,12 @@ class Focus {
     }
     getSetting() {
         return this.setting;
+    }
+    forEachRow(c: (v: ISite[], i: number) => void) {
+        let map = this.map;
+        for (var i = 0; i < map.length; i++) {
+            c(map[i], i);
+        }
     }
 }
 export { Site, Focus, FocusType }

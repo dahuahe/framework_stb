@@ -1,0 +1,38 @@
+html,
+body {
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    font-family: "微软雅黑";
+    line-height: 1;
+    background-color: transparent;
+}
+
+* {
+    list-style: none;
+}
+
+#page {
+    background-image: url("../images/tetris/bg.png");
+}
+
+#container {
+    margin: 20px auto;
+    width: 596px;
+    height: 596px;
+    border: 1px solid green;
+    box-shadow: 0 0 30px 5px green;
+    &>div {
+        float: left;
+        width: 33px;
+        height: 33px;
+        border: 1px solid transparent;
+        &.focus {
+            background-image: url("../images/tetris/piece.png");
+        }
+    }
+    
+}
+#btn-start{
+    margin-left: 20%;
+}

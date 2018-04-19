@@ -306,8 +306,14 @@ export class HElement implements IHElement {
     eq(index: number): IHElement {
         return new HElement(this.eles[index]);
     }
-    get(index: number): HTMLElement {
-        return this.eles[index];
+    get(): HTMLElement[];
+    get(index: number): HTMLElement;
+    get(index?: number) {
+        if (undefined !== index) {
+            return this.eles[index];
+        } else {
+            return this.eles;
+        }
     }
 }
 /**
@@ -611,7 +617,7 @@ export function Position(el: HTMLElement) {
     var box = el.getBoundingClientRect();
     var x = window.pageXOffset;
     var y = window.pageYOffset;
-    
+
     return {
         top: box.top + y,
         right: box.right + x,

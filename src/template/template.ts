@@ -30,13 +30,13 @@ class DefaultModule extends Module {
         this.initialize();
         this.subscribeToEvents();
     }
-    initialize() {
+    protected initialize() {
         this.foc = new Focus({
             identCode: MType.Default,
             className: "focus"
         }, this.event);
     }
-    subscribeToEvents() {
+    protected subscribeToEvents() {
     }
     loadData() {
     }
