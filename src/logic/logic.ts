@@ -1,3 +1,3 @@
-import { } from "";
+import { MapLogic, SquareTetris, TriangleTetris, LineTetris, SevenTetris, TetrisBasic } from "./TetrisLogic";
 
-export { }
+export { MapLogic, SquareTetris, TriangleTetris, LineTetris, SevenTetris, TetrisBasic }

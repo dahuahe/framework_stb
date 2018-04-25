@@ -1,7 +1,7 @@
 /// <reference path="./interfaces.ts"/>
 
 import { AppEvent } from "./data_tool/appEvent";
-import { Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue } from "./data_tool/collection";
+import { Dictionary, DoublyLinkedNode, DoublyLinkedList, Queue, Set } from "./data_tool/collection";
 import { EventEmitter } from "./data_tool/eventEmitter";
 import { Mediator } from "./data_tool/mediator";
 import { FormatTime, FuncLock, PageSource, ParseUrl, Key, SetInterval, SetTimeout, Extend, Random, FormatUrl, Guid, Json, ConvertKey, Cookie } from "./data_tool/dataTool";
@@ -24,5 +24,5 @@ export {
     Module, ModulePage,
     Paging, PagingHelper,
     Site, Focus, FocusType,
-    Position
+    Position, Set
 };

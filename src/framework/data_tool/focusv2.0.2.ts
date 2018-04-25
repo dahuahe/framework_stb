@@ -575,7 +575,9 @@ class Focus {
     public getSite(x: number, y: 'last'): Site;
     // 根据 common 获取相邻坐标
     public getSite(keyCode: number, y: "common"): Site;// keyCode => 34,56,32,32...
-    public getSite(valOne?: string | number | Site | number[] | 'first' | 'last', valTwo?: string | number | 'first' | 'last'): Site {
+    // 根据 指定坐标相对键码获取
+    public getSite(index: number, keyCode: number[]): Site;
+    public getSite(valOne?: string | number | Site | number[] | 'first' | 'last', valTwo?: string | number | 'first' | 'last' | number[]): Site {
         let ret: Site = null;
 
         if (!this.instanceStatus)
@@ -643,6 +645,53 @@ class Focus {
                     }
                 }
                 ret = Focus.equal(currSite, this.site) ? null : currSite;
+            }
+        }
+        // Get the site by index and keyCode
+        else if (typeof valOne === "number" && valTwo instanceof Array) {
+            // 上 | 下 | 左 | 右
+            let codeArr = valTwo;
+
+            // 找到单条或多条单元格信息
+            if (codeArr.length > 0) {
+                let currSite = this.getSite(valOne);
+                if (currSite) {
+                    for (let i = 0; i < codeArr.length; i++) {
+                        let code = codeArr[i];
+                        if (currSite) {
+
+                            if (code === Key.Left) {
+                                if (this.map[currSite.x]) {
+                                    currSite = this.map[currSite.x][currSite.y - 1];
+                                } else {
+                                    currSite = null;
+                                }
+                            } else if (code === Key.Up) {
+                                if (this.map[currSite.x - 1]) {
+                                    currSite = this.map[currSite.x - 1][currSite.y];
+                                } else {
+                                    currSite = null;
+                                }
+                            } else if (code === Key.Right) {
+                                if (this.map[currSite.x]) {
+                                    currSite = this.map[currSite.x][currSite.y + 1];
+                                } else {
+                                    currSite = null;
+                                }
+
+                            } else if (code === Key.Down) {
+                                if (this.map[currSite.x + 1]) {
+                                    currSite = this.map[currSite.x + 1][currSite.y];
+                                } else {
+                                    currSite = null;
+                                }
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                    ret = currSite;
+                }
             }
         }
         // Get the site by 'first' | 'last'
@@ -1177,7 +1226,11 @@ class Focus {
     forEachRow(c: (v: ISite[], i: number) => void) {
         let map = this.map;
         for (var i = 0; i < map.length; i++) {
-            c(map[i], i);
+            let temp: Site[] = [];
+            for (let j = 0; j < map[i].length; j++) {
+                temp.push(map[i][j]);
+            }
+            c(temp, i);
         }
     }
 }

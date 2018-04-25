@@ -13,7 +13,28 @@ body {
 }
 
 #page {
+    position: relative;
+    width: 1025px;
+    height: 650px;
     background-image: url("../images/tetris/bg.png");
+    background-position-y: 0px;
+    background-repeat: no-repeat;
+}
+
+.animation {
+    animation: transBg 70s linear infinite;
+}
+
+@keyframes transBg {
+    0% {
+        background-position-y: 0px;
+    }
+    50% {
+        background-position-y: -920px;
+    }
+    100% {
+        background-position-y: 0px;
+    }
 }
 
 #container {
@@ -29,10 +50,34 @@ body {
         border: 1px solid transparent;
         &.focus {
             background-image: url("../images/tetris/piece.png");
+            background-size: 100% 100%;
         }
     }
-    
 }
-#btn-start{
-    margin-left: 20%;
+
+#panel {
+    position: absolute;
+    top: 200px;
+    right: 0;
+    width: 170px;
+    height: 200px;
+    div {
+        margin-bottom: 20px;
+    }
+    .btn {
+        width: 191px;
+        height: 83px;
+        float: right;
+        background-image: url("../images/tetris/bg_btn.png");
+        background-size: 100% 100%;
+        background-color: transparent;
+        color: green;
+        line-height: 83px;
+        border: none;
+    }
+    span {
+        display: inline-block;
+        width: 96px;
+        text-align: right;
+    }
 }

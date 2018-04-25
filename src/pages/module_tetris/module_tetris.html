@@ -7,7 +7,7 @@
     <!-- 盒子开发时应用该设定 720P -->
     <meta name="page-view-size" content="1280*720">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>俄罗斯方块</title>
     <link rel="stylesheet" href="./css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/module_tetris.css">
 </head>
@@ -339,9 +339,18 @@
         <div></div>
         <div></div>
     </div>
-
-    <div class="btn btn-info" id="btn-start">开始游戏</div>
-    <div class="btn btn-info" id="btn-reload">重新开始</div>
+    <div id="panel">
+        <div class="label">
+            <span>得分：</span>
+            <strong id="txt-score" class="text-danger">0</strong>
+        </div>
+        <div class="label">
+            <span>历史最高分：</span>
+            <strong class="text-danger">10000</strong>
+        </div>
+        <div class="btn btn-info" id="btn-start">开始游戏</div>
+        <div class="btn btn-info" id="btn-reload">重新开始</div>
+    </div>
     <script data-main='./js/module_tetris' src="./js/require.js"></script>
 </body>
 

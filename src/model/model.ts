@@ -1,5 +1,5 @@
-import { TetrisType, TetrisEntity } from "./tetrisEntity";
+import { TetrisType, TransformType } from "./tetrisEntity";
 
 export {
-    TetrisType, TetrisEntity
+    TetrisType, TransformType
 }
