@@ -59,7 +59,7 @@ const Util = {
 
 /**
  * 设备配置映射
- * type：厂商
+ * type：厂商 安徽盒子
  * is4K：是否是4k盒子
  * needAnimate：加载页面是否需要动画效果
  * supportSmallWin：是否支持小窗口播放视频
