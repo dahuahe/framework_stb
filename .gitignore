@@ -3,7 +3,6 @@ node_modules
 .vscode
 
 dist/*
-!dist/images
 
 npm-debug.log
 
