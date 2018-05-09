@@ -1,6 +1,6 @@
 # framework_stb
-- 版本号：v2.0.2
-- 最后编辑时间：2018年4月18日 11点39分 
+- 版本号：v2.0.3
+- 最后编辑时间：2018年5月9日 16点48分
 - 作者联系方式：QQ 442331311
 - 面向机顶盒开发的框架库 相对完善的底层库封装(Json序列化、Guid、Random、KeyCode、funckLock、SetTimeout、SetInterval、Cookie、PageSource、FormatTime)常用业务模块(焦点、翻页、缓存、播放器、事件分发、自定义组建扩展) 并持续更新中...
 
