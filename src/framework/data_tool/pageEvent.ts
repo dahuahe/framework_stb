@@ -1,14 +1,7 @@
 /**
- * 修改：2017年9月5日11:33:59
- * 版本：v1.0.2
- * 内容：√1.PageEvent 焦点移交，若目标模块没有订阅，加入异常提示
- *      √2.针对常用 focus blur keydown 事件做封装并且可扩展
- *      √3.针对 focus 添加来源对象
- *      √4.取消 Mediator 中介器 改用 EventMeitter 发射器代替(可支持同一事件被多个地方订阅)
- *      √5.移除 v1.0.0 system.${ele.topic}.${targetName} 方式订阅内部处理事件 改用发射器订阅 执行方式仍然是 模块封装的自动行为执行 > 开发者自定义事件处理执行
- *      √6.增加初始化 targetName 可以为 null 禁用默认焦点的设置
- *      √7.多个模块具有同一功能，比如返回、确定等。新增同一处理入口
- *      √8.加入队列管理事件执行队列与顺序
+ * 创建作者：张诗涛
+ * 创建时间：2017年9月5日11:33:59
+ * 模块分类：事件管理
  */
 import { Mediator } from './mediator';
 import { EventEmitter } from './eventEmitter';

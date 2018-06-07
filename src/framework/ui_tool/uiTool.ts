@@ -1,8 +1,6 @@
 
 /**
- * 更新时间：2018年4月12日 14点39分
- * 模块分类：HTML View 插件
- * 模块说明：以 HTMLElement 为基础，将常用动作抽象为多个模块进行管理复用
+ * 模块分类：基于 HTMLElement 节点对象的封装
  */
 import { SetInterval, SetTimeout } from '../data_tool/dataTool';
 
@@ -315,6 +313,16 @@ export class HElement implements IHElement {
             return this.eles;
         }
     }
+    eqAll(): IHElement[] {
+        let eles: IHElement[] = [];
+        this.eles.forEach((v, i) => {
+            eles.push(new HElement(this.eles[i]));
+        })
+        return eles;
+    }
+    getAll(): HTMLElement[] {
+        return this.eles;
+    }
 }
 /**
  * 上下滚动效果封装（流）
@@ -448,109 +456,147 @@ export class VerticalRoll {
         }
     }
 }
+/**
+ * 可视范围区内滚动，小于最小单元格高度不处理
+ */
 export class VerticalVisualRangeRoll {
-    private readonly ele: HElement;
-    private readonly height: number;
-    private readonly length: number;
-    private marginTop: number;
+    private readonly elemen: HTMLElement;
+    private parent: HTMLElement;
+    private firste: HTMLElement;
+    private lastel: HTMLElement;
+    private top = 0;
 
-    private rollCeil = 0; // 允许混动范围
-    private rollFloor = 0; // 允许滚动范围
-    private serial = 0;// 当前序号
-
-    constructor(info: { ele: HElement, height: number, lenght: number }) {
-        this.ele = info.ele;
-        this.height = info.height;
-        this.marginTop = 0;
-        this.length = info.lenght;
-
-        this.rollCeil = 0;
-        this.rollFloor = Math.floor(this.height / this.length) - 1;
+    constructor(info: { ele: HElement }) {
+        this.elemen = info.ele.get(0);
     }
     toCeil() {
-        if (this.ele.get(0).scrollHeight > this.height) {
-
-            let full = -Math.round(this.ele.get(0).scrollHeight);
-            let difference = full + this.height;
-            // 不足一步不处理
-
-            // 是否已滚动到分界线（上）
-            if ((this.marginTop + this.length) <= 0) {
-                // 可视区域内滚动
-                if (this.serial > this.rollCeil) {
-                    // console.log("可视区域内滚动")
-                }
-                // 非可视区内滚动
-                else {
-                    // console.log("非可视区内滚动")
-                    this.marginTop += this.length;
-                    this.ele.style("margin-top", this.marginTop + 'px');
-
-                    this.rollCeil--;
-                    this.rollFloor--;
-                }
-            } else {
-                // 不允许滚动
-                // console.log("不允许滚动");
-            }
-            if ((this.serial - 1) >= this.rollCeil) {
-                this.serial--;
-            } else {
-                // console.log("序号到达顶部");
-            }
+        if (this.isCeil()) {
+            this.top += this.firste.clientHeight;
+            this.elemen.style.marginTop = this.top + "px";
         }
     }
     toFloor() {
-        if (this.ele.get(0).scrollHeight > this.height) {
-
-            let full = -Math.round(this.ele.get(0).scrollHeight);
-            let difference = full + this.height;
-            // 不足一步不处理
-
-            // 是否已滚动到分界线（下）
-            if ((this.marginTop - this.length) >= difference) {
-                // 允许滚动
-
-                // 可视区域内滚动
-                if (this.serial < this.rollFloor) {
-                    // console.log("可视区域内滚动")
-
-                }
-                // 非可视区内滚动
-                else {
-                    // console.log("非可视区内滚动");
-                    this.marginTop -= this.length;
-                    this.ele.style("margin-top", this.marginTop + 'px');
-
-                    this.rollCeil++;
-                    this.rollFloor++;
-                }
-
-            } else {
-                // 不允许滚动
-                // console.log("不允许滚动")
-            }
-            if ((this.serial + 1) <= this.rollFloor) {
-                this.serial++;
-            } else {
-                // console.log("序号到达底部");
-            }
+        if (this.isFoor()) {
+            this.top -= this.firste.clientHeight;
+            this.elemen.style.marginTop = this.top + "px";
         }
     }
     isRoll() {
-        return this.ele.get(0).scrollHeight > (this.height + this.length);
+
+        if (this.elemen) {
+            let ele = Position(this.elemen);
+            let box = Position(this.elemen.parentElement);
+
+            return (ele.bottom - ele.top) > (box.bottom - box.top);
+        }
+        return false;
+
+    }
+    isFoor() {
+
+        this.parent = this.elemen.parentElement;
+        this.firste = <HTMLElement>this.elemen.children.item(0);
+        this.lastel = <HTMLElement>this.elemen.children.item(this.elemen.children.length - 1);
+
+        if (this.lastel && this.parent && this.elemen) {
+            let last = Position(this.lastel);
+            let boxs = Position(this.parent);
+
+            return parseInt(<any>last.top) >= parseInt(<any>boxs.bottom);
+        }
+        return false;
+    }
+    isCeil() {
+
+        this.parent = this.elemen.parentElement;
+        this.firste = <HTMLElement>this.elemen.children.item(0);
+        this.lastel = <HTMLElement>this.elemen.children.item(this.elemen.children.length - 1);
+
+        if (this.firste && this.parent && this.elemen) {
+            let firs = Position(this.firste);
+            let boxs = Position(this.parent);
+
+            return parseInt(<any>firs.bottom) <= parseInt(<any>boxs.top);
+        }
+        return false;
     }
     toSerial(index: number) {
-        if (index > this.serial) {
-            let difference = (index - this.serial);
-            for (let i = 0; i < difference; i++) {
-                this.toFloor();
-            }
-        } else {
-            let difference = (index - this.serial);
-            for (let i = 0; i < difference; i++) {
-                this.toCeil();
-            }
+        if (this.isRoll()) {
+            this.top = -(this.firste.clientHeight * index);
+            this.elemen.style.marginTop = this.top + "px";
+        }
+    }
+}
+/**
+ * 可视范围区内滚动，小于最小单元格高度不处理
+ */
+export class HorizontalVisualRangeRoll {
+    private readonly elemen: HTMLElement;
+    private parent: HTMLElement;
+    private firste: HTMLElement;
+    private lastel: HTMLElement;
+    private left = 0;
+    private clientWidth: number;
+
+    constructor(info: { ele: IHElement, clientWidth?: number }) {
+        this.elemen = info.ele.get(0);
+        this.clientWidth = info.clientWidth;
+    }
+    toFront() {
+        if (this.isFront()) {
+            this.left += this.clientWidth || this.firste.clientWidth;
+            this.elemen.style.marginLeft = this.left + "px";
+        }
+    }
+    toBehind() {
+        if (this.isBehind()) {
+            this.left -= this.clientWidth || this.firste.clientWidth;
+            this.elemen.style.marginLeft = this.left + "px";
+        }
+    }
+    isRoll() {
+
+        this.parent = this.elemen.parentElement;
+        this.firste = <HTMLElement>this.elemen.children.item(0);
+        this.lastel = <HTMLElement>this.elemen.children.item(this.elemen.children.length - 1);
+
+        if (this.parent && this.firste && this.elemen) {
+            return (this.elemen.scrollWidth - (this.clientWidth || this.parent.clientWidth) - this.firste.scrollWidth) > 0;
+        }
+        return false;
+    }
+    isBehind() {
+
+        this.parent = this.elemen.parentElement;
+        this.firste = <HTMLElement>this.elemen.children.item(0);
+        this.lastel = <HTMLElement>this.elemen.children.item(this.elemen.children.length - 1);
+
+        if (this.lastel && this.parent && this.elemen) {
+            let last = Position(this.lastel);
+            let boxs = Position(this.parent);
+
+            return parseInt(<any>last.left) >= parseInt(<any>boxs.right);
+        }
+        return false;
+    }
+    isFront() {
+
+        this.parent = this.elemen.parentElement;
+        this.firste = <HTMLElement>this.elemen.children.item(0);
+        this.lastel = <HTMLElement>this.elemen.children.item(this.elemen.children.length - 1);
+
+        if (this.firste && this.parent && this.elemen) {
+            let firs = Position(this.firste);
+            let boxs = Position(this.parent);
+
+            return parseInt(<any>firs.right) <= parseInt(<any>boxs.left);
+        }
+        return false;
+    }
+    toSerial(index: number) {
+        if (this.isRoll()) {
+            this.left = -((this.clientWidth || this.firste.clientWidth) * index);
+            this.elemen.style.marginLeft = this.left + "px";
         }
     }
 }
@@ -558,17 +604,19 @@ export class VerticalVisualRangeRoll {
  * 左右滚动效果封装
  */
 export class HorizontalRoll {
-    private readonly box: HElement;
-    private readonly marquee: HElement;
+    private readonly box: HElement | IHElement;
+    private readonly marquee: HElement | IHElement;
     private innerHtml: string;
 
     private marginLeft = 0;
     private out = new SetTimeout(200);
     private timer = new SetInterval(30);
 
-    constructor(ele: HElement) {
+    constructor(ele: IHElement) {
         this.box = ele;
         this.marquee = new HElement(document.createElement('div'));
+        // 预先设置，保证宽度的取值效果
+        this.box.style("white-space", 'nowrap');
     }
     enable() {
         this.marginLeft = 0;
@@ -578,7 +626,6 @@ export class HorizontalRoll {
         let ele = this.box.get(0), scrollWidth = ele.scrollWidth, clientWidth = ele.clientWidth, isFirst = true;
         let marquee = <HTMLMarqueeElement>this.marquee.get(0);
         this.innerHtml = this.box.html();
-        this.box.style("white-space", 'nowrap');
 
         if (ele.scrollWidth > ele.clientWidth) {
 

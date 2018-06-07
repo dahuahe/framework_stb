@@ -1,8 +1,5 @@
 /**
- * 更新时间：2018年4月18日 10点48分
  * 模块分类：焦点管理
- * 模块说明：规范 Focus 最小原则 对于 width 1 height 1 元素尽可能不创建Focus 对象，因为基本无意义还多余资源与精力去管理
- * 代码版本：v2.0.2
  */
 import { Key, Extend, Guid, Json, SetTimeout } from './dataTool';
 import { HElement } from '../ui_tool/uiTool';
@@ -47,11 +44,11 @@ interface IFocusSetting {
      * Key.right(自动查找下一坐标，基于index属性) 
      * Key.dn(坐标缺失情况自动补位坐标，基于getSite('last')方法)
      */
-    autoFill?: [Key],
+    autoFill?: Key[],
     /**
      * autoTarget 优先级高于 autoFill 冲突事件会被覆盖
      */
-    autoTarget?: [{ keyCode: Key.Left | Key.Up | Key.Right | Key.Down | Key.Enter | Key.Backspace, target: string | number }],
+    autoTarget?: { keyCode: Key.Left | Key.Up | Key.Right | Key.Down | Key.Enter | Key.Backspace, target: string | number }[],
     className?: string,
     leaveClass?: string,
     /**
@@ -70,11 +67,11 @@ interface IFocusSetting {
     /**
      * 启用某单元格触发
      */
-    disableSite?: Function,
+    disableSite?: (info: ISite) => void,
     /**
      * 离开某单元格触发
      */
-    enableSite?: Function
+    enableSite?: (info: ISite) => void,
     /**
      * 横跨列纵跨行
      */
@@ -1184,7 +1181,7 @@ class Focus {
         for (var i = 0; i < map.length; i++) {
             let temp = '';
             for (let j = 0; j < map[i].length; j++) {
-                temp += map[i][j]['x'] + ':' + map[i][j]['y'] + ':' + map[i][j]['index'] + `(${map[i][j].guid.substr(0, 3)})|`;
+                temp += map[i][j]['x'] + ':' + map[i][j]['y'] + ':' + map[i][j]['index'] + ":" + map[i][j]['guid'].substr(0, 3) + `|`;
             }
             console.log(temp + '/n');
         }
@@ -1202,11 +1199,16 @@ class Focus {
         this.event.off(this.setting.identCode, PageType.Focus);
         this.event.off(this.setting.identCode, PageType.Keydown);
         // 按钮事件
-        this.event.off(this.setting.identCode, Key.Up);
-        this.event.off(this.setting.identCode, Key.Down);
-        this.event.off(this.setting.identCode, Key.Left);
-        this.event.off(this.setting.identCode, Key.Right);
         this.event.off(this.setting.identCode, Key.Backspace);
+        this.event.off(this.setting.identCode, Key.Enter);
+        this.event.off(this.setting.identCode, Key.Spacing);
+        this.event.off(this.setting.identCode, Key.PageUp);
+        this.event.off(this.setting.identCode, Key.PageDown);
+        this.event.off(this.setting.identCode, Key.Left);
+        this.event.off(this.setting.identCode, Key.Up);
+        this.event.off(this.setting.identCode, Key.Right);
+        this.event.off(this.setting.identCode, Key.Down);
+        this.event.off(this.setting.identCode, Key.Zero);
         this.event.off(this.setting.identCode, Key.One);
         this.event.off(this.setting.identCode, Key.Two);
         this.event.off(this.setting.identCode, Key.Three);
@@ -1219,6 +1221,12 @@ class Focus {
         this.event.off(this.setting.identCode, Key.VolumePlus);
         this.event.off(this.setting.identCode, Key.VolumeMinus);
         this.event.off(this.setting.identCode, Key.Mute);
+        this.event.off(this.setting.identCode, Key.Mute2);
+        this.event.off(this.setting.identCode, Key.Menu1);
+        this.event.off(this.setting.identCode, Key.Menu2);
+        this.event.off(this.setting.identCode, Key.Menu3);
+        this.event.off(this.setting.identCode, Key.Home);
+        this.event.off(this.setting.identCode, Key.Pause);
     }
     getSetting() {
         return this.setting;

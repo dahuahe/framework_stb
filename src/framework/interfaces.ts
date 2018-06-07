@@ -126,6 +126,8 @@ interface IHElement {
     children(keyword: string): IHElement;
     eq(index: number): IHElement;
     get(index: number): HTMLElement;
+    eqAll(): IHElement[];
+    getAll(): HTMLElement[];
 }
 // 焦点对象事件回掉参数类型
 interface ISite {

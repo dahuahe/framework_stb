@@ -2,32 +2,6 @@
  * 编辑作者：张诗涛
  * 创建时间：2017年11月15日15:02:32
  * 功能分类：数据分页缓存（本地/网络）模块
- * 更新日志（ManagementPageDB）：
- *          时间：2017年11月15日15:03:43
- *          内容：增加方法使用说明 setRequestPageCount 、setPageSize 、setDataSize
- *          内容：增加 complete 方法检测数据是否全部加载完毕，必须配置 setDataSize();
- * 更新日志（ManagementPageDB）：
- *          时间：2017年11月17日09:56:35
- *          内容：默认请求三页
- *          内容：完善预缓存逻辑
- *          内容：修复同时发送多个请求（缓存请求/网络请求），忽略后续请求。比如网络请求已发出本可以在缓存之后满足第二个网络请求转换为本地请求。因此需要避免请求的有效顺序
- * 更新日志（ManagementPageDB）：
- *          时间：2017年11月20日15:18:37
- *          内容：增加 cacheCount 方法检查已缓存数据量
- *          内容：取消 complete 方法。数据是可配置的包括（删除、修改、新增）。无法检测准确的缓存数据。
- *          内容：取消 setDataSize 方法。该方法无实际意义，可直接集合 Paging 对象来使用。
- *          内容：纠正 处理后的缓存数量小于页面大小时，不做处理（可能存在数据库还有数据，但缓存的本地页面缺失部分数据）。可调整 请求页数量 setRequestPageCount 来避免。当前默认请求 3 页，推荐请求页数不小于 3
- * 更新日志（ManagementPageDB）：
- *          内容：取消 setPageSize 方法。去掉不完善的动态页面大小接口
- * 更新日志（ManagementFlowDB）：
- *          内容：增加 ManagementFlowDB 类。作为手机端前后刷新数据缓存管理
- * 更新日志（MangementPageDB）
- *          时间：2017年11月27日11:11:07
- *          内容：清空缓存
- * 更新日志：ManagementFlowDB
- *          时间：2017年11月29日18:32:31
- *          内容：传递数据类型改为 node 级别
- *          内容：可根据前后关系获取数据
  */
 import { Dictionary, DoublyLinkedList, DoublyLinkedNode } from './collection';
 import { PagingHelper } from './paging';
@@ -55,19 +29,17 @@ export class ManagementPageDB<T>{
     private NativeDataSize: number;                     // 已缓存数据条数
     public OnBeforeSendRequest: (params: IPramsOne, callbackSuccess: (data: Array<T>) => void) => void;
     private PageSize: number;
-    // 请求队列
-    private func: FuncLock;
 
     constructor(pageSize?: number) {
         this.PageSize = pageSize;
         this.RequestPageCount = 3;     //默认请求 3 页
         this.NativeDataSize = 0;
         this.PanelDictionary = new Dictionary<Array<T>>();
-        this.func = new FuncLock();
     }
     // 根据页数
-    public getItem(pageIndex: number, callback?: (list: Array<T>) => void) {
-        this.func.enable(() => {
+    public getItem(pageIndex: number, callback?: (list: Array<T>) => void): Promise<Array<T>> {
+        return new Promise((resolve, reject) => {
+
             let dt: Array<any> = [];
 
             let pageList = this.PanelDictionary.get(`${pageIndex}`) || [];
@@ -75,25 +47,29 @@ export class ManagementPageDB<T>{
             if (pageList.length) {
                 // console.log('从缓存获取');
                 dt = pageList;
-                //根据页数获取
-                this.func.clear();
+
                 callback && callback(dt);
+
+                resolve(<any>dt);
             } else {
                 // console.log('从数据库获取');
-                // let pageSize = this.PageSize * this.RequestPageCount;
+                let pageSize = this.PageSize * this.RequestPageCount;
+                let nPageIndex = Math.ceil(pageIndex / this.RequestPageCount);
 
-                this.OnBeforeSendRequest({ pageIndex: pageIndex, pageSize: this.PageSize, pageCount: this.RequestPageCount }, (paddingList) => {
+                this.OnBeforeSendRequest({ pageIndex: nPageIndex, pageSize: pageSize, pageCount: this.RequestPageCount }, (paddingList) => {
                     //追加当前缓存
                     if (paddingList.length >= 1) {
 
+                        let addIndex = (nPageIndex - 1) * (this.RequestPageCount) + 1;
+
                         if (this.RequestPageCount === 1) {
                             //添加一页数据
-                            this.addItem(pageIndex, paddingList);
+                            this.addItem(addIndex, paddingList);
 
                         } else if (this.RequestPageCount > 1 || this.RequestPageCount === 0) {
                             //添加多页数据
                             let nowDt = [];
-                            let nowIndex = pageIndex;//页数下标标记开始为当前请求下标
+                            let nowIndex = addIndex;//页数下标标记开始为当前请求下标
                             for (let i = 0; i < paddingList.length; i++) {
 
                                 let item = paddingList[i];
@@ -102,6 +78,7 @@ export class ManagementPageDB<T>{
 
                                 //一页数据已满，或者已便利完所有数据
                                 if (nowDt.length >= this.PageSize || i + 1 === paddingList.length) {
+
                                     this.addItem(nowIndex, nowDt);
                                     //清空当前页，继续填充下一页
                                     nowDt = [];
@@ -130,11 +107,12 @@ export class ManagementPageDB<T>{
                         //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
                     }
                     //根据页数获取
-                    this.func.clear();
                     callback && callback(dt);
+
+                    resolve(<any>dt);
                 });
             }
-        })
+        });
     }
     public addItem(pageIndex: number | string, value: Array<T>) {
         if (!this.PanelDictionary.has(String(pageIndex))) {
@@ -178,7 +156,7 @@ interface IPramsFlow<T> {
  * 核心数据储存结构基于双向链表（DoublyLinkedList）
  * 兼容推荐接口数据与 callbackSuccess 回掉数据不一致
  */
-export class ManagementFlowDB<T>{
+export class ManagementBothwayDB<T>{
     private doublyLinked = new DoublyLinkedList<Array<T>>();          // 页面集合
     private node: DoublyLinkedNode<Array<T>>;
     private NativeDataSize = 0;                     // 已缓存数据条数
@@ -200,7 +178,6 @@ export class ManagementFlowDB<T>{
      */
     private getItem(fetch: 'after' | 'before', callback?: (list: T[]) => void) {
         this.func.enable(() => {
-            console.log('request')
             let marginList: T[] = [], way: any = 'first';
 
             if (!this.doublyLinked.isEmpty()) {
@@ -361,7 +338,7 @@ export class ManagementPageDBToNative<T>{
 
                 //一页数据已满，或者已便利完所有数据
                 if (nowDt.length >= this.PageSize || i + 1 === list.length) {
-                    this.addItem(nowIndex, nowDt);
+                    this.setItem(nowIndex, nowDt);
                     //清空当前页，继续填充下一页
                     nowDt = [];
                     ++nowIndex;
@@ -375,22 +352,27 @@ export class ManagementPageDBToNative<T>{
         }
     }
     // 根据页数
-    public getItem(pageIndex: number, callback?: (list: Array<T>) => void) {
-        this.func.enable(() => {
-            let dt: Array<any> = [];
+    public getItem(pageIndex: number, callback?: (list: Array<T>) => void): Promise<Array<T>> {
+        return new Promise((resolve, reject) => {
+            this.func.enable(() => {
+                let dt: Array<any> = [];
 
-            let pageList = this.PanelDictionary.get(`${pageIndex}`) || [];
+                let pageList = this.PanelDictionary.get(`${pageIndex}`) || [];
 
-            if (pageList.length) {
-                // console.log('从缓存获取');
-                dt = pageList;
-                //根据页数获取
-                this.func.clear();
-                callback && callback(dt);
-            }
-        })
+                if (pageList.length) {
+                    // console.log('从缓存获取');
+                    dt = pageList;
+                    //根据页数获取
+                    this.func.clear();
+                    callback && callback(dt);
+
+                    resolve(dt);
+                }
+            })
+        });
+
     }
-    public addItem(pageIndex: number | string, value: Array<T>) {
+    public setItem(pageIndex: number | string, value: Array<T>) {
         if (!this.PanelDictionary.has(String(pageIndex))) {
             this.PanelDictionary.set(String(pageIndex), value);
             this.NativeDataSize += value.length; // 累加已缓存数据量
@@ -408,5 +390,131 @@ export class ManagementPageDBToNative<T>{
     public clearCache() {
         this.PanelDictionary.clear();
         this.NativeDataSize = 0;
+    }
+}
+
+/**
+ * 未测试
+ * 编辑作者：张诗涛
+ * 创建时间：2018年5月31日 17点09分
+ * 功能分类：数据分页|数据缓存|动态页数
+ */
+export class ManagementDynamicDB<T>{
+    private dataList: Array<T> = [];        // 页面集合
+    private requestPageCount: number = 3;   // 每次请求页数
+    requestMethod: (params: { pageIndex: number; pageSize: number; }) => Promise<Array<T>>;
+    private pageSize: number;
+    private complete = false;
+
+    constructor(pageSize: number) {
+        this.pageSize = pageSize;
+    }
+    public getPage(pageIndex: number, pageSize: number = this.pageSize): Promise<Array<T>> {
+
+        console.log(pageIndex, pageSize)
+
+        return new Promise((resolve, reject) => {
+
+            let list = this.dataList;
+
+            let scope = PagingHelper.getScope({ pageIndex: pageIndex, pageSize: pageSize });
+
+            if (this.complete || (list.length && (scope.startAt + scope.maxItems) <= list.length)) {
+
+                console.log('从缓存获取');
+
+                let reLis: Array<T> = [], starAt = scope.startAt - 1;
+
+                reLis = this.getCacheRange(starAt, scope.maxItems);
+
+                resolve(reLis);
+            } else {
+                console.log('从数据库获取');
+
+                pageSize = this.pageSize * this.requestPageCount;
+
+                this.requestMethod({ pageIndex: pageIndex, pageSize: pageSize }).then((list) => {
+                    let reLis: Array<T> = [], starAt = scope.startAt - 1, star = starAt;
+
+                    if (list.length) {
+                        let len = list.length;
+
+                        for (let i = 0; i < pageSize; i++) {
+
+                            if (list[i]) {
+                                this.dataList[star] = list[i];
+                            } else {
+                                this.complete = true;
+                                console.log("缓存完毕")
+                                break;
+                            }
+
+                            star++;
+                        }
+                        reLis = this.getCacheRange(starAt, scope.maxItems);
+                    }
+                    resolve(reLis);
+                });
+            }
+        });
+    }
+    public getRange(startAt: number, maxItems: number = this.pageSize): Promise<Array<T>> {
+        return new Promise((resolve, reject) => {
+            let difference = (startAt + maxItems) - this.dataList.length;
+
+            if (0 < difference && !this.complete) {
+
+                // network
+                let stopPageIndex = Math.ceil(this.dataList.length / this.pageSize) || 1;
+
+                this.getPage(stopPageIndex).then((list) => {
+
+                    let reLis = this.getCacheRange(startAt, maxItems);
+
+                    resolve(reLis);
+                });
+
+            } else {
+                let reLis = this.getCacheRange(startAt, maxItems);
+                resolve(reLis);
+            }
+        });
+    }
+    public getPageStartAt(startAt: number, pageIndex: number, pageSize: number = this.pageSize): Promise<Array<T>> {
+        startAt = startAt * pageIndex;
+        let maxItems = pageSize;
+
+        return new Promise((resolve) => {
+            this.getRange(startAt, maxItems).then((list) => {
+                if (list.length > pageSize) {
+                    list.length = pageSize;
+                }
+                resolve(list);
+            })
+        });
+    }
+    private getCacheRange(starAt: number, maxItems: number): Array<T> {
+        starAt = starAt--;
+        let reLis: Array<T> = [], list = this.dataList, len = maxItems;
+
+        for (let i = 0; i < len; i++) {
+            if (list.length > starAt) {
+                reLis.push(list[starAt]);
+            } else {
+                break;
+            }
+            starAt++;
+        }
+
+        return reLis;
+    }
+    public setRequestPageCount(count: number) {
+        this.requestPageCount = count;
+    }
+    public cacheCount(): number {
+        return this.dataList.length;
+    }
+    public clearCache() {
+        this.dataList.length = 0;
     }
 }

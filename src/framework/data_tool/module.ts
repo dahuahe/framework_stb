@@ -1,9 +1,6 @@
 
 /**
- * 更新时间：2018年4月12日 15点33分
- * 模块分类：组建基类
- * 模块说明：以 Module 为基类定义 initialize 和 subscribeToEvents 方法为组件提供初始化和事件定义基本能力。
- *          基于 Module 类的再次继承 实现更为复杂且具通用性价值组件提供能力且保留用户自定义实现入口 initialize 和 subscribeToEvents 方法
+ * 模块分类：组件定义
  */
 import { PageEvent } from "./pageEvent";
 import { Paging, PagingHelper } from "./paging";
@@ -14,9 +11,6 @@ import { Key } from "./dataTool";
 import { ManagementPageDB, PageType, FocusType } from "../framework";
 import { Dictionary } from "./collection";
 
-/**
- * 组件基类
- */
 class Module {
     protected event: PageEvent;
     constructor(pageEvent: PageEvent) {
@@ -54,22 +48,21 @@ class Module {
         this.event.on(identCode, FocusType.Changed, callback);
     }
 }
-
-interface ISetting {
+interface ISetting<T> {
     foc: Focus;
-    boxs: IHElement[];
+    eles: IHElement;
     pg: Paging;
     db: ManagementPageDB<any> | ManagementPageDBToNative<any>;
     activeClass: string,
 
     showItemBox: (e: IHElement) => void;
     hideItemBox: (e: IHElement) => void;
-    onDBLoadList: (list: any[], s: ISetting) => void;
-    onDBLoadView?: (list: any[], s: ISetting) => void;
-    onDBLoadData: (v: any, i: number, e: IHElement, s: ISetting) => void;
+    onDBLoadList: (list: T[], s: ISetting<T>, callback: (list: any) => void) => void;
+    onDBLoadView?: (list: T[], s: ISetting<T>) => void;
+    onDBLoadData: (v: T, i: number, e: IHElement, s: ISetting<T>) => void;
     // private
     comfirmGlobalSerial?: number;    // 全局 序号 不会大于总数据长度且0开始
-    currentList?: any[],
+    currentList?: T[],
 }[];
 /**
  * 翻页组件
@@ -77,50 +70,64 @@ interface ISetting {
  */
 class ModulePage<T> extends Module {
 
-    private dic = new Dictionary<ISetting>();
+    private setting: ISetting<T> = <any>{};
 
     constructor(pageEvent: PageEvent, ) {
         super(pageEvent);
     }
-    initSetting(setting: ISetting[]) {
-        this.dic.clear();
-        setting.forEach((v, i) => {
-            this.dic.set(`${v.foc.getIdentCode()}`, v);
+    initSetting(setting: ISetting<T>) {
+        this.setting = setting;
+    }
+    toBehind(): Promise<Array<T>> {
+        return new Promise((resolve, reject) => {
+            let pg = this.setting.pg;
+
+            if (pg.isNextPage()) {
+                this.loadView(pg.toNextPage(), Key.Right).then(() => {
+                    resolve();
+                });
+            }
         });
     }
-    toBehind(key: number | string) {
-        let keyNms = `${key}`, pg = this.dic.get(keyNms).pg;
+    toFront(): Promise<Array<T>> {
+        return new Promise((resolve, reject) => {
+            let pg = this.setting.pg;
 
-        if (pg.isNextPage()) {
-            this.loadView(keyNms, pg.toNextPage(), Key.Right);
-        }
+            if (pg.isPreviousPage()) {
+                return this.loadView(pg.toPreviousPage(), Key.Left).then(() => {
+                    resolve();
+                });
+            }
+        });
     }
-    toFront(key: number | string) {
-        let keyNms = `${key}`, pg = this.dic.get(keyNms).pg;
+    toPrevious(): Promise<Array<T>> {
 
-        if (pg.isPreviousPage()) {
-            this.loadView(keyNms, pg.toPreviousPage(), Key.Left);
-        }
-    }
-    toPrevious(key: number | string) {
-        let keyNms = `${key}`, pg = this.dic.get(keyNms).pg;
+        return new Promise((resolve, reject) => {
+            let pg = this.setting.pg;
 
-        if (pg.isPreviousPage()) {
-            this.loadView(keyNms, pg.toPreviousPage(), Key.Up);
-        }
+            if (pg.isPreviousPage()) {
+                this.loadView(pg.toPreviousPage(), Key.Up).then(() => {
+                    resolve();
+                })
+            }
+        });
     }
-    toNext(key: number | string) {
-        let keyNms = `${key}`, pg = this.dic.get(keyNms).pg;
+    toNext(): Promise<Array<T>> {
+        return new Promise((resolve, reject) => {
+            let pg = this.setting.pg;
 
-        if (pg.isNextPage()) {
-            this.loadView(keyNms, pg.toNextPage(), Key.Down);
-        }
+            if (pg.isNextPage()) {
+                this.loadView(pg.toNextPage(), Key.Down).then(() => {
+                    resolve();
+                })
+            }
+        });
     }
-    setGlobalSerial(key: number | string, serial: number) {
-        let keyNms = `${key}`, set = this.dic.get(keyNms), size = set.pg.getPageSize(), index = set.pg.getPageIndex();
+    setGlobalSerial(serial: number) {
+        let set = this.setting, size = set.pg.getPageSize(), index = set.pg.getPageIndex();
         set.comfirmGlobalSerial = serial;
-
-        set.boxs.forEach((v, i) => {
+        let list = set.eles.eqAll();
+        list.forEach((v, i) => {
             let dy = PagingHelper.getSerial({ pageSize: size, pageIndex: index, index: i });
 
             if (dy === set.comfirmGlobalSerial) {
@@ -134,187 +141,199 @@ class ModulePage<T> extends Module {
             }
         })
     }
-    toPageSerial(key: string | number, pageIndex: number, siteSerial: number) {
-        let keyNms = `${key}`, set = this.dic.get(keyNms);
-        this.loadView(keyNms, pageIndex, siteSerial);
+    toPageSerial(pageIndex: number, siteSerial: number): Promise<Array<T>> {
+        let set = this.setting;
+        return this.loadView(pageIndex, siteSerial);
     }
-    toPage(key: string | number, pageIndex: number) {
-        let keyNms = `${key}`, set = this.dic.get(keyNms);
-        this.loadView(keyNms, pageIndex);
+    toPage(pageIndex: number): Promise<Array<T>> {
+        let set = this.setting;
+        return this.loadView(pageIndex);
     }
     /**
      * 
      * @param key 
      * @param pageIndex 序列号从 1 开始
      */
-    toSerial(key: string | number, serial: number) {
-        let keyNms = `${key}`, set = this.dic.get(keyNms), pg = set.pg, pageIndex = 0, siteIndex = 0;
+    toSerial(serial: number): Promise<Array<T>> {
+        let set = this.setting, pg = set.pg, pageIndex = 0, siteIndex = 0;
         let size = pg.getPageSize();
 
         pageIndex = Math.ceil(serial / size);
         siteIndex = serial - ((pageIndex - 1) * size) - 1;
 
-        this.loadView(keyNms, pageIndex, siteIndex);
+        return this.loadView(pageIndex, siteIndex);
     }
-    getData(key: string | number) {
-        let keyNms = `${key}`, set = this.dic.get(keyNms);
+    getData() {
+        let set = this.setting;
         return set.currentList[set.foc.getSite().index];
     }
-    getSetting(key: string | number) {
-        return this.dic.get(`${key}`);
+    getSetting() {
+        return this.setting;
     }
-    clearCache(key: string | number) {
-        let set = this.dic.get(`${key}`);
+    clearCache() {
+        let set = this.setting;
         set.pg.setDataSize(0);
         set.db.clearCache();
-        // set.boxs.forEach((v, i) => {
-        //     set.hideItemBox(v);
-        // });
     }
     /**
      * 根据模块标识加载渲染页面
      */
-    private loadView(key: string, pageIndex: number, siteIndex: number): void;
-    private loadView(key: string, pageIndex: number, direction?: Key.Left | Key.Right | Key.Up | Key.Down): void;
-    private loadView(key: string, pageIndex: number, direction?: any): void {
-
-        let set = this.dic.get(key);
+    private loadView(pageIndex: number, siteIndex: number): Promise<Array<T>>;
+    private loadView(pageIndex: number, direction?: Key.Left | Key.Right | Key.Up | Key.Down): Promise<Array<T>>;
+    private loadView(pageIndex: number, direction?: any): Promise<Array<T>> {
+        let set = this.setting;
         let pg = set.pg;
         let foc = set.foc;
-        let boxs = set.boxs;
+        let eles = set.eles;
         let focCls = set.foc.getSetting().className;
         let actCls = set.activeClass;
 
         // update setting
         pg.setPageIndex(pageIndex);
 
-        set.db.getItem(pageIndex, (data) => {
-            set.onDBLoadList && set.onDBLoadList(data, set);
+        return new Promise((resolve, reject) => {
+            set.db.getItem(pageIndex, (data) => {
 
-            let len = set.pg.getPageSize(), dif = len - data.length, globalIndex = -1, siteIndex = 0, curEles: HTMLElement[] = [], dynamicGlobalSerial = -1, size = set.pg.getPageSize(), preIndex = 0;
-            let pre = set.foc.getSite();
+                var exe = (data: any[]) => {
+                    let len = set.eles.length, dif = len - data.length, globalIndex = -1, siteIndex = 0, curEles: HTMLElement[] = [], dynamicGlobalSerial = -1, size = set.pg.getPageSize(), preIndex = 0;
+                    let pre = set.foc.getSite();
 
-            set.currentList = data;
+                    set.currentList = data;
 
-            // 没有数据
-            if (!data || !data.length) {
-                set.foc.initData(null);
-                set.boxs.forEach((v, i) => {
-                    set.hideItemBox(v);
-                });
-                return;
-            }
-
-            for (let i = 0; i < len; i++) {
-
-                let box = set.boxs[i];
-
-                if (i < (len - dif)) {
-
-                    dynamicGlobalSerial = PagingHelper.getSerial({ pageSize: size, pageIndex: pageIndex, index: i });
-
-                    // 当前页面数据遍历填充
-                    set.onDBLoadData(data[i], i, box, set);
-
-                    // 检测全局焦点
-                    if (globalIndex === -1 && undefined != set.comfirmGlobalSerial && dynamicGlobalSerial === set.comfirmGlobalSerial) {
-                        globalIndex = i;
+                    // 没有数据
+                    if (!data || !data.length) {
+                        set.foc.initData(null);
+                        let list = set.eles.eqAll();
+                        list.forEach((v, i) => {
+                            set.hideItemBox(v);
+                        });
+                        resolve();
+                        return;
                     }
 
-                    curEles.push(box.get(0));
-                    set.showItemBox(box);
+                    for (let i = 0; i < len; i++) {
+
+                        let box = set.eles.eq(i);
+
+                        if (i < (len - dif)) {
+
+                            dynamicGlobalSerial = PagingHelper.getSerial({ pageSize: size, pageIndex: pageIndex, index: i });
+
+                            // 当前页面数据遍历填充
+                            set.onDBLoadData(data[i], i, box, set);
+
+                            // 检测全局焦点
+                            if (globalIndex === -1 && undefined != set.comfirmGlobalSerial && dynamicGlobalSerial === set.comfirmGlobalSerial) {
+                                globalIndex = i;
+                            }
+
+                            curEles.push(box.get(0));
+                            set.showItemBox(box);
 
 
-                } else {
-                    set.hideItemBox(box);
-                }
-
-                // 重置激活样式
-                if (actCls && box.hasClass(actCls)) {
-                    box.removeClass(actCls);
-                }
-                // 重置焦点样式
-                if (box.hasClass(focCls)) {
-                    box.removeClass(focCls);
-                }
-            }
-
-            // init
-            foc.initData(new HElement(curEles));
-
-            pre = pre || foc.getSite();
-
-            // 设置焦点
-            // 指定翻页方向
-            if (undefined !== direction) {
-                if (Key.Left == direction) {
-                    let first = set.foc.getSite("first");
-                    let last = set.foc.getSite("last");
-
-                    // 多行
-                    if (first.x < last.x) {
-                        siteIndex = set.foc.getSite(pre.x, "last").index;
-                    }
-                    // 单行
-                    else {
-                        siteIndex = last.index;
-                    }
-
-                    foc.setSite(siteIndex);
-                }
-                else if (Key.Right == direction) {
-                    let first = set.foc.getSite("first");
-                    let last = set.foc.getSite("last");
-
-                    // 设置focus焦点
-                    // 多行
-                    if (first.x < last.x) {
-                        if (set.foc.getSite(pre.x, "first")) {
-                            siteIndex = set.foc.getSite(pre.x, "first").index;
                         } else {
-                            siteIndex = last.index;
+                            set.hideItemBox(box);
+                        }
+
+                        // 重置激活样式
+                        if (actCls && box.hasClass(actCls)) {
+                            box.removeClass(actCls);
+                        }
+                        // 重置焦点样式
+                        if (box.hasClass(focCls)) {
+                            box.removeClass(focCls);
                         }
                     }
-                    // 单行
-                    else {
-                        siteIndex = first.index;
-                    }
 
-                    foc.setSite(siteIndex);
-                }
-                else if (Key.Up == direction || Key.Down == direction) {
-                    if (pre) {
-                        pre.x = 0 == pre.x ? 1 : 0;
-                        if (!set.foc.getSite(pre.x, pre.y)) {
-                            pre = set.foc.getSite('last');
+                    // init
+                    foc.initData(new HElement(curEles));
+
+                    pre = pre || foc.getSite();
+
+                    // 设置焦点
+                    // 指定翻页方向
+                    if (undefined !== direction) {
+                        if (Key.Left == direction) {
+                            let first = set.foc.getSite("first");
+                            let last = set.foc.getSite("last");
+
+                            // 多行
+                            if (first.x < last.x) {
+                                siteIndex = set.foc.getSite(pre.x, "last").index;
+                            }
+                            // 单行
+                            else {
+                                siteIndex = last.index;
+                            }
+
+                            foc.setSite(siteIndex);
                         }
-                        foc.setSite(pre.x, pre.y);
+                        else if (Key.Right == direction) {
+                            let first = set.foc.getSite("first");
+                            let last = set.foc.getSite("last");
+
+                            // 设置focus焦点
+                            // 多行
+                            if (first.x < last.x) {
+                                if (set.foc.getSite(pre.x, "first")) {
+                                    siteIndex = set.foc.getSite(pre.x, "first").index;
+                                } else {
+                                    siteIndex = last.index;
+                                }
+                            }
+                            // 单行
+                            else {
+                                siteIndex = first.index;
+                            }
+
+                            foc.setSite(siteIndex);
+                        }
+                        else if (Key.Up == direction || Key.Down == direction) {
+                            if (pre) {
+                                pre.x = 0 == pre.x ? 1 : 0;
+                                if (!set.foc.getSite(pre.x, pre.y)) {
+                                    pre = set.foc.getSite('last');
+                                }
+                                foc.setSite(pre.x, pre.y);
+                            }
+                        }
                     }
-                }
-            }
-            // 指定页面焦点
-            if (undefined !== direction) {
-                if (Key.Left !== direction && Key.Up !== direction && Key.Right !== direction && Key.Down !== direction) {
+                    // 指定页面焦点
+                    if (undefined !== direction) {
+                        if (Key.Left !== direction && Key.Up !== direction && Key.Right !== direction && Key.Down !== direction) {
 
-                    if (foc.getSite(direction)) {
-                        foc.setSite(direction)
-                    } else {
-                        foc.getSite(0);
+                            if (foc.getSite(direction)) {
+                                foc.setSite(direction)
+                            } else {
+                                foc.getSite(0);
+                            }
+                        }
                     }
+
+                    // 设置全局焦点样式
+                    if (-1 !== globalIndex) {
+                        eles.eq(globalIndex).addClass(actCls);
+                    }
+
+                    // 非激活模块异常处理
+                    if (foc.getIdentCode() != this.event.getTargetIdentCode()) {
+                        foc.getSite().element.removeClass(focCls);
+                    }
+
+                    set.onDBLoadView && set.onDBLoadView(data, set);
+
+                    resolve();
                 }
-            }
 
-            // 设置全局焦点样式
-            if (-1 !== globalIndex) {
-                boxs[globalIndex].addClass(actCls);
-            }
-
-            // 非激活模块异常处理
-            if (foc.getIdentCode() != this.event.getTargetIdentCode()) {
-                foc.getSite().element.removeClass(focCls);
-            }
-
-            set.onDBLoadView && set.onDBLoadView(data, set);
+                if (set.onDBLoadList) {
+                    set.onDBLoadList(data, set, (list) => {
+                        exe(list);
+                    });
+                }
+                else {
+                    exe(data);
+                }
+            });
         });
     }
 }
