@@ -63,7 +63,7 @@ class CommonModule extends Module {
     protected subscribeToEvents() {
         this.onfocus(MType.Command, null);
 
-        this.onKeydown(MType.Command, (e) => {
+        this.onkeydown(MType.Command, (e) => {
             let keyCode = e.keyCode, list: ISite[] = [];
 
             if (Key.Left === keyCode) {

@@ -4,7 +4,25 @@
 - 作者联系方式：QQ 442331311
 - 面向机顶盒开发的框架库 相对完善的底层库封装(Json序列化、Guid、Random、KeyCode、funckLock、SetTimeout、SetInterval、Cookie、PageSource、FormatTime)常用业务模块(焦点、翻页、缓存、播放器、事件分发、自定义组建扩展) 并持续更新中...
 
-# 框架结构
+## 特性
+### 使用 Framework_stb 框架可以使项目支持加载海量NPM包(待实现...)
+### 支持 ES6/ES7标准代码，且可生成任意版本，使用async/await/promise能够有效避免回掉地狱
+### 组建重用，对基础javascript代码进行封装，实现组件重用和嵌套一切皆为组件化
+### 自动化命令，通过命令快速创建完整页面结构以及各类文件
+### 支持 Bootstb 界面框架快速搭建界面结构已各类组件
+### 配置完善的 snippet 代码片段(vs code)包括 html typescript less 语言的组件一键生成
+
+## 初始化项目
+### npm run start   // 开发流程
+### npm run minify  // 发布流程
+### npm run server  // 本地服务
+### npm run doc     // 框架文档
+    
+### gulp page --页面名称   // 创建页面
+### gulp model --文件名称   // 创建文件
+### gulp logic --文件名称   // 创建文件
+
+## 项目目录结构
 ├─dist                      // 输出目录
 │  ├─css
 │  ├─images
@@ -26,17 +44,13 @@
     │  └─index
     └─template              // 模板文件
 
+## 配置开发工具
+### 项目初始化后使用 Visual Studio Code 或其他习惯IDE打开项目根目录。
 
-# 自动流程
-    npm run start   // 开发流程
-    npm run minify  // 发布流程
-    npm run server  // 本地服务
-    npm run doc     // 框架文档
-    
-    gulp page --页面名称   // 创建页面
-    gulp model --文件名称   // 创建文件
-    gulp logic --文件名称   // 创建文件
-
+## 开发流程
+### 在 Visual Studio Code 或其他习惯IDE中编辑 src 目录下源码，然后在项目根目录运行 npm start 命令构建项目，然后再运行 npm server 命令启动静态资源服务自动弹出窗口预览
+### 项目研发中，html 视图构建首选方案为 bootstrap 布局;Less 编写 css 样式;TypeScript 进行业务逻辑处理
+#### Tips：编程思路核心突出体现强类型与模块化方案
 
 # 设计思路
     单一职责
@@ -276,6 +290,7 @@
 - 更新 ModulePage 模块 支持返回 Promise 实例
 - 更新 Module 模块 新增 RecoverStatus 方法，恢复组建状态
 - 更新 template.ts 定义 reutrn 请求参数作为返回来源页地址
+- 新增 自定义代码片段(Vs Code)
 
 # 应用项目
 - 安徽文艺（2017）

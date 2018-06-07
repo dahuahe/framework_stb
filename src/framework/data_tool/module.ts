@@ -37,9 +37,9 @@ class Module {
     protected onblur(identCode: any, callback: any) {
         this.event.on(identCode, PageType.Blur, callback);
     }
-    protected onKeydown(identCode: string | number, callback: (e: IKeydown) => void): void;
-    protected onKeydown(identCodes: string[] | number[], callback: (e: IKeydown) => void): void;
-    protected onKeydown(identCode: any, callback: any) {
+    protected onkeydown(identCode: string | number, callback: (e: IKeydown) => void): void;
+    protected onkeydown(identCodes: string[] | number[], callback: (e: IKeydown) => void): void;
+    protected onkeydown(identCode: any, callback: any) {
         this.event.on(identCode, PageType.Keydown, callback);
     }
     protected onchanged(identCode: string | number, callback: (e: IChanged) => void): void;

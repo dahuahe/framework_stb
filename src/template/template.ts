@@ -58,12 +58,6 @@ class NormalModule extends Module {
         this.foc.initData(this.eles);
     }
     protected subscribeToEvents() {
-        // this.onfocus(MType., (e) => {
-        // });
-        // this.onKeydown(MType., (e) => {
-        // });
-        // this.onchanged(MType., (e) => {
-        // });
     }
     loadData(ntt: any) {
         if (ntt) {
