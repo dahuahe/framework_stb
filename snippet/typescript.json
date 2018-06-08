@@ -47,7 +47,7 @@
 		"description": "列表组件"
 	},
 	"stb autotarget": {
-		"prefix": "sautotarget",
+		"prefix": "autotarget",
 		"body": [
 			",",
 			"autoTarget: [",
@@ -60,29 +60,29 @@
 		"description": "自动焦点配置"
 	},
 	"stb onfocus": {
-		"prefix": "sonfocus",
+		"prefix": "onfocus",
 		"body": [
 			"this.onfocus(MType.$1, (e) => {",
-			"});",
-			"$2"
+			"$2",
+			"});"
 		],
 		"description": "Log output to console"
 	},
 	"stb onkeydown": {
-		"prefix": "sonkeydown",
+		"prefix": "onkeydown",
 		"body": [
 			"this.onkeydown(MType.$1, (e) => {",
-			"});",
-			"$2"
+			"$2",
+			"});"
 		],
 		"description": "Log output to console"
 	},
 	"stb onchanged": {
-		"prefix": "sonchanged",
+		"prefix": "onchanged",
 		"body": [
 			"this.onchanged(MType.$1, (e) => {",
-			"});",
-			"$2"
+			"$2",
+			"});"
 		],
 		"description": "Log output to console"
 	}

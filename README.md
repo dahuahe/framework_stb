@@ -1,6 +1,6 @@
 # framework_stb
 - 版本号：v2.0.5
-- 最后编辑时间：2018年6月7日 11点23分
+- 最后编辑时间：2018年6月8日 13点58分
 - 作者联系方式：QQ 442331311
 - 面向机顶盒开发的框架库 相对完善的底层库封装(Json序列化、Guid、Random、KeyCode、funckLock、SetTimeout、SetInterval、Cookie、PageSource、FormatTime)常用业务模块(焦点、翻页、缓存、播放器、事件分发、自定义组建扩展) 并持续更新中...
 
@@ -132,19 +132,13 @@
 - line-height 居中文字盒子展示有差异,使用 padding + font-size 代替 line-height 高度
 
 # 需要改进的功能
-- 预定义代码段比如 if for
 - PageEvent 自定义模块 Focus 事件注册后提示注册的信息失效（偶发情况）
 - Focus 对象 autoFile autoTarget 属性兼容性，后者会影响前者状态（目前最好不要同时配置两个属性）
 - 将 HTMLElement 相关常用特效及其功能按照 Bootstrap 插件形势开发，且不依赖于Jquery
-- 更新 引入定制版 Bootstrap 包括基本通用样式 组件样式（导航、缩略图以及自定义缩略图样式、警告框、进度条（自己去实现，作为JS组建）、列表组（以及加徽章或者图标）、tabs（自己实现，作为js组件）、徽章
 - 执行性能检测
-- 更改 Focus 对象算法以 Dome 坐标为基础
-- 新增 positon 方法
+- 更改 Focus 对象算法以 Dome 坐标为基础（待定...）
 - model logic 生成时改变文件里面对象名称
-- 添加 Spacing 简码
 - 工厂模式创建形状
-- 添加 Set 数据结构
-- 提取业务逻辑到 Logic 层中，不扩展 Module 类的其余业务（单一职责）
 - ModulePage 分页左右无法缓存问题（偶发）
 - 提取 ModulePage 到独立文件进行管理，便于进行多个数据源缓存管理（考虑中）目前本就可以把它当作多个模块来实例化，而不是通过继承来处理。将此种方法和其他组建的应用示例写到 demo 里面，已备以后随时查看参考
 - 编写DB组件 ModulePage 以及其他特殊场景应用组件，说明其应用范围以及条件
@@ -173,6 +167,7 @@
 - DEMO 说明 ModulePage 获取当前焦点数据 getData()
 - 思考 Focus autoFile 失效，是否需要自动填充，如果不需要那么取消
 - PageEvent 转移焦点单独开提示调试模式
+- 重要功能模块独立为单独项目，使用安装的方式引用
 
 # 更新日志
 **2017年9月5日11:33:59**
@@ -291,6 +286,10 @@
 - 更新 Module 模块 新增 RecoverStatus 方法，恢复组建状态
 - 更新 template.ts 定义 reutrn 请求参数作为返回来源页地址
 - 新增 自定义代码片段(Vs Code)
+- 更新 HorizontalVisualRangeRoll VerticalFlowRoll 模块支持初始设置偏移以及改变时可自定义过渡效果
+- 更新 Player 订阅 onfocus 事件避免事件异常
+- 更新 package 文件夹引入 velocity.min 插件
+
 
 # 应用项目
 - 安徽文艺（2017）
@@ -300,3 +299,4 @@
 - 安徽送祝福（2018）
 - 内蒙天翼（2018.3）
 - 安徽聚合（2018.5）
+- 云南618（2018.6）

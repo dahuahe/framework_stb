@@ -4,8 +4,7 @@
     ],
     "exclude": [
         "./src/template/**/*",
-        "./src/package/**/*",
-        "./src/snippet/**/*"
+        "./src/package/**/*"
     ],
     "compilerOptions": {
         "outDir": "./dist/js",

@@ -71,13 +71,13 @@ class NormalModule extends Module {
 /**
  * 列表组建
  */
-class ListModule<T> extends ModulePage<T> {
+class ListModule extends ModulePage<any> {
     private foc: Focus;
 
     private readonly size = ;
 
     private pg = new Paging(this.size);
-    private db = new ManagementPageDB<T>(this.size);
+    private db = new ManagementPageDB<any>(this.size);
 
     private readonly eles = new HElement("");
     private readonly txtCur = new HElement("");
@@ -183,12 +183,6 @@ class ListModule<T> extends ModulePage<T> {
         });
     }
     protected subscribeToEvents() {
-        // this.onfocus(MType., (e) => {
-        // });
-        // this.onKeydown(MType., (e) => {
-        // });
-        // this.onchanged(MType., (e) => {
-        // });
     }
     loadData(ntt: any) {
         if (ntt) {
@@ -204,12 +198,11 @@ let request = <IRequest>new ParseUrl(window.location.search).getDecodeURICompone
 
 let source = new PageSource("default_source");
 let cokStatus = new Cookie('default_status');
-let cokVariable = new Cookie(Config.coknameVariable);
 
 let lgc = null;
 
 let modNor = new NormalModule(pageEvent);
-let modLis = new ListModule<any>(pageEvent);
+let modLis = new ListModule(pageEvent);
 
 let ntt: any = null;
 
