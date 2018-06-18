@@ -392,3 +392,29 @@ function hasDesignatedBox(stbType: string, stbName: string) {
         return false;
     }
 }
+// 安徽是否支持统一播放器
+function hasUnifyPlayer() {
+    return STBAppManager.isAppInstalled("com.anhui.tv");
+}
+// 安徽打开统一播放器
+/**
+ * 
+ * @param playUrl 播放地址
+ * @param type 0：点播、1直播，2回看
+ */
+function openUnifyPlayer(params: { playUrl: string, type: 0 | 1 | 2, title: string }) {
+
+    // document.getElementById("message").innerText = "{'intentType':0,'appName':'com.anhui.tv', 'className':'com.anhui.tv.activity.AnHuiPlayDemandActivity','extra':[{'Title':'" + params.title + "'},{'Type':'" + params.type + "'},{'Type2':'0'},{'PlayUrl':'" + params.playUrl + "'},{'License':'ahdx'},{'MenuType':'1'},{'IsUnivideo':'1'}]}";
+
+    // return;
+
+    // 支持统一播放器调用此播放器
+    // 海信盒子
+    if (hasDesignatedBox(STBType, 'HX')) {
+        STBAppManager.startAppByIntent("{'intentType':0,'appName':'com.anhui.tv', 'className':'com.anhui.tv.activity.AnHuiPlayDemandActivity','extra':[{'Title':'" + params.title + "'},{'Type':'" + params.type + "'},{'PlayUrl':'" + params.playUrl + "'},{'License':'ahdx'},{'MenuType':'1'},{'IsUnivideo':'1'}]}");
+    }
+    // 其他盒子
+    else {
+        STBAppManager.startAppByIntent("{'intentType':0,'appName':'com.anhui.tv', 'className':'com.anhui.tv.activity.AnHuiPlayDemandActivity','extra':[{'name':'Title', 'value':'" + params.title + "'},{'name':'Type', 'value':'" + params.type + "'},{'name':'PlayUrl', 'value':'" + params.playUrl + "'},{'name':'License', 'value':'ahdx'},{'name':'MenuType', 'value':'1'},{'name':'IsUnivideo', 'value':'1'}]}");
+    }
+}
